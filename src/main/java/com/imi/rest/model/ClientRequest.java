@@ -1,6 +1,6 @@
 package com.imi.rest.model;
 
-public class Client {
+public class ClientRequest {
 	
 	private Customer client;
 
