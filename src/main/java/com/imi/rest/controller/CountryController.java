@@ -6,7 +6,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.imi.rest.db.model.Countries;
 import com.imi.rest.model.CountryResponse;
 import com.imi.rest.model.GenericResponse;
 import com.imi.rest.model.Meta;
