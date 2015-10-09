@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.imi.rest.util.ImiUtil;
+import com.imi.rest.util.ImiJsonUtil;
 
 @RestController
 public class CheckBalanceController {
@@ -15,7 +15,7 @@ public class CheckBalanceController {
 	@RequestMapping(value="/check/balance", method=RequestMethod.GET)
 	public String getAccountBalance(@RequestHeader("provider") String providerId ) throws JsonProcessingException{
 		
-		return ImiUtil.getJSONString("accountBalance", "value");
+		return ImiJsonUtil.getJSONString("accountBalance", "value");
 		
 	}
 	

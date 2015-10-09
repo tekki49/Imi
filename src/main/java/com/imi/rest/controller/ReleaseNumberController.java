@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.imi.rest.util.ImiUtil;
+import com.imi.rest.util.ImiJsonUtil;
 
 @RestController
 public class ReleaseNumberController {
@@ -15,9 +15,8 @@ public class ReleaseNumberController {
 	
 	@RequestMapping(value="/release/{number}", method=RequestMethod.DELETE)
 	public String releaseNumber(@PathVariable("number") String number, @RequestHeader("provider") String provideId ) throws JsonProcessingException{
-		
-		
-		return ImiUtil.getJSONString(number, "released");	
+
+		return ImiJsonUtil.getJSONString(number, "released");	
 	}
 	
 }
