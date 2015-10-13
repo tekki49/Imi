@@ -13,9 +13,11 @@ import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.springframework.stereotype.Service;
 
+import com.imi.rest.constants.ProviderConstants;
 import com.imi.rest.constants.ServiceConstants;
 import com.imi.rest.constants.UrlConstants;
 import com.imi.rest.model.NumberResponse;
+import com.imi.rest.util.BasicAuthUtil;
 
 @Service
 public class PhoneSearchService {
@@ -45,7 +47,7 @@ public class PhoneSearchService {
 				.replace("{services}", serviceTypeEnum.toString())
 				.replace("{pattern}", pattern);
 		System.out.println(plivioPhoneSearchUrl);
-		String authHash = getBasicAuthHash("PLIVIO");
+		String authHash = BasicAuthUtil.getBasicAuthHash(ProviderConstants.PLIVIO);
 		defaultSearchHandler(plivioPhoneSearchUrl, authHash);
 
 	}
@@ -63,7 +65,7 @@ public class PhoneSearchService {
 				.replace("{services}", servicesString)
 				.replace("{pattern}", pattern);
 		System.out.println(twilioPhoneSearchUrl);
-		String authHash = getBasicAuthHash("TWILIO");
+		String authHash = BasicAuthUtil.getBasicAuthHash(ProviderConstants.TWILIO);
 		defaultSearchHandler(twilioPhoneSearchUrl, authHash);
 
 	}
@@ -93,21 +95,7 @@ public class PhoneSearchService {
 		return client.execute(get, handler);
 	}
 
-	private String getBasicAuthHash(String provider) {
-		String authId = null;
-		String authToken = null;
-		if (provider.equals("PLIVIO")) {
-			authId = "MANMMWNGMWMZNKNDIWOD";
-			authToken = "YmM4MWU3MTQxZTk1OTZkMGM2ZmIxYWM1YTBmNWY0";
-		}
-		if (provider.equals("TWILIO")) {
-			authId = "AC606f86ee4172ff7773d4162e7b62496c";
-			authToken = "9e2928235fceefb8c92c39a4ceabc0b8";
-		}
-		String unhashedString = authId + ":" + authToken;
-		byte[] authBytes = unhashedString.getBytes(StandardCharsets.UTF_8);
-		return DatatypeConverter.printBase64Binary(authBytes);
-	}
+	
 
 	private String generateTwilioCapabilities(ServiceConstants serviceTypeEnum) {
 		String servicesString = null;
