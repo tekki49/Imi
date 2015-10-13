@@ -21,9 +21,10 @@ public class NumberSearchController {
 	@Autowired
 	PhoneSearchService phoneSearchService;
 
-	@RequestMapping(value = "/PhoneNumber/{countryIsoCode}/{numberType}/{serviceType}/{pattern}", method = RequestMethod.GET)
+	@RequestMapping(value = "/PhoneNumber/{countryIsoCode}/{providerId}/{numberType}/{serviceType}/{pattern}", method = RequestMethod.GET)
 	public GenericResponse numberSearchResponse(
 			@PathVariable("countryIsoCode") String countryIsoCode,
+			@PathVariable("providerId") String providerId,
 			@PathVariable("numberType") String numberType,
 			@PathVariable("serviceType") String serviceType,
 			@PathVariable("pattern") String pattern) {
@@ -33,7 +34,7 @@ public class NumberSearchController {
 		ServiceConstants serviceTypeEnum = ServiceConstants
 				.evaluate(serviceType);
 		try {
-			phoneSearchService.searchPhoneNumbers(serviceTypeEnum,
+			phoneSearchService.searchPhoneNumbers(serviceTypeEnum,providerId,
 					countryIsoCode, numberType, pattern);
 		} catch (IOException e) {
 			e.printStackTrace();

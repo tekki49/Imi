@@ -21,11 +21,13 @@ import com.imi.rest.model.NumberResponse;
 public class PhoneSearchService {
 
 	public List<NumberResponse> searchPhoneNumbers(
-			ServiceConstants serviceTypeEnum, String countryIsoCode,
-			String numberType, String pattern) throws ClientProtocolException,
-			IOException {
+			ServiceConstants serviceTypeEnum, String providerId,
+			String countryIsoCode, String numberType, String pattern)
+			throws ClientProtocolException, IOException {
 		List<NumberResponse> phoneSearchResult = null;
 		plivioPhoneSearch(serviceTypeEnum, countryIsoCode, numberType, pattern,
+				phoneSearchResult);
+		twilioPhoneSearch(serviceTypeEnum, countryIsoCode, numberType, pattern,
 				phoneSearchResult);
 		return phoneSearchResult;
 	}
@@ -48,6 +50,40 @@ public class PhoneSearchService {
 
 	}
 
+	private void twilioPhoneSearch(ServiceConstants serviceTypeEnum,
+			String countryIsoCode, String numberType, String pattern,
+			List<NumberResponse> phoneSearchResult)
+			throws ClientProtocolException, IOException {
+		String twilioPhoneSearchUrl = UrlConstants.TWILIO_PHONE_SEARCH_URL;
+		System.out.println(twilioPhoneSearchUrl);
+		System.out.println(serviceTypeEnum);
+		String servicesString = generateTwilioCapabilities(serviceTypeEnum);
+		twilioPhoneSearchUrl = twilioPhoneSearchUrl
+				.replace("{country_iso}", countryIsoCode)
+				.replace("{services}", servicesString)
+				.replace("{pattern}", pattern);
+		System.out.println(twilioPhoneSearchUrl);
+		String authHash = getBasicAuthHash("TWILIO");
+		defaultSearchHandler(twilioPhoneSearchUrl, authHash);
+
+	}
+//	private void nexmoPhoneSearch(ServiceConstants serviceTypeEnum,
+//			String countryIsoCode, String numberType, String pattern,
+//			List<NumberResponse> phoneSearchResult)
+//			throws ClientProtocolException, IOException {
+//		String nexmoPhoneSearchUrl = UrlConstants.PLIVIO_PHONE_SEARCH_URL;
+//		System.out.println(plivioPhoneSearchUrl);
+//		System.out.println(serviceTypeEnum);
+//		plivioPhoneSearchUrl = plivioPhoneSearchUrl
+//				.replace("{country_iso}", countryIsoCode)
+//				.replace("{type}", numberType)
+//				.replace("{services}", serviceTypeEnum.toString())
+//				.replace("{pattern}", pattern);
+//		System.out.println(plivioPhoneSearchUrl);
+//		String authHash = getBasicAuthHash("PLIVIO");
+//		defaultSearchHandler(plivioPhoneSearchUrl, authHash);
+//
+//	}
 	private String defaultSearchHandler(String url, String authHash)
 			throws ClientProtocolException, IOException {
 		DefaultHttpClient client = new DefaultHttpClient();
@@ -64,9 +100,31 @@ public class PhoneSearchService {
 			authId = "MANMMWNGMWMZNKNDIWOD";
 			authToken = "YmM4MWU3MTQxZTk1OTZkMGM2ZmIxYWM1YTBmNWY0";
 		}
-
+		if (provider.equals("TWILIO")) {
+			authId = "AC606f86ee4172ff7773d4162e7b62496c";
+			authToken = "9e2928235fceefb8c92c39a4ceabc0b8";
+		}
 		String unhashedString = authId + ":" + authToken;
 		byte[] authBytes = unhashedString.getBytes(StandardCharsets.UTF_8);
 		return DatatypeConverter.printBase64Binary(authBytes);
+	}
+
+	private String generateTwilioCapabilities(ServiceConstants serviceTypeEnum) {
+		String servicesString = null;
+		switch (serviceTypeEnum) {
+		case SMS:
+			servicesString = "SmsEnabled=true&VoiceEnabled=false";
+			break;
+		case VOICE:
+			servicesString = "SmsEnabled=false&VoiceEnabled=true";
+			break;
+		case VOICE_SMS:
+			servicesString = "SmsEnabled=true&VoiceEnabled=true";
+			break;
+		default:
+			break;
+		}
+
+		return servicesString;
 	}
 }
