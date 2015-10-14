@@ -16,7 +16,6 @@ public class PurchaseController {
 	
 	@RequestMapping(value="/purchase/{number}", method=RequestMethod.POST, consumes=MediaType.APPLICATION_JSON_VALUE)
 	public PurchaseDetails purchaseNumber(@PathVariable("number") String number, @RequestHeader("provider") String providerId, @RequestBody PurchaseDetails purchaseDetails ){
-		
 		PurchaseDetails purchaseDetails2 = new PurchaseDetails();
 		return purchaseDetails2;
 	}

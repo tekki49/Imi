@@ -1,11 +1,16 @@
 package com.imi.rest.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class Meta {
 	private String limit;
 	private String offset;
 	private String previous;
 	private String next;
-	private String total;
+	private int total;
 
 	public String getLimit() {
 		return limit;
@@ -39,12 +44,20 @@ public class Meta {
 		this.next = next;
 	}
 
-	public String getTotal() {
+	@JsonIgnore
+	public int getTotal() {
 		return total;
 	}
 
-	public void setTotal(String total) {
+	@JsonProperty("total")
+	public void setTotal(int total) {
 		this.total = total;
 	}
+	
+	@JsonProperty("total_count")
+	public void set_total_count(int total) {
+		this.total = total;
+	}
+	
 
 }

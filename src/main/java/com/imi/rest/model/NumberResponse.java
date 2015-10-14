@@ -1,96 +1,38 @@
 package com.imi.rest.model;
 
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class NumberResponse {
 
-	private String number;
-	private String numberType;
-	private String serviceType;
-	private String country;
-	private String monthlyRentalRate;
-	private String setUpRate;
-	private String smsRate;
-	private String voiceRate;
-	private String provider;
-	private String restriction;
+	private String api_id;
+	private Meta meta;
+	private List<Number> objects;
 
-	public String getNumber() {
-		return number;
+	public String getApi_id() {
+		return api_id;
 	}
 
-	public void setNumber(String number) {
-		this.number = number;
+	public void setApi_id(String api_id) {
+		this.api_id = api_id;
 	}
 
-	public String getNumberType() {
-		return numberType;
+	public Meta getMeta() {
+		return meta;
 	}
 
-	public void setNumberType(String numberType) {
-		this.numberType = numberType;
+	public void setMeta(Meta meta) {
+		this.meta = meta;
 	}
 
-	public String getServiceType() {
-		return serviceType;
+	public List<Number> getObjects() {
+		return objects;
 	}
 
-	public void setServiceType(String serviceType) {
-		this.serviceType = serviceType;
-	}
-
-	public String getCountry() {
-		return country;
-	}
-
-	public void setCountry(String country) {
-		this.country = country;
-	}
-
-	public String getMonthlyRentalRate() {
-		return monthlyRentalRate;
-	}
-
-	public void setMonthlyRentalRate(String monthlyRentalRate) {
-		this.monthlyRentalRate = monthlyRentalRate;
-	}
-
-	public String getSetUpRate() {
-		return setUpRate;
-	}
-
-	public void setSetUpRate(String setUpRate) {
-		this.setUpRate = setUpRate;
-	}
-
-	public String getSmsRate() {
-		return smsRate;
-	}
-
-	public void setSmsRate(String smsRate) {
-		this.smsRate = smsRate;
-	}
-
-	public String getVoiceRate() {
-		return voiceRate;
-	}
-
-	public void setVoiceRate(String voiceRate) {
-		this.voiceRate = voiceRate;
-	}
-
-	public String getProvider() {
-		return provider;
-	}
-
-	public void setProvider(String provider) {
-		this.provider = provider;
-	}
-
-	public String getRestriction() {
-		return restriction;
-	}
-
-	public void setRestriction(String restriction) {
-		this.restriction = restriction;
+	public void setObjects(List<Number> objects) {
+		this.objects = objects;
 	}
 
 }

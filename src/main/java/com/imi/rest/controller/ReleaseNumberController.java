@@ -15,7 +15,6 @@ public class ReleaseNumberController {
 	
 	@RequestMapping(value="/release/{number}", method=RequestMethod.DELETE)
 	public String releaseNumber(@PathVariable("number") String number, @RequestHeader("provider") String provideId ) throws JsonProcessingException{
-
 		return ImiJsonUtil.getJSONString(number, "released");	
 	}
 	
