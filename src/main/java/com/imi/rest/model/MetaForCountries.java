@@ -33,7 +33,7 @@ public class MetaForCountries {
 	public void setUrl(String url) {
 		this.url = url;
 	}
-	public String getNext_page_url() {
+	public String getNextPageUrl() {
 		return next_page_url;
 	}
 	public void setNext_page_url(String next_page_url) {

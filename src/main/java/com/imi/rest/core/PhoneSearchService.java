@@ -46,7 +46,6 @@ public class PhoneSearchService {
 				.replace("{type}", numberType)
 				.replace("{services}", serviceTypeEnum.toString())
 				.replace("{pattern}", pattern);
-		System.out.println(plivioPhoneSearchUrl);
 		String authHash = BasicAuthUtil.getBasicAuthHash(ProviderConstants.PLIVIO);
 		defaultSearchHandler(plivioPhoneSearchUrl, authHash);
 
@@ -57,14 +56,11 @@ public class PhoneSearchService {
 			List<NumberResponse> phoneSearchResult)
 			throws ClientProtocolException, IOException {
 		String twilioPhoneSearchUrl = UrlConstants.TWILIO_PHONE_SEARCH_URL;
-		System.out.println(twilioPhoneSearchUrl);
-		System.out.println(serviceTypeEnum);
 		String servicesString = generateTwilioCapabilities(serviceTypeEnum);
 		twilioPhoneSearchUrl = twilioPhoneSearchUrl
 				.replace("{country_iso}", countryIsoCode)
 				.replace("{services}", servicesString)
 				.replace("{pattern}", pattern);
-		System.out.println(twilioPhoneSearchUrl);
 		String authHash = BasicAuthUtil.getBasicAuthHash(ProviderConstants.TWILIO);
 		defaultSearchHandler(twilioPhoneSearchUrl, authHash);
 

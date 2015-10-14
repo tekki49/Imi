@@ -30,7 +30,6 @@ public class NumberSearchController {
 			@PathVariable("pattern") String pattern) {
 		GenericResponse genResponse = new GenericResponse();
 		String url = null;
-		System.out.println(serviceType);
 		ServiceConstants serviceTypeEnum = ServiceConstants
 				.evaluate(serviceType);
 		try {
