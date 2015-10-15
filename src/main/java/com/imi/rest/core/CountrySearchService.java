@@ -1,6 +1,15 @@
 package com.imi.rest.core;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -13,12 +22,13 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.imi.rest.constants.ProviderConstants;
 import com.imi.rest.constants.UrlConstants;
+import com.imi.rest.model.Country;
 import com.imi.rest.model.CountryResponse;
 import com.imi.rest.util.BasicAuthUtil;
 
 @Service
 public class CountrySearchService {
-
+	String PLIVIO_CSV_FILE_PATH = "/home/hemanth/Desktop/PLIVIO_COUNTRIES_WITH_ISO.csv";
 	public CountryResponse getCountryListWithISO() throws JsonParseException, JsonMappingException, IOException{
 		CountryResponse countryResponse = twilioCountrySearch();
 		return countryResponse;
@@ -34,14 +44,45 @@ public class CountrySearchService {
 	    String responseBody = entity.getBody();
 	    ObjectMapper objMapper = new ObjectMapper();
 	    CountryResponse countryResponse  = objMapper.readValue(responseBody, CountryResponse.class);
-	    if ( countryResponse != null && countryResponse.getMeta().getNextPageUrl() != null ){
+	    while (countryResponse!=null && countryResponse.getMeta().getNextPageUrl() != null ) {
 	    	String nextPageUrl = countryResponse.getMeta().getNextPageUrl();
-	    	HttpEntity<String> entity2 = new HttpEntity<String>("parameters", headers);
-	    	entity2 = restTemplate.exchange(nextPageUrl, HttpMethod.GET, entity, String.class);
-		    String responseBody2 = entity2.getBody();
-		    CountryResponse countryResponse2  = objMapper.readValue(responseBody2, CountryResponse.class);
+	    	HttpEntity<String> nextEntity = new HttpEntity<String>("parameters", headers);
+	    	nextEntity = restTemplate.exchange(nextPageUrl, HttpMethod.GET, nextEntity, String.class);
+		    String NextResponseBody = nextEntity.getBody();
+		    CountryResponse countryResponse2  = objMapper.readValue(NextResponseBody, CountryResponse.class);
 		    countryResponse.addCountries(countryResponse2.getCountries());
-	    }
+		}
+	    Set<Country>  plivioCountriesSet =  importPlivioCountriesFromCSV();
+	    countryResponse.addCountries(plivioCountriesSet);
 		return countryResponse;
+	}
+	public Set<Country> importPlivioCountriesFromCSV() throws FileNotFoundException{
+		Set<Country> countriesSet = new HashSet<Country>();
+		String line = "";
+		String splitBy = ",";
+		BufferedReader reader = null;
+		try {
+			FileReader fileReader = new FileReader(PLIVIO_CSV_FILE_PATH);
+			reader = new BufferedReader(fileReader);
+			while ( (line=reader.readLine()) != null) {
+				Country country = new Country();
+				country.setCountry(line.split(splitBy)[0]);
+				country.setIso_country(line.split(splitBy)[1]);
+				countriesSet.add(country);
+		}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e){
+			e.printStackTrace();
+		}finally{
+			if( reader != null){
+				try {
+					reader.close();
+				} catch (IOException e2) {
+					e2.printStackTrace();
+				}
+			}
+		}
+		return countriesSet;
 	}
 }
