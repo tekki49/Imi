@@ -85,23 +85,21 @@ public class NumberSearchService {
 		phoneSearchResult.addAll(numberResponse.getObjects());
 	}
 
-	// private void nexmoPhoneSearch(ServiceConstants serviceTypeEnum,
-	// String countryIsoCode, String numberType, String pattern,
-	// List<NumberResponse> phoneSearchResult)
-	// throws ClientProtocolException, IOException {
-	// String nexmoPhoneSearchUrl = UrlConstants.PLIVIO_PHONE_SEARCH_URL;
-	// System.out.println(plivioPhoneSearchUrl);
-	// System.out.println(serviceTypeEnum);
-	// plivioPhoneSearchUrl = plivioPhoneSearchUrl
-	// .replace("{country_iso}", countryIsoCode)
-	// .replace("{type}", numberType)
-	// .replace("{services}", serviceTypeEnum.toString())
-	// .replace("{pattern}", pattern);
-	// System.out.println(plivioPhoneSearchUrl);
-	// String authHash = getBasicAuthHash("PLIVIO");
-	// defaultSearchHandler(plivioPhoneSearchUrl, authHash);
-	//
-	// }
+	 private void nexmoPhoneSearch(ServiceConstants serviceTypeEnum,
+	 String countryIsoCode, String numberType, String pattern,
+	 List<NumberResponse> phoneSearchResult)
+	 throws ClientProtocolException, IOException {
+	 String nexmoPhoneSearchUrl = UrlConstants.NEXMO_PHONE_SEARCH_URL;
+	 System.out.println(nexmoPhoneSearchUrl);
+	 System.out.println(serviceTypeEnum);
+	 nexmoPhoneSearchUrl = nexmoPhoneSearchUrl
+	 .replace("{country_iso}", countryIsoCode)
+	 .replace("{api_key}", "a5eb8aa1")
+	 .replace("{api_secret}", "b457a519");
+	 System.out.println(nexmoPhoneSearchUrl);
+//	 String response = HttpUtil.defaultHttpGetHandler(url, authHash);
+	
+	 }
 
 	private String generateTwilioCapabilities(ServiceConstants serviceTypeEnum) {
 		String servicesString = null;
