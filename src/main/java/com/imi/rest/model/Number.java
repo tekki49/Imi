@@ -28,7 +28,7 @@ public class Number {
 	private String restriction_text;
 	private boolean smsEnabled;
 	private boolean voiceEnabled;
-	private Map<String, String> capabilities;
+	private Map<String, Boolean> capabilities;
 
 	public String getNumber() {
 		return number;
@@ -131,7 +131,6 @@ public class Number {
 		this.voiceRate = voiceRate;
 	}
 
-	@JsonIgnore
 	public String getProvider() {
 		return provider;
 	}
@@ -230,12 +229,12 @@ public class Number {
 		this.voiceEnabled = voiceEnabled;
 	}
 	@JsonIgnore
-	public Map<String, String>  getCapabilities() {
+	public Map<String, Boolean>  getCapabilities() {
 		return capabilities;
 	}
 	@JsonProperty("capabilities")
 	public void setCapabilities(
-			Map<String, String> capabilities) {
+			Map<String, Boolean> capabilities) {
 		this.capabilities = capabilities;
 	}
 
