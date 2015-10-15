@@ -3,6 +3,7 @@ package com.imi.rest.model;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class NumberResponse {
@@ -34,5 +35,8 @@ public class NumberResponse {
 	public void setObjects(List<Number> objects) {
 		this.objects = objects;
 	}
-
+	@JsonProperty("available_phone_numbers")
+	public void setAvailablePhoneNumbers(List<Number> objects) {
+		this.objects = objects;
+	}
 }

@@ -53,13 +53,12 @@ public class NumberSearchService {
 			List<Number> phoneSearchResult)
 			throws ClientProtocolException, IOException {
 		String plivioPhoneSearchUrl = UrlConstants.PLIVIO_PHONE_SEARCH_URL;
-		System.out.println(plivioPhoneSearchUrl);
-		System.out.println(serviceTypeEnum);
 		plivioPhoneSearchUrl = plivioPhoneSearchUrl
 				.replace("{country_iso}", countryIsoCode)
 				.replace("{type}", numberType.toLowerCase())
 				.replace("{services}", serviceTypeEnum.toString())
 				.replace("{pattern}", pattern);
+		System.out.println(plivioPhoneSearchUrl);
 		ObjectMapper mapper = new ObjectMapper();
 		String response=HttpUtil.defaultHttpGetHandler(plivioPhoneSearchUrl,
 				BasicAuthUtil.getBasicAuthHash(ProviderConstants.PLIVIO));
@@ -77,8 +76,13 @@ public class NumberSearchService {
 				.replace("{country_iso}", countryIsoCode)
 				.replace("{services}", servicesString)
 				.replace("{pattern}", pattern);
-		HttpUtil.defaultHttpGetHandler(twilioPhoneSearchUrl,
+		System.out.println("123");
+		System.out.println(twilioPhoneSearchUrl);
+		String response = HttpUtil.defaultHttpGetHandler(twilioPhoneSearchUrl,
 				BasicAuthUtil.getBasicAuthHash(ProviderConstants.TWILIO));
+		ObjectMapper mapper = new ObjectMapper();
+		NumberResponse numberResponse=mapper.readValue(response, NumberResponse.class);
+		phoneSearchResult.addAll(numberResponse.getObjects());
 	}
 
 	// private void nexmoPhoneSearch(ServiceConstants serviceTypeEnum,
@@ -103,10 +107,10 @@ public class NumberSearchService {
 		String servicesString = null;
 		switch (serviceTypeEnum) {
 		case SMS:
-			servicesString = "SmsEnabled=true&VoiceEnabled=false";
+			servicesString = "SmsEnabled=true";
 			break;
 		case VOICE:
-			servicesString = "SmsEnabled=false&VoiceEnabled=true";
+			servicesString = "VoiceEnabled=true";
 			break;
 		case BOTH:
 			servicesString = "SmsEnabled=true&VoiceEnabled=true";

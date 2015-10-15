@@ -1,5 +1,8 @@
 package com.imi.rest.model;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -25,6 +28,7 @@ public class Number {
 	private String restriction_text;
 	private boolean smsEnabled;
 	private boolean voiceEnabled;
+	private Map<String, String> capabilities;
 
 	public String getNumber() {
 		return number;
@@ -34,7 +38,10 @@ public class Number {
 	public void setNumber(String number) {
 		this.number = number;
 	}
-
+	@JsonProperty("phone_number")
+	public void setPhoneNumber(String number) {
+		this.number = number;
+	}
 	public String getNumberType() {
 		return numberType;
 	}
@@ -222,5 +229,14 @@ public class Number {
 	public void setVoiceEnabled(boolean voiceEnabled) {
 		this.voiceEnabled = voiceEnabled;
 	}
-	
+	@JsonIgnore
+	public Map<String, String>  getCapabilities() {
+		return capabilities;
+	}
+	@JsonProperty("capabilities")
+	public void setCapabilities(
+			Map<String, String> capabilities) {
+		this.capabilities = capabilities;
+	}
+
 }

@@ -15,7 +15,7 @@ public enum ServiceConstants {
 		if (value.equalsIgnoreCase(VOICE.toString())) {
 			serviceType = VOICE;
 		}
-		if (value.equalsIgnoreCase(BOTH.toString())) {
+		if (value.equalsIgnoreCase("BOTH")) {
 			serviceType = BOTH;
 		}
 		if (value.equalsIgnoreCase(SMS.toString())) {
