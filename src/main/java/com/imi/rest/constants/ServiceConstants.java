@@ -12,20 +12,16 @@ public enum ServiceConstants {
 
 	public static ServiceConstants evaluate(String value) {
 		ServiceConstants serviceType = null;
-		if (value.equalsIgnoreCase(VOICE.toString())) {
+		if (value.equalsIgnoreCase(VOICE.name())) {
 			serviceType = VOICE;
 		}
-		if (value.equalsIgnoreCase("BOTH")) {
+		if (value.equalsIgnoreCase(BOTH.name())) {
 			serviceType = BOTH;
 		}
-		if (value.equalsIgnoreCase(SMS.toString())) {
+		if (value.equalsIgnoreCase(SMS.name())) {
 			serviceType = SMS;
 		}
 		return serviceType;
-	}
-
-	public boolean equalsName(String otherName) {
-		return (otherName == null) ? false : serviceType.equals(otherName);
 	}
 
 	public String toString() {
