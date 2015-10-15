@@ -2,6 +2,7 @@ package com.imi.rest.model;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -11,6 +12,7 @@ public class NumberResponse {
 	private String api_id;
 	private Meta meta;
 	private List<Number> objects;
+	private int count;
 
 	public String getApi_id() {
 		return api_id;
@@ -39,4 +41,20 @@ public class NumberResponse {
 	public void setAvailablePhoneNumbers(List<Number> objects) {
 		this.objects = objects;
 	}
+	
+	@JsonProperty("numbers")
+	public void setNumbers(List<Number> objects) {
+		this.objects = objects;
+	}
+
+	@JsonIgnore
+	public int getCount() {
+		return count;
+	}
+
+	@JsonProperty("count")
+	public void setCount(int count) {
+		this.count = count;
+	}
+	
 }
