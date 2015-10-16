@@ -18,5 +18,13 @@ public class HttpUtil {
 		ResponseHandler<String> handler = new BasicResponseHandler();
 		return client.execute(get, handler);
 	}
+	
+	public static String defaultHttpGetHandler(String url)
+			throws ClientProtocolException, IOException {
+		DefaultHttpClient client = new DefaultHttpClient();
+		HttpGet get = new HttpGet(url);
+		ResponseHandler<String> handler = new BasicResponseHandler();
+		return client.execute(get, handler);
+	}
 
 }

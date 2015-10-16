@@ -1,13 +1,13 @@
 package com.imi.rest.model;
 
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-@JsonIgnoreProperties(ignoreUnknown=true)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Number {
 
 	private String number;
@@ -29,6 +29,7 @@ public class Number {
 	private boolean smsEnabled;
 	private boolean voiceEnabled;
 	private Map<String, Boolean> capabilities;
+	private List<String> features;
 
 	public String getNumber() {
 		return number;
@@ -38,10 +39,17 @@ public class Number {
 	public void setNumber(String number) {
 		this.number = number;
 	}
+
+	@JsonProperty("msisdn")
+	public void setMsisdn(String number) {
+		this.number = number;
+	}
+	
 	@JsonProperty("phone_number")
 	public void setPhoneNumber(String number) {
 		this.number = number;
 	}
+
 	public String getNumberType() {
 		return numberType;
 	}
@@ -50,7 +58,7 @@ public class Number {
 	public void setNumberType(String numberType) {
 		this.numberType = numberType;
 	}
-	
+
 	@JsonProperty("type")
 	public void setType(String numberType) {
 		this.numberType = numberType;
@@ -116,7 +124,7 @@ public class Number {
 	public void setsms_rate(String smsRate) {
 		this.smsRate = smsRate;
 	}
-	
+
 	public String getVoiceRate() {
 		return voiceRate;
 	}
@@ -228,14 +236,25 @@ public class Number {
 	public void setVoiceEnabled(boolean voiceEnabled) {
 		this.voiceEnabled = voiceEnabled;
 	}
+
 	@JsonIgnore
-	public Map<String, Boolean>  getCapabilities() {
+	public Map<String, Boolean> getCapabilities() {
 		return capabilities;
 	}
+
 	@JsonProperty("capabilities")
-	public void setCapabilities(
-			Map<String, Boolean> capabilities) {
+	public void setCapabilities(Map<String, Boolean> capabilities) {
 		this.capabilities = capabilities;
+	}
+
+	@JsonIgnore
+	public List<String> getFeatures() {
+		return features;
+	}
+
+	@JsonProperty("features")
+	public void setFeatures(List<String> features) {
+		this.features = features;
 	}
 
 }
