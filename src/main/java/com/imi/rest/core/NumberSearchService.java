@@ -87,10 +87,14 @@ public class NumberSearchService {
 			Map<String, Boolean> capabilties = number.getCapabilities();
 			if (capabilties.get("voice") && capabilties.get("SMS")) {
 				number.setServiceType(ServiceConstants.BOTH.name());
+				number.setSmsEnabled(true);
+				number.setVoiceEnabled(true);
 			} else if (capabilties.get("SMS")) {
 				number.setServiceType(ServiceConstants.SMS.name());
+				number.setSmsEnabled(true);
 			} else {
 				number.setServiceType(ServiceConstants.VOICE.name());
+				number.setVoiceEnabled(true);
 			}
 		} else if (provider.equals(ProviderConstants.NEXMO)) {
 			List<String> features = number.getFeatures();
@@ -134,7 +138,6 @@ public class NumberSearchService {
 				phoneSearchResult.add(twilioNumber);
 			}
 		}
-		phoneSearchResult.addAll(numberResponse.getObjects());
 	}
 
 	private void nexmoPhoneSearch(ServiceConstants serviceTypeEnum,
@@ -174,7 +177,6 @@ public class NumberSearchService {
 			}
 		}
 		count = numberResponse.getCount();
-		phoneSearchResult.addAll(numberResponse.getObjects());
 		nexmoPhoneSearch(serviceTypeEnum, countryIsoCode, numberType, pattern,
 				phoneSearchResult, count, index);
 	}
