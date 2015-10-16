@@ -1,14 +1,14 @@
 package com.imi.rest.model;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
-
-import com.imi.rest.db.model.Countries;
+import java.util.Set;
 
 public class CountryResponse {
 	
 	private MetaForCountries meta;
-	private List<Country> countries;
+	private Set<Country> countries = new HashSet<Country>();
 	
 	public MetaForCountries getMeta() {
 		return meta;
@@ -18,14 +18,14 @@ public class CountryResponse {
 		this.meta = meta;
 	}
 
-	public List<Country> getCountries() {
+	public Set<Country> getCountries() {
 		return countries;
 	}
 
-	public void setCountries(ArrayList<Country> countries) {
+	public void setCountries(Set<Country> countries) {
 		this.countries = countries;
 	}
-	public void addCountries (List<Country> countryList){
+	public void addCountries (Set<Country> countryList){
 		this.countries.addAll(countries);
 	}
 	public CountryResponse()
