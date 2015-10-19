@@ -1,7 +1,6 @@
 package com.imi.rest.controller;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -12,7 +11,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.imi.rest.constants.ServiceConstants;
-import com.imi.rest.model.GenericResponse;
 import com.imi.rest.model.Meta;
 import com.imi.rest.model.Number;
 import com.imi.rest.model.NumberResponse;
@@ -28,24 +26,25 @@ public class NumberSearchController {
     NumberSearchService numberSearchService;
 
     @RequestMapping(value = "/PhoneNumber/{providerId}/{countryIsoCode}/{numberType}/{serviceType}/{pattern}", method = RequestMethod.GET)
-    public GenericResponse numberSearchResponseByProviderId(
+    public NumberResponse numberSearchResponseByProviderId(
             @PathVariable("countryIsoCode") final String countryIsoCode,
             @PathVariable("providerId") final String providerId,
             @PathVariable("numberType") final String numberType,
             @PathVariable("serviceType") final String serviceType,
             @PathVariable("pattern") final String pattern) {
-        GenericResponse genResponse = new GenericResponse();
+        NumberResponse numberResponse = new NumberResponse();
         ServiceConstants serviceTypeEnum = ServiceConstants
                 .evaluate(serviceType);
+        List<Number> numberList =null;
         try {
             numberSearchService.searchPhoneNumbers(serviceTypeEnum, providerId,
                     countryIsoCode, numberType, pattern);
         } catch (IOException e) {
             LOG.error(e.getMessage());
         }
-        genResponse.setMeta(new Meta());
-        genResponse.setObject(new ArrayList<Number>());
-        return genResponse;
+        numberResponse.setMeta(new Meta());
+        numberResponse.setObjects(numberList);
+        return numberResponse;
     }
 
     @RequestMapping(value = "/PhoneNumber/{countryIsoCode}/{numberType}/{serviceType}/{pattern}", method = RequestMethod.GET)
@@ -57,7 +56,7 @@ public class NumberSearchController {
         NumberResponse numberResponse = new NumberResponse();
         ServiceConstants serviceTypeEnum = ServiceConstants
                 .evaluate(serviceType);
-        List<Number> numberList = null;
+        List<Number> numberList =null;
         try {
             numberList = numberSearchService.searchPhoneNumbers(
                     serviceTypeEnum, countryIsoCode, numberType, pattern);
