@@ -8,28 +8,20 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class ImiJsonUtil {
 
-    private static ObjectMapper objectMapper = new ObjectMapper();
-
-    public ObjectMapper getObjectMapper() {
-        return objectMapper;
-    }
-
-    public void setObjectMapper(ObjectMapper objMapper) {
-        objectMapper = objMapper;
-    }
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     public static String getJSONString(String key, String value)
             throws JsonProcessingException {
         Map<String, String> myMap = new HashMap<String, String>();
         myMap.put(key, value);
-        return objectMapper.writeValueAsString(myMap);
+        return OBJECT_MAPPER.writeValueAsString(myMap);
     }
 
     public static String getJSONString(String key, Object value)
             throws JsonProcessingException {
         Map<String, Object> myMap = new HashMap<String, Object>();
         myMap.put(key, value);
-        return objectMapper.writeValueAsString(myMap);
+        return OBJECT_MAPPER.writeValueAsString(myMap);
     }
 
 }
