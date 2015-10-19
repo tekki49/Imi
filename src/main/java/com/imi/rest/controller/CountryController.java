@@ -17,19 +17,20 @@ import com.imi.rest.model.GenericResponse;
 
 @RestController
 public class CountryController {
-	
-	@Autowired
-	CountrySearchService countrySearchService;
-	
-	@RequestMapping(value="/Countries",method=RequestMethod.GET)
-	public CountryResponse countryListResponse() throws JsonParseException, JsonMappingException, IOException {
-		GenericResponse genResponse=new GenericResponse();
-//		genResponse.setMeta(new Meta());
-//		genResponse.setObject(new ArrayList<CountryResponse>());
-		countrySearchService.getCountryListWithISO();
-		CountryResponse countryResponse = new CountryResponse();
-		countryResponse = countrySearchService.getCountryListWithISO();
-		return countryResponse;
-	}
+
+    @Autowired
+    CountrySearchService countrySearchService;
+
+    @RequestMapping(value = "/Countries", method = RequestMethod.GET)
+    public CountryResponse countryListResponse() throws JsonParseException,
+            JsonMappingException, IOException {
+        GenericResponse genResponse = new GenericResponse();
+        // genResponse.setMeta(new Meta());
+        // genResponse.setObject(new ArrayList<CountryResponse>());
+        countrySearchService.getCountryListWithISO();
+        CountryResponse countryResponse = new CountryResponse();
+        countryResponse = countrySearchService.getCountryListWithISO();
+        return countryResponse;
+    }
 
 }

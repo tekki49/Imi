@@ -10,11 +10,11 @@ import com.imi.rest.util.ImiJsonUtil;
 
 @RestController
 public class CheckBalanceController {
-	
-	
-	@RequestMapping(value="/check/balance", method=RequestMethod.GET)
-	public String getAccountBalance(@RequestHeader("provider") String providerId ) throws JsonProcessingException{
-		return ImiJsonUtil.getJSONString("accountBalance", "value");
-	}
-	
+
+    @RequestMapping(value = "/check/balance", method = RequestMethod.GET)
+    public String getAccountBalance(@RequestHeader("provider") String providerId)
+            throws JsonProcessingException {
+        return ImiJsonUtil.getJSONString("accountBalance", "value");
+    }
+
 }

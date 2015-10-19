@@ -10,9 +10,10 @@ import com.imi.rest.model.ProviderResponse;
 
 @RestController
 public class ProviderController {
-	
-	@RequestMapping(value="/provider",method=RequestMethod.GET)
-	public ProviderResponse providerResponse(@RequestHeader("provider")String providerId) {
-		return new ProviderResponse(new Providers());
-	}
+
+    @RequestMapping(value = "/provider", method = RequestMethod.GET)
+    public ProviderResponse providerResponse(
+            @RequestHeader("provider") String providerId) {
+        return new ProviderResponse(new Providers());
+    }
 }

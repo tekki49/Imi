@@ -9,22 +9,22 @@ import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.DefaultHttpClient;
 
 public class HttpUtil {
-	
-	public static String defaultHttpGetHandler(String url, String authHash)
-			throws ClientProtocolException, IOException {
-		DefaultHttpClient client = new DefaultHttpClient();
-		HttpGet get = new HttpGet(url);
-		get.setHeader("Authorization", "Basic " + authHash);
-		ResponseHandler<String> handler = new BasicResponseHandler();
-		return client.execute(get, handler);
-	}
-	
-	public static String defaultHttpGetHandler(String url)
-			throws ClientProtocolException, IOException {
-		DefaultHttpClient client = new DefaultHttpClient();
-		HttpGet get = new HttpGet(url);
-		ResponseHandler<String> handler = new BasicResponseHandler();
-		return client.execute(get, handler);
-	}
+
+    public static String defaultHttpGetHandler(String url, String authHash)
+            throws ClientProtocolException, IOException {
+        DefaultHttpClient client = new DefaultHttpClient();
+        HttpGet get = new HttpGet(url);
+        get.setHeader("Authorization", "Basic " + authHash);
+        ResponseHandler<String> handler = new BasicResponseHandler();
+        return client.execute(get, handler);
+    }
+
+    public static String defaultHttpGetHandler(String url)
+            throws ClientProtocolException, IOException {
+        DefaultHttpClient client = new DefaultHttpClient();
+        HttpGet get = new HttpGet(url);
+        ResponseHandler<String> handler = new BasicResponseHandler();
+        return client.execute(get, handler);
+    }
 
 }

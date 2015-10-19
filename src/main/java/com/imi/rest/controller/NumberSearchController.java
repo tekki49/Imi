@@ -21,52 +21,52 @@ import com.imi.rest.model.NumberResponse;
 @RestController
 public class NumberSearchController {
 
-	private static final Logger LOG = Logger
-			.getLogger(NumberSearchController.class);
+    private static final Logger LOG = Logger
+            .getLogger(NumberSearchController.class);
 
-	@Autowired
-	NumberSearchService numberSearchService;
+    @Autowired
+    NumberSearchService numberSearchService;
 
-	@RequestMapping(value = "/PhoneNumber/{providerId}/{countryIsoCode}/{numberType}/{serviceType}/{pattern}", method = RequestMethod.GET)
-	public GenericResponse numberSearchResponseByProviderId(
-			@PathVariable("countryIsoCode") final String countryIsoCode,
-			@PathVariable("providerId") final String providerId,
-			@PathVariable("numberType") final String numberType,
-			@PathVariable("serviceType") final String serviceType,
-			@PathVariable("pattern") final String pattern) {
-		GenericResponse genResponse = new GenericResponse();
-		ServiceConstants serviceTypeEnum = ServiceConstants
-				.evaluate(serviceType);
-		try {
-			numberSearchService.searchPhoneNumbers(serviceTypeEnum, providerId,
-					countryIsoCode, numberType, pattern);
-		} catch (IOException e) {
-			LOG.error(e.getMessage());
-		}
-		genResponse.setMeta(new Meta());
-		genResponse.setObject(new ArrayList<Number>());
-		return genResponse;
-	}
+    @RequestMapping(value = "/PhoneNumber/{providerId}/{countryIsoCode}/{numberType}/{serviceType}/{pattern}", method = RequestMethod.GET)
+    public GenericResponse numberSearchResponseByProviderId(
+            @PathVariable("countryIsoCode") final String countryIsoCode,
+            @PathVariable("providerId") final String providerId,
+            @PathVariable("numberType") final String numberType,
+            @PathVariable("serviceType") final String serviceType,
+            @PathVariable("pattern") final String pattern) {
+        GenericResponse genResponse = new GenericResponse();
+        ServiceConstants serviceTypeEnum = ServiceConstants
+                .evaluate(serviceType);
+        try {
+            numberSearchService.searchPhoneNumbers(serviceTypeEnum, providerId,
+                    countryIsoCode, numberType, pattern);
+        } catch (IOException e) {
+            LOG.error(e.getMessage());
+        }
+        genResponse.setMeta(new Meta());
+        genResponse.setObject(new ArrayList<Number>());
+        return genResponse;
+    }
 
-	@RequestMapping(value = "/PhoneNumber/{countryIsoCode}/{numberType}/{serviceType}/{pattern}", method = RequestMethod.GET)
-	public NumberResponse numberSearchResponse(
-			@PathVariable("countryIsoCode") final String countryIsoCode,
-			@PathVariable("numberType") final String numberType,
-			@PathVariable("serviceType") final String serviceType,
-			@PathVariable("pattern") final String pattern) {
-		NumberResponse numberResponse=new NumberResponse();
-		ServiceConstants serviceTypeEnum = ServiceConstants
-				.evaluate(serviceType);
-		List<Number>numberList=null;
-		try {
-			numberList=numberSearchService.searchPhoneNumbers(serviceTypeEnum,
-					countryIsoCode, numberType, pattern);
-		} catch (IOException e) {
-			LOG.error(e.getMessage());
-		}
-		numberResponse.setMeta(new Meta());
-		numberResponse.setObjects(numberList);
-		return numberResponse;
-	}
+    @RequestMapping(value = "/PhoneNumber/{countryIsoCode}/{numberType}/{serviceType}/{pattern}", method = RequestMethod.GET)
+    public NumberResponse numberSearchResponse(
+            @PathVariable("countryIsoCode") final String countryIsoCode,
+            @PathVariable("numberType") final String numberType,
+            @PathVariable("serviceType") final String serviceType,
+            @PathVariable("pattern") final String pattern) {
+        NumberResponse numberResponse = new NumberResponse();
+        ServiceConstants serviceTypeEnum = ServiceConstants
+                .evaluate(serviceType);
+        List<Number> numberList = null;
+        try {
+            numberList = numberSearchService.searchPhoneNumbers(
+                    serviceTypeEnum, countryIsoCode, numberType, pattern);
+        } catch (IOException e) {
+            LOG.error(e.getMessage());
+        }
+        numberResponse.setMeta(new Meta());
+        numberResponse.setObjects(numberList);
+        return numberResponse;
+    }
 
 }

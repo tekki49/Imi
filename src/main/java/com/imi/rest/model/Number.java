@@ -10,251 +10,251 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Number {
 
-	private String number;
-	private String numberType;
-	private String serviceType;
-	private String country;
-	private String monthlyRentalRate;
-	private String setUpRate;
-	private String smsRate;
-	private String voiceRate;
-	private String provider;
-	private String restriction;
-	private String lata;
-	private String prefix;
-	private String rate_center;
-	private String region;
-	private String resource_uri;
-	private String restriction_text;
-	private boolean smsEnabled;
-	private boolean voiceEnabled;
-	private Map<String, Boolean> capabilities;
-	private List<String> features;
+    private String number;
+    private String numberType;
+    private String serviceType;
+    private String country;
+    private String monthlyRentalRate;
+    private String setUpRate;
+    private String smsRate;
+    private String voiceRate;
+    private String provider;
+    private String restriction;
+    private String lata;
+    private String prefix;
+    private String rate_center;
+    private String region;
+    private String resource_uri;
+    private String restriction_text;
+    private boolean smsEnabled;
+    private boolean voiceEnabled;
+    private Map<String, Boolean> capabilities;
+    private List<String> features;
 
-	public String getNumber() {
-		return number;
-	}
+    public String getNumber() {
+        return number;
+    }
 
-	@JsonProperty("number")
-	public void setNumber(String number) {
-		this.number = number;
-	}
+    @JsonProperty("number")
+    public void setNumber(String number) {
+        this.number = number;
+    }
 
-	@JsonProperty("msisdn")
-	public void setMsisdn(String number) {
-		this.number = number;
-	}
-	
-	@JsonProperty("phone_number")
-	public void setPhoneNumber(String number) {
-		this.number = number;
-	}
+    @JsonProperty("msisdn")
+    public void setMsisdn(String number) {
+        this.number = number;
+    }
 
-	public String getNumberType() {
-		return numberType;
-	}
+    @JsonProperty("phone_number")
+    public void setPhoneNumber(String number) {
+        this.number = number;
+    }
 
-	@JsonProperty("numberType")
-	public void setNumberType(String numberType) {
-		this.numberType = numberType;
-	}
+    public String getNumberType() {
+        return numberType;
+    }
 
-	@JsonProperty("type")
-	public void setType(String numberType) {
-		this.numberType = numberType;
-	}
+    @JsonProperty("numberType")
+    public void setNumberType(String numberType) {
+        this.numberType = numberType;
+    }
 
-	public String getServiceType() {
-		return serviceType;
-	}
+    @JsonProperty("type")
+    public void setType(String numberType) {
+        this.numberType = numberType;
+    }
 
-	@JsonProperty("serviceType")
-	public void setServiceType(String serviceType) {
-		this.serviceType = serviceType;
-	}
+    public String getServiceType() {
+        return serviceType;
+    }
 
-	public String getCountry() {
-		return country;
-	}
+    @JsonProperty("serviceType")
+    public void setServiceType(String serviceType) {
+        this.serviceType = serviceType;
+    }
 
-	@JsonProperty("country")
-	public void setCountry(String country) {
-		this.country = country;
-	}
+    public String getCountry() {
+        return country;
+    }
 
-	public String getMonthlyRentalRate() {
-		return monthlyRentalRate;
-	}
+    @JsonProperty("country")
+    public void setCountry(String country) {
+        this.country = country;
+    }
 
-	@JsonProperty("monthlyRentalRate")
-	public void setMonthlyRentalRate(String monthlyRentalRate) {
-		this.monthlyRentalRate = monthlyRentalRate;
-	}
+    public String getMonthlyRentalRate() {
+        return monthlyRentalRate;
+    }
 
-	@JsonProperty("monthly_rental_rate")
-	public void setmonthly_rental_rate(String monthlyRentalRate) {
-		this.monthlyRentalRate = monthlyRentalRate;
-	}
+    @JsonProperty("monthlyRentalRate")
+    public void setMonthlyRentalRate(String monthlyRentalRate) {
+        this.monthlyRentalRate = monthlyRentalRate;
+    }
 
-	@JsonIgnore
-	public String getSetUpRate() {
-		return setUpRate;
-	}
+    @JsonProperty("monthly_rental_rate")
+    public void setmonthly_rental_rate(String monthlyRentalRate) {
+        this.monthlyRentalRate = monthlyRentalRate;
+    }
 
-	@JsonProperty("setUpRate")
-	public void setSetUpRate(String setUpRate) {
-		this.setUpRate = setUpRate;
-	}
+    @JsonIgnore
+    public String getSetUpRate() {
+        return setUpRate;
+    }
 
-	@JsonProperty("setup_rate")
-	public void setsetup_rate(String setUpRate) {
-		this.setUpRate = setUpRate;
-	}
+    @JsonProperty("setUpRate")
+    public void setSetUpRate(String setUpRate) {
+        this.setUpRate = setUpRate;
+    }
 
-	public String getSmsRate() {
-		return smsRate;
-	}
+    @JsonProperty("setup_rate")
+    public void setsetup_rate(String setUpRate) {
+        this.setUpRate = setUpRate;
+    }
 
-	@JsonProperty("smsRate")
-	public void setSmsRate(String smsRate) {
-		this.smsRate = smsRate;
-	}
+    public String getSmsRate() {
+        return smsRate;
+    }
 
-	@JsonProperty("sms_rate")
-	public void setsms_rate(String smsRate) {
-		this.smsRate = smsRate;
-	}
+    @JsonProperty("smsRate")
+    public void setSmsRate(String smsRate) {
+        this.smsRate = smsRate;
+    }
 
-	public String getVoiceRate() {
-		return voiceRate;
-	}
+    @JsonProperty("sms_rate")
+    public void setsms_rate(String smsRate) {
+        this.smsRate = smsRate;
+    }
 
-	@JsonProperty("voiceRate")
-	public void setVoiceRate(String voiceRate) {
-		this.voiceRate = voiceRate;
-	}
+    public String getVoiceRate() {
+        return voiceRate;
+    }
 
-	@JsonProperty("voice_rate")
-	public void setvoice_rate(String voiceRate) {
-		this.voiceRate = voiceRate;
-	}
+    @JsonProperty("voiceRate")
+    public void setVoiceRate(String voiceRate) {
+        this.voiceRate = voiceRate;
+    }
 
-	public String getProvider() {
-		return provider;
-	}
+    @JsonProperty("voice_rate")
+    public void setvoice_rate(String voiceRate) {
+        this.voiceRate = voiceRate;
+    }
 
-	@JsonProperty("provider")
-	public void setProvider(String provider) {
-		this.provider = provider;
-	}
+    public String getProvider() {
+        return provider;
+    }
 
-	@JsonIgnore
-	public String getRestriction() {
-		return restriction;
-	}
+    @JsonProperty("provider")
+    public void setProvider(String provider) {
+        this.provider = provider;
+    }
 
-	@JsonProperty("restriction")
-	public void setRestriction(String restriction) {
-		this.restriction = restriction;
-	}
+    @JsonIgnore
+    public String getRestriction() {
+        return restriction;
+    }
 
-	@JsonIgnore
-	public String getLata() {
-		return lata;
-	}
+    @JsonProperty("restriction")
+    public void setRestriction(String restriction) {
+        this.restriction = restriction;
+    }
 
-	@JsonProperty("lata")
-	public void setLata(String lata) {
-		this.lata = lata;
-	}
+    @JsonIgnore
+    public String getLata() {
+        return lata;
+    }
 
-	@JsonIgnore
-	public String getPrefix() {
-		return prefix;
-	}
+    @JsonProperty("lata")
+    public void setLata(String lata) {
+        this.lata = lata;
+    }
 
-	@JsonProperty("prefix")
-	public void setPrefix(String prefix) {
-		this.prefix = prefix;
-	}
+    @JsonIgnore
+    public String getPrefix() {
+        return prefix;
+    }
 
-	@JsonIgnore
-	public String getRate_center() {
-		return rate_center;
-	}
+    @JsonProperty("prefix")
+    public void setPrefix(String prefix) {
+        this.prefix = prefix;
+    }
 
-	@JsonProperty("rate_center")
-	public void setRate_center(String rate_center) {
-		this.rate_center = rate_center;
-	}
+    @JsonIgnore
+    public String getRate_center() {
+        return rate_center;
+    }
 
-	public String getRegion() {
-		return region;
-	}
+    @JsonProperty("rate_center")
+    public void setRate_center(String rate_center) {
+        this.rate_center = rate_center;
+    }
 
-	@JsonProperty("region")
-	public void setRegion(String region) {
-		this.region = region;
-	}
+    public String getRegion() {
+        return region;
+    }
 
-	@JsonIgnore
-	public String getResource_uri() {
-		return resource_uri;
-	}
+    @JsonProperty("region")
+    public void setRegion(String region) {
+        this.region = region;
+    }
 
-	@JsonProperty("resource_uri")
-	public void setResource_uri(String resource_uri) {
-		this.resource_uri = resource_uri;
-	}
+    @JsonIgnore
+    public String getResource_uri() {
+        return resource_uri;
+    }
 
-	@JsonIgnore
-	public String getRestriction_text() {
-		return restriction_text;
-	}
+    @JsonProperty("resource_uri")
+    public void setResource_uri(String resource_uri) {
+        this.resource_uri = resource_uri;
+    }
 
-	@JsonProperty("restriction_text")
-	public void setRestriction_text(String restriction_text) {
-		this.restriction_text = restriction_text;
-	}
+    @JsonIgnore
+    public String getRestriction_text() {
+        return restriction_text;
+    }
 
-	@JsonProperty("smsEnabled")
-	public boolean isSmsEnabled() {
-		return smsEnabled;
-	}
+    @JsonProperty("restriction_text")
+    public void setRestriction_text(String restriction_text) {
+        this.restriction_text = restriction_text;
+    }
 
-	@JsonProperty("sms_enabled")
-	public void setSmsEnabled(boolean smsEnabled) {
-		this.smsEnabled = smsEnabled;
-	}
+    @JsonProperty("smsEnabled")
+    public boolean isSmsEnabled() {
+        return smsEnabled;
+    }
 
-	@JsonProperty("voiceEnabled")
-	public boolean isVoiceEnabled() {
-		return voiceEnabled;
-	}
+    @JsonProperty("sms_enabled")
+    public void setSmsEnabled(boolean smsEnabled) {
+        this.smsEnabled = smsEnabled;
+    }
 
-	@JsonProperty("voice_enabled")
-	public void setVoiceEnabled(boolean voiceEnabled) {
-		this.voiceEnabled = voiceEnabled;
-	}
+    @JsonProperty("voiceEnabled")
+    public boolean isVoiceEnabled() {
+        return voiceEnabled;
+    }
 
-	@JsonIgnore
-	public Map<String, Boolean> getCapabilities() {
-		return capabilities;
-	}
+    @JsonProperty("voice_enabled")
+    public void setVoiceEnabled(boolean voiceEnabled) {
+        this.voiceEnabled = voiceEnabled;
+    }
 
-	@JsonProperty("capabilities")
-	public void setCapabilities(Map<String, Boolean> capabilities) {
-		this.capabilities = capabilities;
-	}
+    @JsonIgnore
+    public Map<String, Boolean> getCapabilities() {
+        return capabilities;
+    }
 
-	@JsonIgnore
-	public List<String> getFeatures() {
-		return features;
-	}
+    @JsonProperty("capabilities")
+    public void setCapabilities(Map<String, Boolean> capabilities) {
+        this.capabilities = capabilities;
+    }
 
-	@JsonProperty("features")
-	public void setFeatures(List<String> features) {
-		this.features = features;
-	}
+    @JsonIgnore
+    public List<String> getFeatures() {
+        return features;
+    }
+
+    @JsonProperty("features")
+    public void setFeatures(List<String> features) {
+        this.features = features;
+    }
 
 }

@@ -1,54 +1,79 @@
 package com.imi.rest.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class MetaForCountries {
 
-	private int page;
-	public int getPage() {
-		return page;
-	}
-	public void setPage(int page) {
-		this.page = page;
-	}
-	public int getPage_size() {
-		return page_size;
-	}
-	public void setPage_size(int page_size) {
-		this.page_size = page_size;
-	}
-	public String getFirst_page_url() {
-		return first_page_url;
-	}
-	public void setFirst_page_url(String first_page_url) {
-		this.first_page_url = first_page_url;
-	}
-	public String getPrevious_page_url() {
-		return previous_page_url;
-	}
-	public void setPrevious_page_url(String previous_page_url) {
-		this.previous_page_url = previous_page_url;
-	}
-	public String getUrl() {
-		return url;
-	}
-	public void setUrl(String url) {
-		this.url = url;
-	}
-	public String getNextPageUrl() {
-		return next_page_url;
-	}
-	public void setNext_page_url(String next_page_url) {
-		this.next_page_url = next_page_url;
-	}
-	public String getKey() {
-		return key;
-	}
-	public void setKey(String key) {
-		this.key = key;
-	}
-	private int page_size;
-	private String first_page_url;
-	private String previous_page_url;
-	private String url;
-	private String next_page_url;
-	private String key;
+    private int page;
+    private int pageSize;
+    private String firstPageUrl;
+    private String previousPageUrl;
+    private String url;
+    private String nextPageUrl;
+    private String key;
+
+    public int getPage() {
+        return page;
+    }
+
+    public void setPage(int page) {
+        this.page = page;
+    }
+
+    @JsonProperty("page_size")
+    public int getPageSize() {
+        return pageSize;
+    }
+
+    @JsonProperty("page_size")
+    public void setPageSize(int pageSize) {
+        this.pageSize = pageSize;
+    }
+
+    @JsonProperty("first_page_url")
+    public String getFirstPageUrl() {
+        return firstPageUrl;
+    }
+
+    @JsonProperty("first_page_url")
+    public void setFirstPageUrl(String firstPageUrl) {
+        this.firstPageUrl = firstPageUrl;
+    }
+
+    @JsonProperty("previous_page_url")
+    public String getPreviousPageUrl() {
+        return previousPageUrl;
+    }
+
+    @JsonProperty("previous_page_url")
+    public void setPreviousPageUrl(String previousPageUrl) {
+        this.previousPageUrl = previousPageUrl;
+    }
+
+    @JsonProperty("next_page_url")
+    public String getNextPageUrl() {
+        return nextPageUrl;
+    }
+
+    @JsonProperty("next_page_url")
+    public void setNextPageUrl(String nextPageUrl) {
+        this.nextPageUrl = nextPageUrl;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
+    }
+
 }

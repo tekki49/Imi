@@ -17,165 +17,165 @@ import javax.persistence.Table;
 @Table(name = "purchasehistories", catalog = "imi")
 public class Purchasehistories implements java.io.Serializable {
 
-	private int id;
-	private Provisioning provisioning;
-	private Providercountries providercountries;
-	private Integer number;
-	private String numberType;
-	private String restrictions;
-	private String monthlyRentalRate;
-	private String setUpRate;
-	private String smsPrice;
-	private String voicePrice;
-	private String startDate;
-	private String endDate;
-	private Integer resourceManagerId;
+    private int id;
+    private Provisioning provisioning;
+    private Providercountries providercountries;
+    private Integer number;
+    private String numberType;
+    private String restrictions;
+    private String monthlyRentalRate;
+    private String setUpRate;
+    private String smsPrice;
+    private String voicePrice;
+    private String startDate;
+    private String endDate;
+    private Integer resourceManagerId;
 
-	public Purchasehistories() {
-	}
+    public Purchasehistories() {
+    }
 
-	public Purchasehistories(int id) {
-		this.id = id;
-	}
+    public Purchasehistories(int id) {
+        this.id = id;
+    }
 
-	public Purchasehistories(int id, Provisioning provisioning,
-			Providercountries providercountries, Integer number,
-			String numberType, String restrictions, String monthlyRentalRate,
-			String setUpRate, String smsPrice, String voicePrice,
-			String startDate, String endDate, Integer resourceManagerId) {
-		this.id = id;
-		this.provisioning = provisioning;
-		this.providercountries = providercountries;
-		this.number = number;
-		this.numberType = numberType;
-		this.restrictions = restrictions;
-		this.monthlyRentalRate = monthlyRentalRate;
-		this.setUpRate = setUpRate;
-		this.smsPrice = smsPrice;
-		this.voicePrice = voicePrice;
-		this.startDate = startDate;
-		this.endDate = endDate;
-		this.resourceManagerId = resourceManagerId;
-	}
+    public Purchasehistories(int id, Provisioning provisioning,
+            Providercountries providercountries, Integer number,
+            String numberType, String restrictions, String monthlyRentalRate,
+            String setUpRate, String smsPrice, String voicePrice,
+            String startDate, String endDate, Integer resourceManagerId) {
+        this.id = id;
+        this.provisioning = provisioning;
+        this.providercountries = providercountries;
+        this.number = number;
+        this.numberType = numberType;
+        this.restrictions = restrictions;
+        this.monthlyRentalRate = monthlyRentalRate;
+        this.setUpRate = setUpRate;
+        this.smsPrice = smsPrice;
+        this.voicePrice = voicePrice;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.resourceManagerId = resourceManagerId;
+    }
 
-	@Id
-	@Column(name = "Id", unique = true, nullable = false)
-	public int getId() {
-		return this.id;
-	}
+    @Id
+    @Column(name = "Id", unique = true, nullable = false)
+    public int getId() {
+        return this.id;
+    }
 
-	public void setId(int id) {
-		this.id = id;
-	}
+    public void setId(int id) {
+        this.id = id;
+    }
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "provisioningId")
-	public Provisioning getProvisioning() {
-		return this.provisioning;
-	}
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "provisioningId")
+    public Provisioning getProvisioning() {
+        return this.provisioning;
+    }
 
-	public void setProvisioning(Provisioning provisioning) {
-		this.provisioning = provisioning;
-	}
+    public void setProvisioning(Provisioning provisioning) {
+        this.provisioning = provisioning;
+    }
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "CountryProviderId")
-	public Providercountries getProvidercountries() {
-		return this.providercountries;
-	}
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "CountryProviderId")
+    public Providercountries getProvidercountries() {
+        return this.providercountries;
+    }
 
-	public void setProvidercountries(Providercountries providercountries) {
-		this.providercountries = providercountries;
-	}
+    public void setProvidercountries(Providercountries providercountries) {
+        this.providercountries = providercountries;
+    }
 
-	@Column(name = "Number")
-	public Integer getNumber() {
-		return this.number;
-	}
+    @Column(name = "Number")
+    public Integer getNumber() {
+        return this.number;
+    }
 
-	public void setNumber(Integer number) {
-		this.number = number;
-	}
+    public void setNumber(Integer number) {
+        this.number = number;
+    }
 
-	@Column(name = "NumberType", length = 45)
-	public String getNumberType() {
-		return this.numberType;
-	}
+    @Column(name = "NumberType", length = 45)
+    public String getNumberType() {
+        return this.numberType;
+    }
 
-	public void setNumberType(String numberType) {
-		this.numberType = numberType;
-	}
+    public void setNumberType(String numberType) {
+        this.numberType = numberType;
+    }
 
-	@Column(name = "Restrictions", length = 45)
-	public String getRestrictions() {
-		return this.restrictions;
-	}
+    @Column(name = "Restrictions", length = 45)
+    public String getRestrictions() {
+        return this.restrictions;
+    }
 
-	public void setRestrictions(String restrictions) {
-		this.restrictions = restrictions;
-	}
+    public void setRestrictions(String restrictions) {
+        this.restrictions = restrictions;
+    }
 
-	@Column(name = "MonthlyRentalRate", length = 45)
-	public String getMonthlyRentalRate() {
-		return this.monthlyRentalRate;
-	}
+    @Column(name = "MonthlyRentalRate", length = 45)
+    public String getMonthlyRentalRate() {
+        return this.monthlyRentalRate;
+    }
 
-	public void setMonthlyRentalRate(String monthlyRentalRate) {
-		this.monthlyRentalRate = monthlyRentalRate;
-	}
+    public void setMonthlyRentalRate(String monthlyRentalRate) {
+        this.monthlyRentalRate = monthlyRentalRate;
+    }
 
-	@Column(name = "SetUpRate", length = 45)
-	public String getSetUpRate() {
-		return this.setUpRate;
-	}
+    @Column(name = "SetUpRate", length = 45)
+    public String getSetUpRate() {
+        return this.setUpRate;
+    }
 
-	public void setSetUpRate(String setUpRate) {
-		this.setUpRate = setUpRate;
-	}
+    public void setSetUpRate(String setUpRate) {
+        this.setUpRate = setUpRate;
+    }
 
-	@Column(name = "SmsPrice", length = 45)
-	public String getSmsPrice() {
-		return this.smsPrice;
-	}
+    @Column(name = "SmsPrice", length = 45)
+    public String getSmsPrice() {
+        return this.smsPrice;
+    }
 
-	public void setSmsPrice(String smsPrice) {
-		this.smsPrice = smsPrice;
-	}
+    public void setSmsPrice(String smsPrice) {
+        this.smsPrice = smsPrice;
+    }
 
-	@Column(name = "VoicePrice", length = 45)
-	public String getVoicePrice() {
-		return this.voicePrice;
-	}
+    @Column(name = "VoicePrice", length = 45)
+    public String getVoicePrice() {
+        return this.voicePrice;
+    }
 
-	public void setVoicePrice(String voicePrice) {
-		this.voicePrice = voicePrice;
-	}
+    public void setVoicePrice(String voicePrice) {
+        this.voicePrice = voicePrice;
+    }
 
-	@Column(name = "StartDate", length = 45)
-	public String getStartDate() {
-		return this.startDate;
-	}
+    @Column(name = "StartDate", length = 45)
+    public String getStartDate() {
+        return this.startDate;
+    }
 
-	public void setStartDate(String startDate) {
-		this.startDate = startDate;
-	}
+    public void setStartDate(String startDate) {
+        this.startDate = startDate;
+    }
 
-	@Column(name = "EndDate", length = 45)
-	public String getEndDate() {
-		return this.endDate;
-	}
+    @Column(name = "EndDate", length = 45)
+    public String getEndDate() {
+        return this.endDate;
+    }
 
-	public void setEndDate(String endDate) {
-		this.endDate = endDate;
-	}
+    public void setEndDate(String endDate) {
+        this.endDate = endDate;
+    }
 
-	@Column(name = "ResourceManagerId")
-	public Integer getResourceManagerId() {
-		return this.resourceManagerId;
-	}
+    @Column(name = "ResourceManagerId")
+    public Integer getResourceManagerId() {
+        return this.resourceManagerId;
+    }
 
-	public void setResourceManagerId(Integer resourceManagerId) {
-		this.resourceManagerId = resourceManagerId;
-	}
+    public void setResourceManagerId(Integer resourceManagerId) {
+        this.resourceManagerId = resourceManagerId;
+    }
 
 }
