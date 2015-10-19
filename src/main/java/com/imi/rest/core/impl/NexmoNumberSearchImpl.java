@@ -50,6 +50,9 @@ public class NexmoNumberSearchImpl implements NumberSearch, UrlConstants,
                 .replace("{pattern}", pattern)
                 .replace("{features}", serviceTypeEnum.toString().toUpperCase())
                 .replace("{index}", "" + index);
+        if (pattern.equals("")) {
+            nexmoPhoneSearchUrl = nexmoPhoneSearchUrl.replace("pattern=&", "");
+        }
         String response = HttpUtil.defaultHttpGetHandler(nexmoPhoneSearchUrl);
         ObjectMapper mapper = new ObjectMapper();
         NumberResponse numberResponse = mapper.readValue(response,

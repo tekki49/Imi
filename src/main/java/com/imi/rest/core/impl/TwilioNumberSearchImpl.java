@@ -19,7 +19,8 @@ import com.imi.rest.util.BasicAuthUtil;
 import com.imi.rest.util.HttpUtil;
 
 @Component
-public class TwilioNumberSearchImpl implements NumberSearch,UrlConstants,ProviderConstants {
+public class TwilioNumberSearchImpl implements NumberSearch, UrlConstants,
+        ProviderConstants {
 
     @Override
     public List<Number> searchPhoneNumbers(ServiceConstants serviceTypeEnum,
@@ -32,6 +33,11 @@ public class TwilioNumberSearchImpl implements NumberSearch,UrlConstants,Provide
                 .replace("{country_iso}", countryIsoCode)
                 .replace("{services}", servicesString)
                 .replace("{pattern}", pattern);
+        if (pattern.equals("")) {
+            twilioPhoneSearchUrl = twilioPhoneSearchUrl.replace("Contains=&",
+                    "");
+
+        }
         String response = HttpUtil.defaultHttpGetHandler(twilioPhoneSearchUrl,
                 BasicAuthUtil.getBasicAuthHash(TWILIO));
         ObjectMapper mapper = new ObjectMapper();

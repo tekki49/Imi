@@ -18,7 +18,8 @@ import com.imi.rest.util.BasicAuthUtil;
 import com.imi.rest.util.HttpUtil;
 
 @Component
-public class PlivioNumberSearchImpl implements NumberSearch,UrlConstants,ProviderConstants {
+public class PlivioNumberSearchImpl implements NumberSearch, UrlConstants,
+        ProviderConstants {
 
     @Override
     public List<Number> searchPhoneNumbers(ServiceConstants serviceTypeEnum,
@@ -31,6 +32,10 @@ public class PlivioNumberSearchImpl implements NumberSearch,UrlConstants,Provide
                 .replace("{type}", numberType.toLowerCase())
                 .replace("{services}", serviceTypeEnum.toString())
                 .replace("{pattern}", pattern);
+        if (pattern.equals("")) {
+            plivioPhoneSearchUrl = plivioPhoneSearchUrl
+                    .replace("&pattern=", "");
+        }
         ObjectMapper mapper = new ObjectMapper();
         String response = HttpUtil.defaultHttpGetHandler(plivioPhoneSearchUrl,
                 BasicAuthUtil.getBasicAuthHash(PLIVIO));

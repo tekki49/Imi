@@ -35,7 +35,7 @@ public class NumberSearchController {
         NumberResponse numberResponse = new NumberResponse();
         ServiceConstants serviceTypeEnum = ServiceConstants
                 .evaluate(serviceType);
-        List<Number> numberList =null;
+        List<Number> numberList = null;
         try {
             numberSearchService.searchPhoneNumbers(serviceTypeEnum, providerId,
                     countryIsoCode, numberType, pattern);
@@ -56,10 +56,30 @@ public class NumberSearchController {
         NumberResponse numberResponse = new NumberResponse();
         ServiceConstants serviceTypeEnum = ServiceConstants
                 .evaluate(serviceType);
-        List<Number> numberList =null;
+        List<Number> numberList = null;
         try {
             numberList = numberSearchService.searchPhoneNumbers(
                     serviceTypeEnum, countryIsoCode, numberType, pattern);
+        } catch (IOException e) {
+            LOG.error(e.getMessage());
+        }
+        numberResponse.setMeta(new Meta());
+        numberResponse.setObjects(numberList);
+        return numberResponse;
+    }
+
+    @RequestMapping(value = "/PhoneNumber/{countryIsoCode}/{numberType}/{serviceType}", method = RequestMethod.GET)
+    public NumberResponse numberSearchResponse(
+            @PathVariable("countryIsoCode") final String countryIsoCode,
+            @PathVariable("numberType") final String numberType,
+            @PathVariable("serviceType") final String serviceType) {
+        NumberResponse numberResponse = new NumberResponse();
+        ServiceConstants serviceTypeEnum = ServiceConstants
+                .evaluate(serviceType);
+        List<Number> numberList = null;
+        try {
+            numberList = numberSearchService.searchPhoneNumbers(
+                    serviceTypeEnum, countryIsoCode, numberType, "");
         } catch (IOException e) {
             LOG.error(e.getMessage());
         }
