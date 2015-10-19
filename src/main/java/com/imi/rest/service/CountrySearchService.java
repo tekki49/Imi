@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -25,6 +26,8 @@ import com.imi.rest.util.BasicAuthUtil;
 @Service
 public class CountrySearchService {
     private static final String PLIVIO_CSV_FILE_PATH = "/home/hemanth/Desktop/PLIVIO_COUNTRIES_WITH_ISO.csv";
+    private static final Logger LOG=Logger
+            .getLogger(CountrySearchService.class);
 
     public CountryResponse getCountryListWithISO() throws JsonParseException,
             JsonMappingException, IOException {
@@ -81,14 +84,15 @@ public class CountrySearchService {
                 countriesSet.add(country);
             }
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            LOG.error(e);
         } catch (IOException e) {
-            e.printStackTrace();
+            LOG.error(e);
         } finally {
             if (reader != null) {
                 try {
                     reader.close();
                 } catch (IOException e2) {
+                    LOG.error(e2);
                 }
             }
         }
