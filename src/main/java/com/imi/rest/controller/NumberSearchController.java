@@ -12,11 +12,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.imi.rest.constants.ServiceConstants;
-import com.imi.rest.core.NumberSearchService;
 import com.imi.rest.model.GenericResponse;
 import com.imi.rest.model.Meta;
 import com.imi.rest.model.Number;
 import com.imi.rest.model.NumberResponse;
+import com.imi.rest.service.NumberSearchService;
 
 @RestController
 public class NumberSearchController {

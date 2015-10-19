@@ -10,8 +10,7 @@ import com.imi.rest.model.ClientResponse;
 public class ClientController {
 
     @RequestMapping(value = "/client", method = RequestMethod.GET)
-    public ClientResponse clientListResponse(
-           ) {
+    public ClientResponse clientListResponse() {
         return new ClientResponse();
     }
 

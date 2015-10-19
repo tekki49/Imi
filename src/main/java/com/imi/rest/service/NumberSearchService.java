@@ -1,4 +1,4 @@
-package com.imi.rest.core;
+package com.imi.rest.service;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -6,12 +6,16 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.http.client.ClientProtocolException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.imi.rest.constants.ProviderConstants;
 import com.imi.rest.constants.ServiceConstants;
 import com.imi.rest.constants.UrlConstants;
+import com.imi.rest.core.impl.NexmoNumberSearchImpl;
+import com.imi.rest.core.impl.PlivioNumberSearchImpl;
+import com.imi.rest.core.impl.TwilioNumberSearchImpl;
 import com.imi.rest.model.Number;
 import com.imi.rest.model.NumberResponse;
 import com.imi.rest.util.BasicAuthUtil;
@@ -19,6 +23,15 @@ import com.imi.rest.util.HttpUtil;
 
 @Service
 public class NumberSearchService {
+
+    @Autowired
+    PlivioNumberSearchImpl plivioNumberSearchImpl;
+
+    @Autowired
+    TwilioNumberSearchImpl twilioNumberSearchImpl;
+
+    @Autowired
+    NexmoNumberSearchImpl nexmoNumberSearchImpl;
 
     public List<Number> searchPhoneNumbers(ServiceConstants serviceTypeEnum,
             String provider, String countryIsoCode, String numberType,
@@ -38,12 +51,19 @@ public class NumberSearchService {
             String countryIsoCode, String numberType, String pattern)
             throws ClientProtocolException, IOException {
         List<Number> phoneSearchResult = new ArrayList<Number>();
-        plivioPhoneSearch(serviceTypeEnum, countryIsoCode, numberType, pattern,
-                phoneSearchResult);
-        twilioPhoneSearch(serviceTypeEnum, countryIsoCode, numberType, pattern,
-                phoneSearchResult);
-        nexmoPhoneSearch(serviceTypeEnum, countryIsoCode, numberType, pattern,
-                phoneSearchResult, Integer.MIN_VALUE, 1);
+        /*
+         * plivioPhoneSearch(serviceTypeEnum, countryIsoCode, numberType,
+         * pattern, phoneSearchResult); twilioPhoneSearch(serviceTypeEnum,
+         * countryIsoCode, numberType, pattern, phoneSearchResult);
+         * nexmoPhoneSearch(serviceTypeEnum, countryIsoCode, numberType,
+         * pattern, phoneSearchResult, Integer.MIN_VALUE, 1);
+         */
+        phoneSearchResult.addAll(plivioNumberSearchImpl.searchPhoneNumbers(
+                serviceTypeEnum, countryIsoCode, numberType, pattern));
+        phoneSearchResult.addAll(twilioNumberSearchImpl.searchPhoneNumbers(
+                serviceTypeEnum, countryIsoCode, numberType, pattern));
+        phoneSearchResult.addAll(nexmoNumberSearchImpl.searchPhoneNumbers(
+                serviceTypeEnum, countryIsoCode, numberType, pattern));
         return phoneSearchResult;
     }
 

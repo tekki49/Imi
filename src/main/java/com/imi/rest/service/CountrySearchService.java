@@ -1,4 +1,4 @@
-package com.imi.rest.core;
+package com.imi.rest.service;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;

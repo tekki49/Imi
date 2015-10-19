@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import com.imi.rest.core.CountrySearchService;
 import com.imi.rest.model.CountryResponse;
+import com.imi.rest.service.CountrySearchService;
 
 @RestController
 public class CountryController {
