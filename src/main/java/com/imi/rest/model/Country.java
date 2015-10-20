@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Country {
+public class Country implements Comparable<Country> {
 
     private String country;
     private String isoCountry;
@@ -36,4 +36,8 @@ public class Country {
         }
         return false;
     }
+	@Override
+	public int compareTo(Country c) {
+		return this.getCountry().compareTo(c.getCountry());
+	}
 }

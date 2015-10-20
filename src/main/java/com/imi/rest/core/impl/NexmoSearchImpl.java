@@ -1,23 +1,32 @@
 package com.imi.rest.core.impl;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.http.client.ClientProtocolException;
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.imi.rest.constants.ProviderConstants;
 import com.imi.rest.constants.ServiceConstants;
 import com.imi.rest.constants.UrlConstants;
+import com.imi.rest.core.CountrySearch;
 import com.imi.rest.core.NumberSearch;
+import com.imi.rest.model.Country;
 import com.imi.rest.model.Number;
 import com.imi.rest.model.NumberResponse;
 import com.imi.rest.util.HttpUtil;
 
 @Component
-public class NexmoNumberSearchImpl implements NumberSearch, UrlConstants,
+public class NexmoSearchImpl implements NumberSearch, CountrySearch, UrlConstants,
         ProviderConstants {
 
     @Override
@@ -88,5 +97,10 @@ public class NexmoNumberSearchImpl implements NumberSearch, UrlConstants,
         }
 
     }
-
+    @Override
+    public Set<Country> importCountries()
+            throws FileNotFoundException, JsonParseException, JsonMappingException, IOException {
+        Set<Country> countriesSet = new HashSet<Country>();
+        return countriesSet;
+    }
 }

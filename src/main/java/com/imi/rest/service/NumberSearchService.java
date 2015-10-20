@@ -10,22 +10,22 @@ import org.springframework.stereotype.Service;
 
 import com.imi.rest.constants.ProviderConstants;
 import com.imi.rest.constants.ServiceConstants;
-import com.imi.rest.core.impl.NexmoNumberSearchImpl;
-import com.imi.rest.core.impl.PlivioNumberSearchImpl;
-import com.imi.rest.core.impl.TwilioNumberSearchImpl;
+import com.imi.rest.core.impl.NexmoSearchImpl;
+import com.imi.rest.core.impl.PlivioSearchImpl;
+import com.imi.rest.core.impl.TwilioSearchImpl;
 import com.imi.rest.model.Number;
 
 @Service
 public class NumberSearchService implements ProviderConstants {
 
     @Autowired
-    PlivioNumberSearchImpl plivioNumberSearchImpl;
+    PlivioSearchImpl plivioNumberSearchImpl;
 
     @Autowired
-    TwilioNumberSearchImpl twilioNumberSearchImpl;
+    TwilioSearchImpl twilioNumberSearchImpl;
 
     @Autowired
-    NexmoNumberSearchImpl nexmoNumberSearchImpl;
+    NexmoSearchImpl nexmoNumberSearchImpl;
 
     public List<Number> searchPhoneNumbers(ServiceConstants serviceTypeEnum,
             String provider, String countryIsoCode, String numberType,
