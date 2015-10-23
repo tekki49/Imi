@@ -125,4 +125,19 @@ public class TwilioSearchImpl implements NumberSearch, CountrySearch,UrlConstant
 		return countryResponse.getCountries();
 	}
 
+	public void purchaseNumber(String number, String provider,
+			String countryIsoCode) throws ClientProtocolException, IOException {
+		String twilioPurchaseUrl = TWILIO_PURCHASE_URL;
+		String twilioNumber = "+"+number.trim()+countryIsoCode.trim();
+		twilioPurchaseUrl = twilioPurchaseUrl
+	                .replace("{number}", twilioNumber);
+        ObjectMapper mapper = new ObjectMapper();
+		String response = HttpUtil.defaultHttpGetHandler(twilioPurchaseUrl);
+	}
+
+	public void releaseNumber(String number, String provider,
+			String countryIsoCode) {
+		
+	}
+
 }

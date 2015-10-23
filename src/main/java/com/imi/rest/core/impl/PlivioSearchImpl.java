@@ -24,6 +24,7 @@ import com.imi.rest.core.NumberSearch;
 import com.imi.rest.model.Country;
 import com.imi.rest.model.Number;
 import com.imi.rest.model.NumberResponse;
+import com.imi.rest.model.PlivioPurchaseResponse;
 import com.imi.rest.service.CountrySearchService;
 import com.imi.rest.util.BasicAuthUtil;
 import com.imi.rest.util.HttpUtil;
@@ -105,5 +106,29 @@ public class PlivioSearchImpl implements NumberSearch,CountrySearch,UrlConstants
         }
         return countriesSet;
     }
+
+	public void purchaseNumber(String number, String provider,
+			String countryIsoCode) throws ClientProtocolException, IOException {
+		String plivioPurchaseUrl = PLIVIO_PURCHASE_URL;
+		String plivioNumber = number.trim()+countryIsoCode.trim();
+		plivioPurchaseUrl = plivioPurchaseUrl
+                .replace("{number}", plivioNumber);
+        ObjectMapper mapper = new ObjectMapper();
+        String response = HttpUtil.defaultHttpGetHandler(plivioPurchaseUrl,
+                BasicAuthUtil.getBasicAuthHash(PLIVIO));
+        PlivioPurchaseResponse plivioPurchaseResponse = mapper.readValue(response,
+        		PlivioPurchaseResponse.class);
+	}
+
+	public void releaseNumber(String number, String provider,
+			String countryIsoCode) throws ClientProtocolException, IOException {
+		String plivioReleaseurl = PLIVIO_RELEASE_URL;
+		String plivioNumber = number.trim()+countryIsoCode.trim();
+		plivioReleaseurl = plivioReleaseurl
+                .replace("{number}", plivioNumber);
+        ObjectMapper mapper = new ObjectMapper();
+        String response = HttpUtil.defaultHttpGetHandler(plivioReleaseurl,
+                BasicAuthUtil.getBasicAuthHash(PLIVIO));
+	}
 
 }

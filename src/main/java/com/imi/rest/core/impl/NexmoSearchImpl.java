@@ -1,8 +1,6 @@
 package com.imi.rest.core.impl;
 
-import java.io.BufferedReader;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -23,6 +21,7 @@ import com.imi.rest.core.NumberSearch;
 import com.imi.rest.model.Country;
 import com.imi.rest.model.Number;
 import com.imi.rest.model.NumberResponse;
+import com.imi.rest.util.BasicAuthUtil;
 import com.imi.rest.util.HttpUtil;
 
 @Component
@@ -103,4 +102,31 @@ public class NexmoSearchImpl implements NumberSearch, CountrySearch, UrlConstant
         Set<Country> countriesSet = new HashSet<Country>();
         return countriesSet;
     }
+
+	public void purchaseNumber(String number, String provider,
+			String countryIsoCode) throws ClientProtocolException, IOException {
+		String nexmoPurchaseUrl = NEXMO_PURCHASE_URL;
+		String nexmoNumber = number.trim()+countryIsoCode.trim();
+		nexmoPurchaseUrl = nexmoPurchaseUrl
+	                .replace("{api_key}", "a5eb8aa1")
+	                .replace("{api_secret}", "b457a519")
+	                .replace("{country}", "")
+	                .replace("{msisdn}", nexmoNumber);
+        ObjectMapper mapper = new ObjectMapper();
+		String response = HttpUtil.defaultHttpGetHandler(nexmoPurchaseUrl);
+	}
+
+	public  void releaseNumber(String number, String provider,
+			String countryIsoCode) throws ClientProtocolException, IOException {
+		String nexmoReleaseUrl = NEXMO_RELEASE_URL;
+		String nexmoNumber = number.trim()+countryIsoCode.trim();
+		nexmoReleaseUrl = nexmoReleaseUrl
+				.replace("{api_key}", "a5eb8aa1")
+                .replace("{api_secret}", "b457a519")
+                .replace("{country}", "")
+                .replace("{msisdn}", nexmoNumber);
+        ObjectMapper mapper = new ObjectMapper();
+        String response = HttpUtil.defaultHttpGetHandler(nexmoReleaseUrl,
+                BasicAuthUtil.getBasicAuthHash(PLIVIO));
+	}
 }
