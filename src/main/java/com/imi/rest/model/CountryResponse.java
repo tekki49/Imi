@@ -1,12 +1,12 @@
 package com.imi.rest.model;
 
-import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
 
 public class CountryResponse {
 
     private MetaForCountries meta;
-    private Set<Country> countries = new HashSet<Country>();
+    private Set<Country> countries = new TreeSet<Country>();
 
     public MetaForCountries getMeta() {
         return meta;
@@ -24,8 +24,8 @@ public class CountryResponse {
         this.countries = countries;
     }
 
-    public void addCountries(Set<Country> countryList) {
-        this.countries.addAll(countries);
+    public void addCountries(Set<Country> countrySet) {
+        this.countries.addAll(countrySet);
     }
 
     public CountryResponse() {
