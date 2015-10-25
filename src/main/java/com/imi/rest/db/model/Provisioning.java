@@ -44,7 +44,8 @@ public class Provisioning implements java.io.Serializable {
             String voiceFallbackUrl, String voiceFallbackMethod,
             String statusCallBack, String statusCallbackMethod, String smsUrl,
             String smsMethod, String smsFallbackUrl, String smsFallbackMethod,
-            String smsStatusCallback, Set<Purchasehistories> purchasehistorieses) {
+            String smsStatusCallback,
+            Set<Purchasehistories> purchasehistorieses) {
         this.id = id;
         this.voiceUrl = voiceUrl;
         this.voiceMethod = voiceMethod;

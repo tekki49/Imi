@@ -16,7 +16,9 @@ public class HttpUtil {
         HttpGet get = new HttpGet(url);
         get.setHeader("Authorization", "Basic " + authHash);
         ResponseHandler<String> handler = new BasicResponseHandler();
-        return client.execute(get, handler);
+        String response = client.execute(get, handler);
+        client.close();
+        return response;
     }
 
     public static String defaultHttpGetHandler(String url)
@@ -24,7 +26,9 @@ public class HttpUtil {
         DefaultHttpClient client = new DefaultHttpClient();
         HttpGet get = new HttpGet(url);
         ResponseHandler<String> handler = new BasicResponseHandler();
-        return client.execute(get, handler);
+        String response = client.execute(get, handler);
+        client.close();
+        return response;
     }
 
 }

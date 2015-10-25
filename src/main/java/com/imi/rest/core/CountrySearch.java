@@ -9,5 +9,6 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.imi.rest.model.Country;
 
 public interface CountrySearch {
-	public Set<Country> importCountries() throws FileNotFoundException, JsonParseException, JsonMappingException, IOException;
+    public Set<Country> importCountries() throws FileNotFoundException,
+            JsonParseException, JsonMappingException, IOException;
 }

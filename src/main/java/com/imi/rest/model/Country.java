@@ -36,8 +36,9 @@ public class Country implements Comparable<Country> {
         }
         return false;
     }
-	@Override
-	public int compareTo(Country c) {
-		return this.getCountry().compareTo(c.getCountry());
-	}
+
+    @Override
+    public int compareTo(Country c) {
+        return this.getCountry().compareTo(c.getCountry());
+    }
 }

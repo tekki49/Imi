@@ -19,27 +19,29 @@ import com.imi.rest.service.PurchaseNumberService;
 
 @RestController
 public class PurchaseController {
-	
-	@Autowired
-	PurchaseNumberService purchaseNumberService;
-	@Autowired
-	ProviderService providerService;
+
+    @Autowired
+    PurchaseNumberService purchaseNumberService;
+    @Autowired
+    ProviderService providerService;
 
     @RequestMapping(value = "/purchase/{number}/{countryIsoCode}", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public PurchaseDetails purchaseNumber(
-            @PathVariable("number") String number,
+    public PurchaseDetails purchaseNumber(@PathVariable("number") String number,
             @PathVariable("countryIsoCode") String countryIsoCode,
-            @RequestHeader("provider") String providerId) throws ClientProtocolException, IOException{
-    	List<String> errors = ApplicationHelper.validatePurchaseRequest(number, providerId);
-//    	if (!errors.isEmpty()){
-//    		return new ResponseEntity<PurchaseDetails>(HttpStatus.SC_BAD_REQUEST);
-//    	}
-//    	else{
-	    	String provider = providerService.getProviderById(providerId);
-	    	purchaseNumberService.purchaseNumber(number, provider,countryIsoCode);
-	        PurchaseDetails purchaseDetails2 = new PurchaseDetails();
-	        return purchaseDetails2;
-        
+            @RequestHeader("provider") String providerId)
+                    throws ClientProtocolException, IOException {
+        List<String> errors = ApplicationHelper.validatePurchaseRequest(number,
+                providerId);
+        // if (!errors.isEmpty()){
+        // return new
+        // ResponseEntity<PurchaseDetails>(HttpStatus.SC_BAD_REQUEST);
+        // }
+        // else{
+        String provider = providerService.getProviderById(providerId);
+        purchaseNumberService.purchaseNumber(number, provider, countryIsoCode);
+        PurchaseDetails purchaseDetails2 = new PurchaseDetails();
+        return purchaseDetails2;
+
     }
 
 }

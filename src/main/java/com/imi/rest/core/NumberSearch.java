@@ -12,7 +12,7 @@ public interface NumberSearch {
 
     List<Number> searchPhoneNumbers(ServiceConstants serviceTypeEnum,
             String countryIsoCode, String numberType, String pattern)
-            throws ClientProtocolException, IOException;
+                    throws ClientProtocolException, IOException;
 
     void setServiceType(Number number);
 

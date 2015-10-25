@@ -2,7 +2,6 @@ package com.imi.rest.controller;
 
 import java.io.IOException;
 import java.util.Set;
-import java.util.TreeSet;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,8 +22,8 @@ public class CountryController {
     CountrySearchService countrySearchService;
 
     @RequestMapping(value = "/Countries", method = RequestMethod.GET)
-    public CountryResponse countryListResponse() throws JsonParseException,
-            JsonMappingException, IOException {
+    public CountryResponse countryListResponse()
+            throws JsonParseException, JsonMappingException, IOException {
         countrySearchService.getCountryListWithISO();
         CountryResponse countryResponse = new CountryResponse();
         Set<Country> countrySet = countrySearchService.getCountryListWithISO();

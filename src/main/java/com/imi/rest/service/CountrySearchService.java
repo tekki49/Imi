@@ -26,17 +26,17 @@ public class CountrySearchService {
 
     @Autowired
     NexmoSearchImpl nexmoCountrySearchImpl;
-    
-    private static final Logger LOG=Logger
+
+    private static final Logger LOG = Logger
             .getLogger(CountrySearchService.class);
 
-    public Set<Country> getCountryListWithISO() throws JsonParseException,
-            JsonMappingException, IOException {
+    public Set<Country> getCountryListWithISO()
+            throws JsonParseException, JsonMappingException, IOException {
         CountryResponse countryResponse = new CountryResponse();
         countryResponse.addCountries(twilioCountrySearchImpl.importCountries());
         countryResponse.addCountries(nexmoCountrySearchImpl.importCountries());
         countryResponse.addCountries(plivioCountrySearchImpl.importCountries());
         return countryResponse.getCountries();
     }
-    
+
 }

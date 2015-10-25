@@ -46,7 +46,7 @@ public class NumberSearchService implements ProviderConstants {
 
     public List<Number> searchPhoneNumbers(ServiceConstants serviceTypeEnum,
             String countryIsoCode, String numberType, String pattern)
-            throws ClientProtocolException, IOException {
+                    throws ClientProtocolException, IOException {
         List<Number> phoneSearchResult = new ArrayList<Number>();
         phoneSearchResult.addAll(plivioNumberSearchImpl.searchPhoneNumbers(
                 serviceTypeEnum, countryIsoCode, numberType, pattern));

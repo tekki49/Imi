@@ -58,8 +58,8 @@ public class NumberSearchController {
                 .evaluate(serviceType);
         List<Number> numberList = null;
         try {
-            numberList = numberSearchService.searchPhoneNumbers(
-                    serviceTypeEnum, countryIsoCode, numberType, pattern);
+            numberList = numberSearchService.searchPhoneNumbers(serviceTypeEnum,
+                    countryIsoCode, numberType, pattern);
         } catch (IOException e) {
             LOG.error(e.getMessage());
         }
@@ -78,8 +78,8 @@ public class NumberSearchController {
                 .evaluate(serviceType);
         List<Number> numberList = null;
         try {
-            numberList = numberSearchService.searchPhoneNumbers(
-                    serviceTypeEnum, countryIsoCode, numberType, "");
+            numberList = numberSearchService.searchPhoneNumbers(serviceTypeEnum,
+                    countryIsoCode, numberType, "");
         } catch (IOException e) {
             LOG.error(e.getMessage());
         }
