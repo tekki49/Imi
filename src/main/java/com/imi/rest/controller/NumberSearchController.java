@@ -37,7 +37,7 @@ public class NumberSearchController {
                 .evaluate(serviceType);
         List<Number> numberList = null;
         try {
-            numberSearchService.searchPhoneNumbers(serviceTypeEnum, providerId,
+            numberList=numberSearchService.searchPhoneNumbers(serviceTypeEnum, providerId,
                     countryIsoCode, numberType, pattern);
         } catch (IOException e) {
             LOG.error(e.getMessage());

@@ -24,7 +24,6 @@ public class CountryController {
     @RequestMapping(value = "/Countries", method = RequestMethod.GET)
     public CountryResponse countryListResponse()
             throws JsonParseException, JsonMappingException, IOException {
-        countrySearchService.getCountryListWithISO();
         CountryResponse countryResponse = new CountryResponse();
         Set<Country> countrySet = countrySearchService.getCountryListWithISO();
         countryResponse.setMeta(new MetaForCountries());

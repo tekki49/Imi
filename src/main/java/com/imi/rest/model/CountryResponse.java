@@ -25,7 +25,9 @@ public class CountryResponse {
     }
 
     public void addCountries(Set<Country> countrySet) {
-        this.countries.addAll(countrySet);
+        if (countrySet != null) {
+            this.countries.addAll(countrySet);
+        }
     }
 
     public CountryResponse() {

@@ -7,14 +7,9 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.http.client.ClientProtocolException;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.imi.rest.constants.ProviderConstants;
@@ -112,25 +107,14 @@ public class TwilioSearchImpl implements NumberSearch, CountrySearch,
         String url = TWILIO_COUNTRY_LIST_URL;
         String authHash = BasicAuthUtil
                 .getBasicAuthHash(ProviderConstants.TWILIO);
-        RestTemplate restTemplate = new RestTemplate();
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", "Basic " + authHash);
-        HttpEntity<String> entity = new HttpEntity<String>("parameters",
-                headers);
-        entity = restTemplate.exchange(url, HttpMethod.GET, entity,
-                String.class);
-        String responseBody = entity.getBody();
+        String responseBody =HttpUtil.defaultHttpGetHandler(url, authHash);
         ObjectMapper objMapper = new ObjectMapper();
         CountryResponse countryResponse = objMapper.readValue(responseBody,
                 CountryResponse.class);
         while (countryResponse != null
                 && countryResponse.getMeta().getNextPageUrl() != null) {
             String nextPageUrl = countryResponse.getMeta().getNextPageUrl();
-            HttpEntity<String> nextEntity = new HttpEntity<String>("parameters",
-                    headers);
-            nextEntity = restTemplate.exchange(nextPageUrl, HttpMethod.GET,
-                    nextEntity, String.class);
-            String nextResponseBody = nextEntity.getBody();
+            String nextResponseBody = HttpUtil.defaultHttpGetHandler(nextPageUrl, authHash);;
             CountryResponse countryResponse2 = objMapper
                     .readValue(nextResponseBody, CountryResponse.class);
             countryResponse.addCountries(countryResponse2.getCountries());
