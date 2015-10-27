@@ -27,7 +27,7 @@ import com.imi.rest.util.BasicAuthUtil;
 import com.imi.rest.util.HttpUtil;
 
 @Component
-public class TwilioSearchImpl implements NumberSearch, CountrySearch,
+public class TwilioFactoryImpl implements NumberSearch, CountrySearch,
         UrlConstants, ProviderConstants {
 
     @Override

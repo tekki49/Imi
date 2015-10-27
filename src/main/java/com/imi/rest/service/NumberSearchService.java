@@ -10,35 +10,35 @@ import org.springframework.stereotype.Service;
 
 import com.imi.rest.constants.ProviderConstants;
 import com.imi.rest.constants.ServiceConstants;
-import com.imi.rest.core.impl.NexmoSearchImpl;
-import com.imi.rest.core.impl.PlivioSearchImpl;
-import com.imi.rest.core.impl.TwilioSearchImpl;
+import com.imi.rest.core.impl.NexmoFactoryImpl;
+import com.imi.rest.core.impl.PlivioFactoryImpl;
+import com.imi.rest.core.impl.TwilioFactoryImpl;
 import com.imi.rest.model.Number;
 
 @Service
 public class NumberSearchService implements ProviderConstants {
 
     @Autowired
-    PlivioSearchImpl plivioNumberSearchImpl;
+    PlivioFactoryImpl plivioFactoryImpl;
 
     @Autowired
-    TwilioSearchImpl twilioNumberSearchImpl;
+    TwilioFactoryImpl twilioFactoryImpl;
 
     @Autowired
-    NexmoSearchImpl nexmoNumberSearchImpl;
+    NexmoFactoryImpl nexmoFactoryImpl;
 
     public List<Number> searchPhoneNumbers(ServiceConstants serviceTypeEnum,
             String provider, String countryIsoCode, String numberType,
             String pattern) throws ClientProtocolException, IOException {
         List<Number> phoneSearchResult = new ArrayList<Number>();
         if (provider.equalsIgnoreCase(PLIVIO)) {
-            phoneSearchResult.addAll(plivioNumberSearchImpl.searchPhoneNumbers(
+            phoneSearchResult.addAll(plivioFactoryImpl.searchPhoneNumbers(
                     serviceTypeEnum, countryIsoCode, numberType, pattern));
         } else if (provider.equalsIgnoreCase(TWILIO)) {
-            phoneSearchResult.addAll(twilioNumberSearchImpl.searchPhoneNumbers(
+            phoneSearchResult.addAll(twilioFactoryImpl.searchPhoneNumbers(
                     serviceTypeEnum, countryIsoCode, numberType, pattern));
         } else if (provider.equalsIgnoreCase(NEXMO)) {
-            phoneSearchResult.addAll(nexmoNumberSearchImpl.searchPhoneNumbers(
+            phoneSearchResult.addAll(nexmoFactoryImpl.searchPhoneNumbers(
                     serviceTypeEnum, countryIsoCode, numberType, pattern));
         }
         return phoneSearchResult;
@@ -48,11 +48,11 @@ public class NumberSearchService implements ProviderConstants {
             String countryIsoCode, String numberType, String pattern)
                     throws ClientProtocolException, IOException {
         List<Number> phoneSearchResult = new ArrayList<Number>();
-        phoneSearchResult.addAll(plivioNumberSearchImpl.searchPhoneNumbers(
+        phoneSearchResult.addAll(plivioFactoryImpl.searchPhoneNumbers(
                 serviceTypeEnum, countryIsoCode, numberType, pattern));
-        phoneSearchResult.addAll(twilioNumberSearchImpl.searchPhoneNumbers(
+        phoneSearchResult.addAll(twilioFactoryImpl.searchPhoneNumbers(
                 serviceTypeEnum, countryIsoCode, numberType, pattern));
-        phoneSearchResult.addAll(nexmoNumberSearchImpl.searchPhoneNumbers(
+        phoneSearchResult.addAll(nexmoFactoryImpl.searchPhoneNumbers(
                 serviceTypeEnum, countryIsoCode, numberType, pattern));
         return phoneSearchResult;
     }

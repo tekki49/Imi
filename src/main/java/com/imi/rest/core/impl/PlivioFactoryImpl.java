@@ -31,7 +31,7 @@ import com.imi.rest.util.HttpUtil;
 import com.imi.rest.model.Country;
 
 @Component
-public class PlivioSearchImpl implements NumberSearch, CountrySearch,
+public class PlivioFactoryImpl implements NumberSearch, CountrySearch,
         UrlConstants, ProviderConstants {
 
     private static final String PLIVIO_CSV_FILE_PATH = "/home/hemanth/Desktop/PLIVIO_COUNTRIES_WITH_ISO.csv";

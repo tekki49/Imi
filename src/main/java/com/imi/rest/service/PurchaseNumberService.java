@@ -8,33 +8,33 @@ import org.springframework.stereotype.Service;
 
 import com.imi.rest.constants.ProviderConstants;
 import com.imi.rest.constants.UrlConstants;
-import com.imi.rest.core.impl.NexmoSearchImpl;
-import com.imi.rest.core.impl.PlivioSearchImpl;
-import com.imi.rest.core.impl.TwilioSearchImpl;
+import com.imi.rest.core.impl.NexmoFactoryImpl;
+import com.imi.rest.core.impl.PlivioFactoryImpl;
+import com.imi.rest.core.impl.TwilioFactoryImpl;
 
 @Service
 public class PurchaseNumberService implements ProviderConstants, UrlConstants {
 
     @Autowired
-    PlivioSearchImpl plivioSearchImpl;
+    PlivioFactoryImpl plivioFactoryImpl;
 
     @Autowired
-    NexmoSearchImpl nexmoSearchImpl;
+    NexmoFactoryImpl nexmoFactoryImpl;
 
     @Autowired
-    TwilioSearchImpl twilioSearchImpl;
+    TwilioFactoryImpl twilioFactoryImpl;
 
     public void purchaseNumber(String number, String provider,
             String countryIsoCode) throws ClientProtocolException, IOException {
         switch (provider) {
         case TWILIO:
-            twilioSearchImpl.purchaseNumber(number, provider, countryIsoCode);
+            twilioFactoryImpl.purchaseNumber(number, provider, countryIsoCode);
             break;
         case PLIVIO:
-            plivioSearchImpl.purchaseNumber(number, provider, countryIsoCode);
+            plivioFactoryImpl.purchaseNumber(number, provider, countryIsoCode);
             break;
         case NEXMO:
-            nexmoSearchImpl.purchaseNumber(number, provider, countryIsoCode);
+            nexmoFactoryImpl.purchaseNumber(number, provider, countryIsoCode);
             break;
         default:
             break;

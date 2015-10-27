@@ -8,19 +8,19 @@ import org.springframework.stereotype.Service;
 
 import com.imi.rest.constants.ProviderConstants;
 import com.imi.rest.core.ReleaseNumber;
-import com.imi.rest.core.impl.NexmoSearchImpl;
-import com.imi.rest.core.impl.PlivioSearchImpl;
-import com.imi.rest.core.impl.TwilioSearchImpl;
+import com.imi.rest.core.impl.NexmoFactoryImpl;
+import com.imi.rest.core.impl.PlivioFactoryImpl;
+import com.imi.rest.core.impl.TwilioFactoryImpl;
 
 @Service
 public class ReleaseNumberService implements ReleaseNumber, ProviderConstants {
 
     @Autowired
-    TwilioSearchImpl twilioSearchImpl;
+    TwilioFactoryImpl twilioFactoryImpl;
     @Autowired
-    PlivioSearchImpl plivioSearchImpl;
+    PlivioFactoryImpl plivioFactoryImpl;
     @Autowired
-    NexmoSearchImpl nexmoSearchImpl;
+    NexmoFactoryImpl nexmoFactoryImpl;
 
     @Override
     public void releaseNumber(String number, String provider) {
@@ -32,13 +32,13 @@ public class ReleaseNumberService implements ReleaseNumber, ProviderConstants {
             String countryIsoCode) throws ClientProtocolException, IOException {
         switch (provider) {
         case TWILIO:
-            twilioSearchImpl.releaseNumber(number, provider, countryIsoCode);
+            twilioFactoryImpl.releaseNumber(number, provider, countryIsoCode);
             break;
         case PLIVIO:
-            plivioSearchImpl.releaseNumber(number, provider, countryIsoCode);
+            plivioFactoryImpl.releaseNumber(number, provider, countryIsoCode);
             break;
         case NEXMO:
-            nexmoSearchImpl.releaseNumber(number, provider, countryIsoCode);
+            nexmoFactoryImpl.releaseNumber(number, provider, countryIsoCode);
             break;
         default:
             break;

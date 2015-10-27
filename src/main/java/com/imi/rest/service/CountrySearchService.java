@@ -1,7 +1,6 @@
 package com.imi.rest.service;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -10,9 +9,9 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import com.imi.rest.core.impl.NexmoSearchImpl;
-import com.imi.rest.core.impl.PlivioSearchImpl;
-import com.imi.rest.core.impl.TwilioSearchImpl;
+import com.imi.rest.core.impl.NexmoFactoryImpl;
+import com.imi.rest.core.impl.PlivioFactoryImpl;
+import com.imi.rest.core.impl.TwilioFactoryImpl;
 import com.imi.rest.model.Country;
 import com.imi.rest.model.CountryResponse;
 
@@ -20,13 +19,13 @@ import com.imi.rest.model.CountryResponse;
 public class CountrySearchService {
 
     @Autowired
-    PlivioSearchImpl plivioCountrySearchImpl;
+    PlivioFactoryImpl plivioFactoryImpl;
 
     @Autowired
-    TwilioSearchImpl twilioCountrySearchImpl;
+    TwilioFactoryImpl twilioFactoryImpl;
 
     @Autowired
-    NexmoSearchImpl nexmoCountrySearchImpl;
+    NexmoFactoryImpl nexmoFactoryImpl;
 
     private static final Logger LOG = Logger
             .getLogger(CountrySearchService.class);
@@ -34,9 +33,9 @@ public class CountrySearchService {
     public Set<Country> getCountryListWithISO()
             throws JsonParseException, JsonMappingException, IOException {
         CountryResponse countryResponse = new CountryResponse();
-        countryResponse.addCountries(twilioCountrySearchImpl.importCountries());
-        countryResponse.addCountries(nexmoCountrySearchImpl.importCountries());
-        countryResponse.addCountries(plivioCountrySearchImpl.importCountries());
+        countryResponse.addCountries(twilioFactoryImpl.importCountries());
+        countryResponse.addCountries(nexmoFactoryImpl.importCountries());
+        countryResponse.addCountries(plivioFactoryImpl.importCountries());
         return countryResponse.getCountries();
     }
 

@@ -32,7 +32,7 @@ import com.imi.rest.util.BasicAuthUtil;
 import com.imi.rest.util.HttpUtil;
 
 @Component
-public class NexmoSearchImpl implements NumberSearch, CountrySearch,
+public class NexmoFactoryImpl implements NumberSearch, CountrySearch,
         UrlConstants, ProviderConstants {
 
     private String nexmoPricingResponse;
