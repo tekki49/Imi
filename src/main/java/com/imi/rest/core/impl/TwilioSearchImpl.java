@@ -22,6 +22,7 @@ import com.imi.rest.model.CountryPricing;
 import com.imi.rest.model.CountryResponse;
 import com.imi.rest.model.Number;
 import com.imi.rest.model.NumberResponse;
+import com.imi.rest.model.PlivioPurchaseResponse;
 import com.imi.rest.util.BasicAuthUtil;
 import com.imi.rest.util.HttpUtil;
 
@@ -124,11 +125,14 @@ public class TwilioSearchImpl implements NumberSearch, CountrySearch,
 
     public void purchaseNumber(String number, String provider,
             String countryIsoCode) throws ClientProtocolException, IOException {
-        String twilioPurchaseUrl = TWILIO_PURCHASE_URL;
+        String twilioPurchaseUrl = TWILIO_DUMMY_PURCHASE_URL;
         String twilioNumber = "+" + number.trim() + countryIsoCode.trim();
         twilioPurchaseUrl = twilioPurchaseUrl.replace("{number}", twilioNumber);
+        String response = HttpUtil.defaultHttpGetHandler(twilioPurchaseUrl,
+                BasicAuthUtil.getBasicAuthHash("TWILIO_DUMMY"));
         ObjectMapper mapper = new ObjectMapper();
-        String response = HttpUtil.defaultHttpGetHandler(twilioPurchaseUrl);
+        PlivioPurchaseResponse plivioPurchaseResponse = mapper
+                .readValue(response, PlivioPurchaseResponse.class);
     }
 
     public void releaseNumber(String number, String provider,
