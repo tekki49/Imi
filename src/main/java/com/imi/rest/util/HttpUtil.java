@@ -39,7 +39,7 @@ public class HttpUtil {
     }
     
     public static String defaultHttpPostHandler(String url, Object requestBody, String authHash) throws ClientProtocolException,IOException{
-    	 RestTemplate restTemplate = new RestTemplate();
+         RestTemplate restTemplate = new RestTemplate();
          HttpHeaders headers = new HttpHeaders();
          headers.add("Authorization", "Basic " + authHash);
          MultiValueMap<String, Object> variablesMap = new LinkedMultiValueMap<String, Object>();

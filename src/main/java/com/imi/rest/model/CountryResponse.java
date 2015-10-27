@@ -3,11 +3,16 @@ package com.imi.rest.model;
 import java.util.Set;
 import java.util.TreeSet;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class CountryResponse {
 
     private MetaForCountries meta;
     private Set<Country> countries = new TreeSet<Country>();
 
+    @JsonIgnore
     public MetaForCountries getMeta() {
         return meta;
     }

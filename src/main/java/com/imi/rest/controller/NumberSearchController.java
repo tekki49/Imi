@@ -42,7 +42,6 @@ public class NumberSearchController {
         } catch (IOException e) {
             LOG.error(e.getMessage());
         }
-        numberResponse.setMeta(new Meta());
         numberResponse.setObjects(numberList);
         return numberResponse;
     }
@@ -63,7 +62,6 @@ public class NumberSearchController {
         } catch (IOException e) {
             LOG.error(e.getMessage());
         }
-        numberResponse.setMeta(new Meta());
         numberResponse.setObjects(numberList);
         return numberResponse;
     }
@@ -83,7 +81,6 @@ public class NumberSearchController {
         } catch (IOException e) {
             LOG.error(e.getMessage());
         }
-        numberResponse.setMeta(new Meta());
         numberResponse.setObjects(numberList);
         return numberResponse;
     }

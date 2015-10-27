@@ -1,6 +1,5 @@
 package com.imi.rest.db.model;
-
-// Generated Oct 6, 2015 6:50:08 PM by Hibernate Tools 4.0.0
+// Generated Oct 27, 2015 4:52:41 PM by Hibernate Tools 4.0.0.Final
 
 import java.util.HashSet;
 import java.util.Set;
@@ -30,7 +29,7 @@ public class Provisioning implements java.io.Serializable {
     private String smsFallbackUrl;
     private String smsFallbackMethod;
     private String smsStatusCallback;
-    private Set<Purchasehistories> purchasehistorieses = new HashSet<Purchasehistories>(
+    private Set<Purchasehistory> purchasehistories = new HashSet<Purchasehistory>(
             0);
 
     public Provisioning() {
@@ -44,8 +43,7 @@ public class Provisioning implements java.io.Serializable {
             String voiceFallbackUrl, String voiceFallbackMethod,
             String statusCallBack, String statusCallbackMethod, String smsUrl,
             String smsMethod, String smsFallbackUrl, String smsFallbackMethod,
-            String smsStatusCallback,
-            Set<Purchasehistories> purchasehistorieses) {
+            String smsStatusCallback, Set<Purchasehistory> purchasehistories) {
         this.id = id;
         this.voiceUrl = voiceUrl;
         this.voiceMethod = voiceMethod;
@@ -58,10 +56,11 @@ public class Provisioning implements java.io.Serializable {
         this.smsFallbackUrl = smsFallbackUrl;
         this.smsFallbackMethod = smsFallbackMethod;
         this.smsStatusCallback = smsStatusCallback;
-        this.purchasehistorieses = purchasehistorieses;
+        this.purchasehistories = purchasehistories;
     }
 
     @Id
+
     @Column(name = "Id", unique = true, nullable = false)
     public int getId() {
         return this.id;
@@ -171,13 +170,12 @@ public class Provisioning implements java.io.Serializable {
     }
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "provisioning")
-    public Set<Purchasehistories> getPurchasehistorieses() {
-        return this.purchasehistorieses;
+    public Set<Purchasehistory> getPurchasehistories() {
+        return this.purchasehistories;
     }
 
-    public void setPurchasehistorieses(
-            Set<Purchasehistories> purchasehistorieses) {
-        this.purchasehistorieses = purchasehistorieses;
+    public void setPurchasehistories(Set<Purchasehistory> purchasehistories) {
+        this.purchasehistories = purchasehistories;
     }
 
 }
