@@ -55,7 +55,6 @@ public class TwilioSearchImpl implements NumberSearch, CountrySearch,
                 BasicAuthUtil.getBasicAuthHash(TWILIO));
         CountryPricing countryPricing = mapper.readValue(twilioPriceResponse,
                 CountryPricing.class);
-        System.out.println(mapper.writeValueAsString(countryPricing));
         for (Number twilioNumber : twilioNumberList) {
             if (twilioNumber != null) {
                 setServiceType(twilioNumber);

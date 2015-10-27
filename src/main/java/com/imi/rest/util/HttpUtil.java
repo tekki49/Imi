@@ -1,12 +1,34 @@
 package com.imi.rest.util;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
+import javax.xml.bind.DatatypeConverter;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.imi.rest.constants.UrlConstants;
 
 public class HttpUtil {
 
@@ -35,4 +57,19 @@ public class HttpUtil {
         return responseBody;
     }
 
+    public static String defaultHttpPutHandler(String url,
+            Map<String, String> requestBody, String authHash)
+                    throws ClientProtocolException, IOException {
+        HttpClient httpclient = new DefaultHttpClient();
+        HttpPost httppost = new HttpPost(url);
+        httppost.setHeader("Authorization", "Basic " + authHash);
+        List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
+        for (String key : requestBody.keySet()) {
+            nameValuePairs
+                    .add(new BasicNameValuePair(key, requestBody.get(key)));
+        }
+        httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+        HttpResponse response = httpclient.execute(httppost);
+        return EntityUtils.toString(response.getEntity());
+    }
 }

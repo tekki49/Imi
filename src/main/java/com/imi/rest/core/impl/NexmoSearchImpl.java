@@ -95,9 +95,10 @@ public class NexmoSearchImpl implements NumberSearch, CountrySearch,
                 CountryPricing countryPricing = countryPricingMap
                         .get(nexmoNumber.getCountry().toUpperCase());
                 String type = "normal";
+              //TODO- need to check the authenticity of this part
                 if (nexmoNumber.getNumberType()
                         .equalsIgnoreCase("mobile-lvn")) {
-                    type = "tollfree";
+                    nexmoNumber.setType("mobile");
                 }
                 nexmoNumber.setMonthlyRentalRate(countryPricing.getPricing()
                         .get(type).get("setUpRateInEuros"));

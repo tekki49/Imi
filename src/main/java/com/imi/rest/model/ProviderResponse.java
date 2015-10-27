@@ -1,6 +1,6 @@
 package com.imi.rest.model;
 
-import com.imi.rest.db.model.Providers;
+import com.imi.rest.db.model.Provider;
 
 public class ProviderResponse {
 
@@ -12,12 +12,12 @@ public class ProviderResponse {
     public ProviderResponse() {
     }
 
-    public ProviderResponse(Providers providers) {
-        this.api_key = providers.getApiKey();
-        this.auth_Id = providers.getAuthId();
-        this.provider = providers.getName();
+    public ProviderResponse(Provider provider) {
+        this.api_key = provider.getApiKey();
+        this.auth_Id = provider.getAuthId();
+        this.provider = provider.getName();
         // TODO need to change the logic here
-        this.identifier = providers.getName();
+        this.identifier = provider.getName();
     }
 
     public String getIdentifier() {

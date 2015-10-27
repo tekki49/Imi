@@ -9,19 +9,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class NumberResponse {
 
-    private String api_id;
     private Meta meta;
     private List<Number> objects;
     private int count;
-
-    public String getApi_id() {
-        return api_id;
-    }
-
-    public void setApi_id(String api_id) {
-        this.api_id = api_id;
-    }
-
+    
+    @JsonIgnore
     public Meta getMeta() {
         return meta;
     }
