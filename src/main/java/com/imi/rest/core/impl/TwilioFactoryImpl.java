@@ -2,11 +2,14 @@ package com.imi.rest.core.impl;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.http.client.ClientProtocolException;
+import org.json.JSONObject;
+import org.json.XML;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonParseException;
@@ -127,11 +130,12 @@ public class TwilioFactoryImpl implements NumberSearch, CountrySearch,
         String twilioPurchaseUrl = TWILIO_DUMMY_PURCHASE_URL;
         String twilioNumber = "+" + number.trim() + countryIsoCode.trim();
         twilioPurchaseUrl = twilioPurchaseUrl.replace("{number}", twilioNumber);
-        String response = HttpUtil.defaultHttpGetHandler(twilioPurchaseUrl,
+        Map<String, String>requestBody=new HashMap<String,String>();
+        requestBody.put("PhoneNumber",twilioNumber);
+        String response = HttpUtil.defaultHttpPostHandler(twilioPurchaseUrl, requestBody, 
                 BasicAuthUtil.getBasicAuthHash("TWILIO_DUMMY"));
         ObjectMapper mapper = new ObjectMapper();
-        PlivioPurchaseResponse plivioPurchaseResponse = mapper
-                .readValue(response, PlivioPurchaseResponse.class);
+        JSONObject twilioResponse = XML.toJSONObject(response);
     }
 
     public void releaseNumber(String number, String provider,

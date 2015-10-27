@@ -25,7 +25,7 @@ public class PurchaseController {
     @Autowired
     ProviderService providerService;
 
-    @RequestMapping(value = "/purchase/{number}/{countryIsoCode}", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/purchase/{number}/{countryIsoCode}", method = RequestMethod.POST)
     public PurchaseDetails purchaseNumber(@PathVariable("number") String number,
             @PathVariable("countryIsoCode") String countryIsoCode,
             @RequestHeader("provider") String providerId)
