@@ -1,14 +1,9 @@
 package com.imi.rest.util;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import javax.xml.bind.DatatypeConverter;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -22,16 +17,9 @@ import org.apache.http.util.EntityUtils;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpRequest;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.imi.rest.constants.UrlConstants;
 
 public class HttpUtil {
 
@@ -60,21 +48,7 @@ public class HttpUtil {
         return responseBody;
     }
     
-    public static String defaultHttpPostHandler(String url, Object requestBody, String authHash) throws ClientProtocolException,IOException{
-         RestTemplate restTemplate = new RestTemplate();
-         HttpHeaders headers = new HttpHeaders();
-         headers.add("Authorization", "Basic " + authHash);
-         MultiValueMap<String, Object> variablesMap = new LinkedMultiValueMap<String, Object>();
-         variablesMap.add("parameters",
-                 headers);
-         HttpEntity<String> entity = new HttpEntity<String>("parameters",
-                 headers);
-         entity = restTemplate.postForEntity(url, requestBody, String.class);
-         String responseBody = "";
-         return responseBody;
-    }
-
-    public static String defaultHttpPutHandler(String url,
+    public static String defaultHttpPostHandler(String url,
             Map<String, String> requestBody, String authHash)
                     throws ClientProtocolException, IOException {
         HttpClient httpclient = new DefaultHttpClient();
