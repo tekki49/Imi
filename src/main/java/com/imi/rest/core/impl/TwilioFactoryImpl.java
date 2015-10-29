@@ -128,7 +128,7 @@ public class TwilioFactoryImpl implements NumberSearch, CountrySearch,
     public void purchaseNumber(String number, String provider,
             String countryIsoCode) throws ClientProtocolException, IOException {
         String twilioPurchaseUrl = TWILIO_DUMMY_PURCHASE_URL;
-        String twilioNumber = "+" + number.trim() + countryIsoCode.trim();
+        String twilioNumber = "+"  + countryIsoCode.trim()+ number.trim();
         twilioPurchaseUrl = twilioPurchaseUrl.replace("{number}", twilioNumber);
         Map<String, String>requestBody=new HashMap<String,String>();
         requestBody.put("PhoneNumber",twilioNumber);
@@ -136,6 +136,15 @@ public class TwilioFactoryImpl implements NumberSearch, CountrySearch,
                 BasicAuthUtil.getBasicAuthHash("TWILIO_DUMMY"));
         ObjectMapper mapper = new ObjectMapper();
         JSONObject twilioResponse = XML.toJSONObject(response);
+//        String statusCode = (twilioResponse.getString("Code") != null) ? "N/A" :twilioResponse.get("Code").toString().trim();
+//        System.out.println(statusCode);
+//        if (statusCode.equalsIgnoreCase("21422")){
+//        	
+//        }else if( statusCode.equalsIgnoreCase("21421") ){
+//        	
+//        }else if( statusCode.equalsIgnoreCase("N/A") ){
+//        	
+//        }
     }
 
     public void releaseNumber(String number, String provider,

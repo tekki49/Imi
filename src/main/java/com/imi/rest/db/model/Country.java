@@ -20,8 +20,7 @@ public class Country implements java.io.Serializable {
     private int id;
     private String countryIsoCode;
     private String country;
-    private Set<Providercountry> providercountries = new HashSet<Providercountry>(
-            0);
+    private Set<Providercountry> providercountries = new HashSet<Providercountry>(0);
 
     public Country() {
     }

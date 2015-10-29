@@ -41,7 +41,6 @@ public class PurchaseController {
         purchaseNumberService.purchaseNumber(number, provider, countryIsoCode);
         PurchaseDetails purchaseDetails2 = new PurchaseDetails();
         return purchaseDetails2;
-
     }
 
 }

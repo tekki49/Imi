@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Country implements Comparable<Country> {
 
-    private String country;
+	private String country;
     private String isoCountry;
 
     // private String url;
