@@ -28,7 +28,6 @@ import com.imi.rest.model.PlivioPurchaseResponse;
 import com.imi.rest.service.CountrySearchService;
 import com.imi.rest.util.BasicAuthUtil;
 import com.imi.rest.util.HttpUtil;
-import com.imi.rest.model.Country;
 
 @Component
 public class PlivioFactoryImpl implements NumberSearch, CountrySearch,
