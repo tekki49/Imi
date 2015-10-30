@@ -5,17 +5,19 @@ import java.util.List;
 
 import org.apache.http.client.ClientProtocolException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.imi.rest.db.model.Purchase;
 import com.imi.rest.helper.ApplicationHelper;
 import com.imi.rest.model.PurchaseDetails;
+import com.imi.rest.model.PurchaseResponse;
 import com.imi.rest.service.ProviderService;
 import com.imi.rest.service.PurchaseNumberService;
+import com.imi.rest.service.PurchaseService;
 
 @RestController
 public class PurchaseController {
@@ -24,6 +26,8 @@ public class PurchaseController {
     PurchaseNumberService purchaseNumberService;
     @Autowired
     ProviderService providerService;
+    @Autowired
+    PurchaseService purchaseService;
 
     @RequestMapping(value = "/purchase/{number}/{countryIsoCode}", method = RequestMethod.POST)
     public PurchaseDetails purchaseNumber(@PathVariable("number") String number,
@@ -43,4 +47,9 @@ public class PurchaseController {
         return purchaseDetails2;
     }
 
+    @RequestMapping(value="/purchaseByNumber",method=RequestMethod.POST)
+    public PurchaseResponse puchaseByNumber(@RequestHeader("number") Integer number){
+    	Purchase purchase =purchaseService.getPurchaseByNumber(number);
+    	return new PurchaseResponse(purchase);
+    }
 }
