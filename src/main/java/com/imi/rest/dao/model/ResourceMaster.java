@@ -1,4 +1,4 @@
-package com.imi.rest.db.model;
+package com.imi.rest.dao.model;
 // Generated Oct 27, 2015 4:52:41 PM by Hibernate Tools 4.0.0.Final
 
 import java.util.Date;

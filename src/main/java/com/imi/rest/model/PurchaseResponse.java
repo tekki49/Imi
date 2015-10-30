@@ -1,6 +1,6 @@
 package com.imi.rest.model;
 
-import com.imi.rest.db.model.Purchase;
+import com.imi.rest.dao.model.Purchase;
 
 public class PurchaseResponse {
 

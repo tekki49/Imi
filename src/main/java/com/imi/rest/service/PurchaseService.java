@@ -5,8 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.imi.rest.dao.PurchaseDao;
-import com.imi.rest.db.model.Purchase;
-import com.imi.rest.model.PurchaseResponse;
+import com.imi.rest.dao.model.Purchase;
 
 @Service
 @Transactional

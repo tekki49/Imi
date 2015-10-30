@@ -1,6 +1,6 @@
 package com.imi.rest.model;
 
-import com.imi.rest.db.model.Provider;
+import com.imi.rest.dao.model.Provider;
 
 public class ProviderResponse {
 

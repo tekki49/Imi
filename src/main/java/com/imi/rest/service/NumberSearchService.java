@@ -13,6 +13,9 @@ import com.imi.rest.constants.ServiceConstants;
 import com.imi.rest.core.impl.NexmoFactoryImpl;
 import com.imi.rest.core.impl.PlivioFactoryImpl;
 import com.imi.rest.core.impl.TwilioFactoryImpl;
+import com.imi.rest.dao.model.Provider;
+import com.imi.rest.exception.ImiException;
+import com.imi.rest.exception.InvalidProviderException;
 import com.imi.rest.model.Number;
 
 @Service
@@ -26,33 +29,42 @@ public class NumberSearchService implements ProviderConstants {
 
     @Autowired
     NexmoFactoryImpl nexmoFactoryImpl;
+    
+    @Autowired
+    ProviderService providerService;
 
     public List<Number> searchPhoneNumbers(ServiceConstants serviceTypeEnum,
-            String provider, String countryIsoCode, String numberType,
-            String pattern) throws ClientProtocolException, IOException {
+            Provider provider, String countryIsoCode, String numberType,
+            String pattern)
+                    throws ClientProtocolException, IOException, ImiException {
         List<Number> phoneSearchResult = new ArrayList<Number>();
-        if (provider.equalsIgnoreCase(PLIVIO)) {
+        if (provider.getName().equalsIgnoreCase(PLIVIO)) {
             phoneSearchResult.addAll(plivioFactoryImpl.searchPhoneNumbers(
-                    serviceTypeEnum, countryIsoCode, numberType, pattern));
-        } else if (provider.equalsIgnoreCase(TWILIO)) {
+                    provider, serviceTypeEnum, countryIsoCode, numberType,
+                    pattern));
+        } else if (provider.getName().equalsIgnoreCase(TWILIO)) {
             phoneSearchResult.addAll(twilioFactoryImpl.searchPhoneNumbers(
-                    serviceTypeEnum, countryIsoCode, numberType, pattern));
-        } else if (provider.equalsIgnoreCase(NEXMO)) {
+                    provider, serviceTypeEnum, countryIsoCode, numberType,
+                    pattern));
+        } else if (provider.getName().equalsIgnoreCase(NEXMO)) {
             phoneSearchResult.addAll(nexmoFactoryImpl.searchPhoneNumbers(
-                    serviceTypeEnum, countryIsoCode, numberType, pattern));
+                    provider, serviceTypeEnum, countryIsoCode, numberType,
+                    pattern));
+        } else {
+            throw new InvalidProviderException(provider.getName());
         }
         return phoneSearchResult;
     }
 
     public List<Number> searchPhoneNumbers(ServiceConstants serviceTypeEnum,
             String countryIsoCode, String numberType, String pattern)
-                    throws ClientProtocolException, IOException {
+                    throws ClientProtocolException, IOException, ImiException {
         List<Number> phoneSearchResult = new ArrayList<Number>();
-        phoneSearchResult.addAll(plivioFactoryImpl.searchPhoneNumbers(
+        phoneSearchResult.addAll(plivioFactoryImpl.searchPhoneNumbers(providerService.getProviderByName(PLIVIO),
                 serviceTypeEnum, countryIsoCode, numberType, pattern));
-        phoneSearchResult.addAll(twilioFactoryImpl.searchPhoneNumbers(
+        phoneSearchResult.addAll(twilioFactoryImpl.searchPhoneNumbers(providerService.getProviderByName(TWILIO),
                 serviceTypeEnum, countryIsoCode, numberType, pattern));
-        phoneSearchResult.addAll(nexmoFactoryImpl.searchPhoneNumbers(
+        phoneSearchResult.addAll(nexmoFactoryImpl.searchPhoneNumbers(providerService.getProviderByName(NEXMO),
                 serviceTypeEnum, countryIsoCode, numberType, pattern));
         return phoneSearchResult;
     }

@@ -1,7 +1,6 @@
 package com.imi.rest.controller;
 
 import java.io.IOException;
-import java.util.List;
 
 import org.apache.http.client.ClientProtocolException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +11,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.imi.rest.core.ReleaseNumber;
-import com.imi.rest.helper.ApplicationHelper;
+import com.imi.rest.dao.model.Provider;
+import com.imi.rest.exception.ImiException;
 import com.imi.rest.service.ProviderService;
 import com.imi.rest.util.ImiJsonUtil;
 
@@ -28,12 +28,10 @@ public class ReleaseNumberController {
     @RequestMapping(value = "/release/{number}", method = RequestMethod.DELETE)
     public String releaseNumber(@PathVariable("number") String number,
             @PathVariable("countryIsoCode") String countryIsoCode,
-            @RequestHeader("provider") String providerId)
-                    throws ClientProtocolException, IOException {
-        List<String> errors = ApplicationHelper.validatePurchaseRequest(number,
-                providerId);
-        String provider = providerService.getProviderById(providerId);
-        releaseNumberService.releaseNumber(number, provider, countryIsoCode);
+            @RequestHeader("provider") int providerId)
+                    throws ClientProtocolException, IOException, ImiException {
+        Provider provider = providerService.getProviderById(providerId);
+        releaseNumberService.releaseNumber(number,provider, countryIsoCode);
         return ImiJsonUtil.getJSONString(number, "released");
     }
 

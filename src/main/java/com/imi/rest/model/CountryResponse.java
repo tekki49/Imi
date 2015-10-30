@@ -7,46 +7,55 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-@JsonIgnoreProperties(ignoreUnknown=true)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class CountryResponse {
-	
-	private Integer id;
-	private String countryIsoCode;
-	private String country;
 
-	public CountryResponse(com.imi.rest.db.model.Country countrySpecific){
-		this.id=countrySpecific.getId();
-		this.countryIsoCode=countrySpecific.getCountryIsoCode();
-		this.country=countrySpecific.getCountry();
-	}
-	
+    private Integer id;
+    private String countryIso;
+    private String countryCode;
+    private String country;
+
+    public CountryResponse(com.imi.rest.dao.model.Country countrySpecific) {
+        this.id = countrySpecific.getId();
+        this.countryIso = countrySpecific.getCountryIso();
+        this.country = countrySpecific.getCountry();
+    }
+
     public Integer getId() {
-		return id;
-	}
+        return id;
+    }
 
-	public void setId(Integer id) {
-		this.id = id;
-	}
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
-	public String getCountryIsoCode() {
-		return countryIsoCode;
-	}
+    public void setCountryIso(String countryIso) {
+        this.countryIso = countryIso;
+    }
 
-	public void setCountryIsoCode(String countryIsoCode) {
-		this.countryIsoCode = countryIsoCode;
-	}
+    public String getCountryIso() {
+        return countryIso;
+    }
 
-	public String getCountry() {
-		return country;
-	}
+    public String getCountryCode() {
+        return countryCode;
+    }
 
-	public void setCountry(String country) {
-		this.country = country;
-	}
+    public void setCountryCode(String countryCode) {
+        this.countryCode = countryCode;
+    }
 
-	private MetaForCountries meta;
+    public String getCountry() {
+        return country;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
+    }
+
+    private MetaForCountries meta;
     private Set<Country> countries = new TreeSet<Country>();
- 
+
     @JsonIgnore
     public MetaForCountries getMeta() {
         return meta;

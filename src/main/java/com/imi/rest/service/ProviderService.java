@@ -2,39 +2,23 @@ package com.imi.rest.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.imi.rest.constants.ProviderConstants;
 import com.imi.rest.dao.ProviderDao;
-import com.imi.rest.db.model.Provider;
+import com.imi.rest.dao.model.Provider;
+import com.imi.rest.exception.ImiException;
 
 @Service
-@Transactional
 public class ProviderService implements ProviderConstants {
 
-	@Autowired
-	private ProviderDao dao;
-	
-    public String getProviderById(String providerId) {
-        String provider = "";
-        switch (providerId.trim()) {
-        case "1":
-            provider = TWILIO;
-            break;
-        case "2":
-            provider = PLIVIO;
-            break;
-        case "3":
-            provider = NEXMO;
-            break;
-        default:
-            break;
-        }
+    @Autowired
+    private ProviderDao dao;
 
-        return provider;
+    public Provider getProviderById(Integer providerId) throws ImiException {
+        return dao.getProvider(providerId);
     }
-    public Provider getProvider(Integer providerId){
-    			return dao.getProvider(providerId);
-    	
+    
+    public Provider getProviderByName(String provider) throws ImiException {
+        return dao.getProviderByName(provider);
     }
 }

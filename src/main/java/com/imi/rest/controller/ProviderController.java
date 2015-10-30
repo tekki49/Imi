@@ -6,7 +6,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.imi.rest.db.model.Provider;
+import com.imi.rest.dao.model.Provider;
+import com.imi.rest.exception.ImiException;
 import com.imi.rest.model.ProviderResponse;
 import com.imi.rest.service.ProviderService;
 
@@ -17,12 +18,9 @@ public class ProviderController {
 	ProviderService providerService;
 	
     @RequestMapping(value = "/provider", method = RequestMethod.GET)
-    public ProviderResponse providerResponse(@RequestHeader("provider") String providerIdentification) {
-    	
-    	Integer providerId=Integer.parseInt(providerIdentification);
-    	Provider provider=providerService.getProvider(providerId);
+    public ProviderResponse providerResponse(@RequestHeader("provider") int providerId) throws ImiException {
+    	Provider provider=providerService.getProviderById(providerId);
     	ProviderResponse providerResponse=new ProviderResponse(provider);
 		return providerResponse;
-        
     }
 }

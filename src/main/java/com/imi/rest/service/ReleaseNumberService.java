@@ -11,6 +11,9 @@ import com.imi.rest.core.ReleaseNumber;
 import com.imi.rest.core.impl.NexmoFactoryImpl;
 import com.imi.rest.core.impl.PlivioFactoryImpl;
 import com.imi.rest.core.impl.TwilioFactoryImpl;
+import com.imi.rest.dao.model.Provider;
+import com.imi.rest.exception.ImiException;
+import com.imi.rest.exception.InvalidProviderException;
 
 @Service
 public class ReleaseNumberService implements ReleaseNumber, ProviderConstants {
@@ -23,26 +26,24 @@ public class ReleaseNumberService implements ReleaseNumber, ProviderConstants {
     NexmoFactoryImpl nexmoFactoryImpl;
 
     @Override
-    public void releaseNumber(String number, String provider) {
+    public void releaseNumber(String number, Provider provider) {
 
     }
 
     @Override
-    public void releaseNumber(String number, String provider,
-            String countryIsoCode) throws ClientProtocolException, IOException {
-        switch (provider) {
-        case TWILIO:
+    public void releaseNumber(String number, Provider provider,
+            String countryIsoCode)
+                    throws ClientProtocolException, IOException, ImiException {
+        if (provider.getName().equalsIgnoreCase(TWILIO)) {
             twilioFactoryImpl.releaseNumber(number, provider, countryIsoCode);
-            break;
-        case PLIVIO:
+        } else if (provider.getName().equalsIgnoreCase(PLIVIO)) {
             plivioFactoryImpl.releaseNumber(number, provider, countryIsoCode);
-            break;
-        case NEXMO:
+        } else if (provider.getName().equalsIgnoreCase(NEXMO)) {
             nexmoFactoryImpl.releaseNumber(number, provider, countryIsoCode);
-            break;
-        default:
-            break;
+        } else {
+            throw new InvalidProviderException(provider.getName());
         }
+
     }
 
 }

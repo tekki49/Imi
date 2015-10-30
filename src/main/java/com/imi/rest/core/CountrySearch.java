@@ -6,9 +6,10 @@ import java.util.Set;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.imi.rest.dao.model.Provider;
 import com.imi.rest.model.Country;
 
 public interface CountrySearch {
-    public Set<Country> importCountries() throws FileNotFoundException,
+    public Set<Country> importCountries(Provider provider) throws FileNotFoundException,
             JsonParseException, JsonMappingException, IOException;
 }

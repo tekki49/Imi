@@ -11,6 +11,7 @@ import com.imi.rest.constants.UrlConstants;
 import com.imi.rest.core.impl.NexmoFactoryImpl;
 import com.imi.rest.core.impl.PlivioFactoryImpl;
 import com.imi.rest.core.impl.TwilioFactoryImpl;
+import com.imi.rest.dao.model.Provider;
 
 @Service
 public class PurchaseNumberService implements ProviderConstants, UrlConstants {
@@ -24,20 +25,14 @@ public class PurchaseNumberService implements ProviderConstants, UrlConstants {
     @Autowired
     TwilioFactoryImpl twilioFactoryImpl;
 
-    public void purchaseNumber(String number, String provider,
+    public void purchaseNumber(String number, Provider provider,
             String countryIsoCode) throws ClientProtocolException, IOException {
-        switch (provider) {
-        case TWILIO:
+        if (provider.getName().equalsIgnoreCase(TWILIO)) {
             twilioFactoryImpl.purchaseNumber(number, provider, countryIsoCode);
-            break;
-        case PLIVIO:
+        } else if (provider.getName().equalsIgnoreCase(PLIVIO)) {
             plivioFactoryImpl.purchaseNumber(number, provider, countryIsoCode);
-            break;
-        case NEXMO:
+        } else if (provider.getName().equalsIgnoreCase(NEXMO)) {
             nexmoFactoryImpl.purchaseNumber(number, provider, countryIsoCode);
-            break;
-        default:
-            break;
         }
     }
 }

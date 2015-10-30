@@ -1,7 +1,6 @@
 package com.imi.rest.controller;
 
 import java.io.IOException;
-import java.util.List;
 
 import org.apache.http.client.ClientProtocolException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,8 +10,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.imi.rest.db.model.Purchase;
-import com.imi.rest.helper.ApplicationHelper;
+import com.imi.rest.dao.model.Provider;
+import com.imi.rest.dao.model.Purchase;
+import com.imi.rest.exception.ImiException;
 import com.imi.rest.model.PurchaseDetails;
 import com.imi.rest.model.PurchaseResponse;
 import com.imi.rest.service.ProviderService;
@@ -32,24 +32,19 @@ public class PurchaseController {
     @RequestMapping(value = "/purchase/{number}/{countryIsoCode}", method = RequestMethod.POST)
     public PurchaseDetails purchaseNumber(@PathVariable("number") String number,
             @PathVariable("countryIsoCode") String countryIsoCode,
-            @RequestHeader("provider") String providerId)
-                    throws ClientProtocolException, IOException {
-        List<String> errors = ApplicationHelper.validatePurchaseRequest(number,
-                providerId);
-        // if (!errors.isEmpty()){
-        // return new
-        // ResponseEntity<PurchaseDetails>(HttpStatus.SC_BAD_REQUEST);
-        // }
-        // else{
-        String provider = providerService.getProviderById(providerId);
-        purchaseNumberService.purchaseNumber(number, provider, countryIsoCode);
+            @RequestHeader("provider") int providerId)
+                    throws ClientProtocolException, IOException, ImiException {
+        Provider provider = providerService.getProviderById(providerId);
+        purchaseNumberService.purchaseNumber(number, provider,
+                countryIsoCode);
         PurchaseDetails purchaseDetails2 = new PurchaseDetails();
         return purchaseDetails2;
     }
 
-    @RequestMapping(value="/purchaseByNumber",method=RequestMethod.POST)
-    public PurchaseResponse puchaseByNumber(@RequestHeader("number") Integer number){
-    	Purchase purchase =purchaseService.getPurchaseByNumber(number);
-    	return new PurchaseResponse(purchase);
+    @RequestMapping(value = "/purchaseByNumber", method = RequestMethod.POST)
+    public PurchaseResponse puchaseByNumber(
+            @RequestHeader("number") Integer number) {
+        Purchase purchase = purchaseService.getPurchaseByNumber(number);
+        return new PurchaseResponse(purchase);
     }
 }

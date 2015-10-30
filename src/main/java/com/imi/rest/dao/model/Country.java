@@ -1,4 +1,4 @@
-package com.imi.rest.db.model;
+package com.imi.rest.dao.model;
 // Generated Oct 27, 2015 4:52:41 PM by Hibernate Tools 4.0.0.Final
 
 import java.util.HashSet;
@@ -18,7 +18,8 @@ import javax.persistence.Table;
 public class Country implements java.io.Serializable {
 
     private int id;
-    private String countryIsoCode;
+    private String countryIso;
+    private String countryCode;
     private String country;
     private Set<Providercountry> providercountries = new HashSet<Providercountry>(0);
 
@@ -32,7 +33,7 @@ public class Country implements java.io.Serializable {
     public Country(int id, String countryIsoCode, String country,
             Set<Providercountry> providercountries) {
         this.id = id;
-        this.countryIsoCode = countryIsoCode;
+        this.countryIso = countryIsoCode;
         this.country = country;
         this.providercountries = providercountries;
     }
@@ -48,13 +49,22 @@ public class Country implements java.io.Serializable {
         this.id = id;
     }
 
-    @Column(name = "CountryIsoCode", length = 45)
-    public String getCountryIsoCode() {
-        return this.countryIsoCode;
+    @Column(name = "CountryIso", length = 45)
+    public String getCountryIso() {
+        return this.countryIso;
     }
 
-    public void setCountryIsoCode(String countryIsoCode) {
-        this.countryIsoCode = countryIsoCode;
+    public void setCountryIso(String countryIso) {
+        this.countryIso = countryIso;
+    }
+    
+    @Column(name = "CountryCode", length = 45)
+    public String getCountryCode() {
+        return this.countryCode;
+    }
+
+    public void setCountryCode(String countryCode) {
+        this.countryCode = countryCode;
     }
 
     @Column(name = "Country", length = 45)

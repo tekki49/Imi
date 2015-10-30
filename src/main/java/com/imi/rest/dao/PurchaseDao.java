@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Repository;
 
-import com.imi.rest.db.model.Purchase;
+import com.imi.rest.dao.model.Purchase;
 
 @Configuration
 @Repository

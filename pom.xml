@@ -5,6 +5,7 @@
 	<groupId>imi</groupId>
 	<artifactId>imi-rest</artifactId>
 	<version>1.0.0.SNAPSHOT</version>
+	<packaging>war</packaging>
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
@@ -29,6 +30,11 @@
 				</exclusion> <exclusion> <groupId>org.slf4j</groupId> <artifactId>slf4j-log4j12</artifactId> 
 				</exclusion> </exclusions> -->
 		</dependency>
+		<dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-tomcat</artifactId>
+            <scope>provided</scope>
+        </dependency>
 		<dependency>
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>

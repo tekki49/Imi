@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.imi.rest.exception.ImiException;
 import com.imi.rest.model.Country;
 import com.imi.rest.model.CountryResponse;
 import com.imi.rest.model.MetaForCountries;
@@ -24,7 +25,7 @@ public class CountryController {
 
     @RequestMapping(value = "/Countries", method = RequestMethod.GET)
     public CountryResponse countryListResponse()
-            throws JsonParseException, JsonMappingException, IOException {
+            throws JsonParseException, JsonMappingException, IOException, ImiException {
         CountryResponse countryResponse = new CountryResponse();
         Set<Country> countrySet = countrySearchService.getCountryListWithISO();
         countryResponse.setMeta(new MetaForCountries());
@@ -34,21 +35,21 @@ public class CountryController {
     
     @RequestMapping(value="/CountryById")
     public CountryResponse countryById(@RequestHeader("Id") Integer Id){
-    	com.imi.rest.db.model.Country country= countrySearchService.getCountryById(Id);
+    	com.imi.rest.dao.model.Country country= countrySearchService.getCountryById(Id);
     	CountryResponse countryResponse= new CountryResponse(country);
     	return countryResponse;
     }
     
     @RequestMapping(value="/CountryByName")
     public CountryResponse countryByName(@RequestHeader("Country") String countryName){
-    	com.imi.rest.db.model.Country country= countrySearchService.getCountryByName(countryName);
+    	com.imi.rest.dao.model.Country country= countrySearchService.getCountryByName(countryName);
     	CountryResponse countryResponse= new CountryResponse(country);
     	return countryResponse;
     }
     
     @RequestMapping(value="/CountryByIso")
     public CountryResponse countryByIso(@RequestHeader("CountryIsoCode") String countryIsoCode){
-    	com.imi.rest.db.model.Country country= countrySearchService.getCountryById(countryIsoCode);
+    	com.imi.rest.dao.model.Country country= countrySearchService.getCountryById(countryIsoCode);
     	CountryResponse countryResponse= new CountryResponse(country);
     	return countryResponse;
     }
