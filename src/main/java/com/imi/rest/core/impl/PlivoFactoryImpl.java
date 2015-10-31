@@ -2,8 +2,9 @@ package com.imi.rest.core.impl;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -22,6 +23,7 @@ import com.imi.rest.core.CountrySearch;
 import com.imi.rest.core.NumberSearch;
 import com.imi.rest.core.PurchaseNumber;
 import com.imi.rest.dao.model.Provider;
+import com.imi.rest.exception.ImiException;
 import com.imi.rest.model.Country;
 import com.imi.rest.model.Number;
 import com.imi.rest.model.NumberResponse;
@@ -33,26 +35,33 @@ import com.imi.rest.util.HttpUtil;
 import com.imi.rest.util.ImiJsonUtil;
 
 @Component
-public class PlivioFactoryImpl implements NumberSearch, CountrySearch,PurchaseNumber,
-        UrlConstants, ProviderConstants {
+public class PlivoFactoryImpl implements NumberSearch, CountrySearch,
+        PurchaseNumber, UrlConstants, ProviderConstants {
 
-    private static final String PLIVIO_CSV_FILE_PATH = "/home/hemanth/Desktop/PLIVIO_COUNTRIES_WITH_ISO.csv";
+    private static final String PLIVO_CSV_FILE_PATH = "/plivo_inbound_rates.csv";
     private static final Logger LOG = Logger
             .getLogger(CountrySearchService.class);
 
     @Override
-    public List<Number> searchPhoneNumbers(Provider provider,ServiceConstants serviceTypeEnum,
-            String countryIsoCode, String numberType, String pattern)
+    public List<Number> searchPhoneNumbers(Provider provider,
+            ServiceConstants serviceTypeEnum, String countryIsoCode,
+            String numberType, String pattern)
                     throws ClientProtocolException, IOException {
         List<Number> phoneSearchResult = new ArrayList<Number>();
-        String plivioPhoneSearchUrl = PLIVIO_PHONE_SEARCH_URL;
+        String plivioPhoneSearchUrl = PLIVO_PHONE_SEARCH_URL;
         plivioPhoneSearchUrl = plivioPhoneSearchUrl
                 .replace("{country_iso}", countryIsoCode)
                 .replace("{type}", numberType.toLowerCase())
                 .replace("{services}", serviceTypeEnum.toString())
                 .replace("{pattern}", pattern);
-        String response = HttpUtil.defaultHttpGetHandler(plivioPhoneSearchUrl,
-                BasicAuthUtil.getBasicAuthHash(provider.getAuthId(),provider.getApiKey()));
+        String response;
+        try {
+            response = HttpUtil.defaultHttpGetHandler(plivioPhoneSearchUrl,
+                    BasicAuthUtil.getBasicAuthHash(provider.getAuthId(),
+                            provider.getApiKey()));
+        } catch (ImiException e) {
+            return phoneSearchResult;
+        }
         NumberResponse numberResponse = ImiJsonUtil.deserialize(response,
                 NumberResponse.class);
         List<Number> plivioNumberList = numberResponse == null
@@ -61,7 +70,7 @@ public class PlivioFactoryImpl implements NumberSearch, CountrySearch,PurchaseNu
                         : numberResponse.getObjects();
         for (Number plivioNumber : plivioNumberList) {
             if (plivioNumber != null) {
-                plivioNumber.setProvider(PLIVIO);
+                plivioNumber.setProvider(PLIVO);
                 setServiceType(plivioNumber);
                 phoneSearchResult.add(plivioNumber);
             }
@@ -81,20 +90,27 @@ public class PlivioFactoryImpl implements NumberSearch, CountrySearch,PurchaseNu
     }
 
     @Override
-    public Set<Country> importCountries(Provider provider) throws FileNotFoundException,
+    public Set<Country> importCountries() throws FileNotFoundException,
             JsonParseException, JsonMappingException, IOException {
-        Set<Country> countriesSet = new TreeSet<Country>();
+        Set<Country> countrySet = new TreeSet<Country>();
         String line = "";
         String splitBy = ",";
         BufferedReader reader = null;
         try {
-            FileReader fileReader = new FileReader(PLIVIO_CSV_FILE_PATH);
-            reader = new BufferedReader(fileReader);
+            InputStream in = getClass()
+                    .getResourceAsStream(PLIVO_CSV_FILE_PATH);
+            reader = new BufferedReader(new InputStreamReader(in, "UTF-8"));
+            int counter = 0;
             while ((line = reader.readLine()) != null) {
-                Country country = new Country();
-                country.setCountry(line.split(splitBy)[0]);
-                country.setIsoCountry(line.split(splitBy)[1]);
-                countriesSet.add(country);
+                String[] row = line.split(splitBy);
+                if (counter != 0 && row.length > 1) {
+                    Country country = new Country();
+                    country.setCountry(row[0]);
+                    country.setIsoCountry(row[2]);
+                    country.setCountryCode(row[1]);
+                    countrySet.add(country);
+                }
+                counter++;
             }
         } catch (FileNotFoundException e) {
             LOG.error(e);
@@ -109,27 +125,40 @@ public class PlivioFactoryImpl implements NumberSearch, CountrySearch,PurchaseNu
                 }
             }
         }
-        return countriesSet;
+        return countrySet;
     }
 
-    public PurchaseResponse purchaseNumber(String number,Provider provider,
+    public PurchaseResponse purchaseNumber(String number, Provider provider,
             String countryIsoCode) throws ClientProtocolException, IOException {
-        String plivioPurchaseUrl = PLIVIO_PURCHASE_URL;
+        String plivioPurchaseUrl = PLIVO_PURCHASE_URL;
         String plivioNumber = number.trim() + countryIsoCode.trim();
         plivioPurchaseUrl = plivioPurchaseUrl.replace("{number}", plivioNumber);
-        String response = HttpUtil.defaultHttpGetHandler(plivioPurchaseUrl,
-                BasicAuthUtil.getBasicAuthHash(provider.getAuthId(),provider.getApiKey()));
-        PlivioPurchaseResponse plivioPurchaseResponse = ImiJsonUtil.deserialize(response, PlivioPurchaseResponse.class);
+        String response;
+        try {
+            response = HttpUtil.defaultHttpGetHandler(plivioPurchaseUrl,
+                    BasicAuthUtil.getBasicAuthHash(provider.getAuthId(),
+                            provider.getApiKey()));
+        } catch (ImiException e) {
+            // TODO need to validate the response
+            return null;
+        }
+        PlivioPurchaseResponse plivioPurchaseResponse = ImiJsonUtil
+                .deserialize(response, PlivioPurchaseResponse.class);
         return null;
     }
 
     public void releaseNumber(String number, Provider provider,
             String countryIsoCode) throws ClientProtocolException, IOException {
-        String plivioReleaseurl = PLIVIO_RELEASE_URL;
+        String plivioReleaseurl = PLIVO_RELEASE_URL;
         String plivioNumber = number.trim() + countryIsoCode.trim();
         plivioReleaseurl = plivioReleaseurl.replace("{number}", plivioNumber);
-        String response = HttpUtil.defaultHttpGetHandler(plivioReleaseurl,
-                BasicAuthUtil.getBasicAuthHash(provider.getAuthId(),provider.getApiKey()));
+        try {
+            String response = HttpUtil.defaultHttpGetHandler(plivioReleaseurl,
+                    BasicAuthUtil.getBasicAuthHash(provider.getAuthId(),
+                            provider.getApiKey()));
+        } catch (ImiException e) {
+            // TODO need to validate the response
+        }
     }
 
 }

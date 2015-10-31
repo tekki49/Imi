@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -24,34 +23,20 @@ public class CountryController {
     CountrySearchService countrySearchService;
 
     @RequestMapping(value = "/Countries", method = RequestMethod.GET)
-    public CountryResponse countryListResponse()
-            throws JsonParseException, JsonMappingException, IOException, ImiException {
+    public CountryResponse countryListResponse() throws JsonParseException,
+            JsonMappingException, IOException, ImiException {
         CountryResponse countryResponse = new CountryResponse();
-        Set<Country> countrySet = countrySearchService.getCountryListWithISO();
+        Set<Country> countrySet = countrySearchService.getCountryListFromDB();
         countryResponse.setMeta(new MetaForCountries());
         countryResponse.addCountries(countrySet);
         return countryResponse;
     }
-    
-    @RequestMapping(value="/CountryById")
-    public CountryResponse countryById(@RequestHeader("Id") Integer Id){
-    	com.imi.rest.dao.model.Country country= countrySearchService.getCountryById(Id);
-    	CountryResponse countryResponse= new CountryResponse(country);
-    	return countryResponse;
-    }
-    
-    @RequestMapping(value="/CountryByName")
-    public CountryResponse countryByName(@RequestHeader("Country") String countryName){
-    	com.imi.rest.dao.model.Country country= countrySearchService.getCountryByName(countryName);
-    	CountryResponse countryResponse= new CountryResponse(country);
-    	return countryResponse;
-    }
-    
-    @RequestMapping(value="/CountryByIso")
-    public CountryResponse countryByIso(@RequestHeader("CountryIsoCode") String countryIsoCode){
-    	com.imi.rest.dao.model.Country country= countrySearchService.getCountryById(countryIsoCode);
-    	CountryResponse countryResponse= new CountryResponse(country);
-    	return countryResponse;
+
+    @RequestMapping(value = "/CountryBatchUpdate", method = RequestMethod.POST)
+    public String countryBatchUpdate() throws JsonParseException,
+            JsonMappingException, IOException, ImiException {
+        countrySearchService.countryBatchImport();
+        return "success";
     }
 
 }

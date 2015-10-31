@@ -35,8 +35,7 @@ public class PurchaseController {
             @RequestHeader("provider") int providerId)
                     throws ClientProtocolException, IOException, ImiException {
         Provider provider = providerService.getProviderById(providerId);
-        purchaseNumberService.purchaseNumber(number, provider,
-                countryIsoCode);
+        purchaseNumberService.purchaseNumber(number, provider, countryIsoCode);
         PurchaseDetails purchaseDetails2 = new PurchaseDetails();
         return purchaseDetails2;
     }

@@ -1,11 +1,15 @@
 package com.imi.rest.dao.model;
 // Generated Oct 27, 2015 4:52:41 PM by Hibernate Tools 4.0.0.Final
 
+import static javax.persistence.GenerationType.IDENTITY;
+
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -21,7 +25,8 @@ public class Country implements java.io.Serializable {
     private String countryIso;
     private String countryCode;
     private String country;
-    private Set<Providercountry> providercountries = new HashSet<Providercountry>(0);
+    private Set<Providercountry> providercountries = new HashSet<Providercountry>(
+            0);
 
     public Country() {
     }
@@ -30,16 +35,17 @@ public class Country implements java.io.Serializable {
         this.id = id;
     }
 
-    public Country(int id, String countryIsoCode, String country,
-            Set<Providercountry> providercountries) {
+    public Country(int id, String countryIso, String countryCode,
+            String country, Set<Providercountry> providercountries) {
         this.id = id;
-        this.countryIso = countryIsoCode;
+        this.countryIso = countryIso;
         this.country = country;
+        this.countryCode = countryCode;
         this.providercountries = providercountries;
     }
 
     @Id
-
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "Id", unique = true, nullable = false)
     public int getId() {
         return this.id;
@@ -57,7 +63,7 @@ public class Country implements java.io.Serializable {
     public void setCountryIso(String countryIso) {
         this.countryIso = countryIso;
     }
-    
+
     @Column(name = "CountryCode", length = 45)
     public String getCountryCode() {
         return this.countryCode;

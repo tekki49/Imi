@@ -17,35 +17,52 @@ import org.apache.http.util.EntityUtils;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
+
+import com.imi.rest.exception.ImiException;
 
 public class HttpUtil {
 
     public static String defaultHttpGetHandler(String url, String authHash)
-            throws ClientProtocolException, IOException {
+            throws ClientProtocolException, IOException, ImiException {
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", "Basic " + authHash);
         HttpEntity<String> entity = new HttpEntity<String>("parameters",
                 headers);
-        entity = restTemplate.exchange(url, HttpMethod.GET, entity,
-                String.class);
+        try {
+            entity = restTemplate.exchange(url, HttpMethod.GET, entity,
+                    String.class);
+        } catch (HttpClientErrorException e) {
+            throw new ImiException("Rest Exception",
+                    "Exception while getting response from url " + url
+                            + " With status code " + e.getStatusCode()
+                            + " and status text " + e.getStatusText());
+        }
         String responseBody = entity.getBody();
         return responseBody;
     }
 
     public static String defaultHttpGetHandler(String url)
-            throws ClientProtocolException, IOException {
+            throws ClientProtocolException, IOException, ImiException {
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         HttpEntity<String> entity = new HttpEntity<String>("parameters",
                 headers);
-        entity = restTemplate.exchange(url, HttpMethod.GET, entity,
-                String.class);
+        try {
+            entity = restTemplate.exchange(url, HttpMethod.GET, entity,
+                    String.class);
+        } catch (HttpClientErrorException e) {
+            throw new ImiException("Rest Exception",
+                    "Exception while getting response from url " + url
+                            + " With status code " + e.getStatusCode()
+                            + " and status text " + e.getStatusText());
+        }
         String responseBody = entity.getBody();
         return responseBody;
     }
-    
+
     public static String defaultHttpPostHandler(String url,
             Map<String, String> requestBody, String authHash)
                     throws ClientProtocolException, IOException {

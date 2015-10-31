@@ -1,13 +1,15 @@
 package com.imi.rest.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Country implements Comparable<Country> {
 
-	private String country;
+    private String country;
     private String isoCountry;
+    private String countryCode;
 
     // private String url;
     public String getCountry() {
@@ -41,4 +43,14 @@ public class Country implements Comparable<Country> {
     public int compareTo(Country c) {
         return this.getCountry().compareTo(c.getCountry());
     }
+
+    @JsonIgnore
+    public String getCountryCode() {
+        return countryCode;
+    }
+
+    public void setCountryCode(String countryCode) {
+        this.countryCode = countryCode;
+    }
+
 }

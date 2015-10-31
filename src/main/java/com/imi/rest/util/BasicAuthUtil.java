@@ -6,7 +6,7 @@ import javax.xml.bind.DatatypeConverter;
 
 public class BasicAuthUtil {
 
-    public static String getBasicAuthHash(String authId,String authToken) {
+    public static String getBasicAuthHash(String authId, String authToken) {
         String unhashedString = authId + ":" + authToken;
         byte[] authBytes = unhashedString.getBytes(StandardCharsets.UTF_8);
         return DatatypeConverter.printBase64Binary(authBytes);

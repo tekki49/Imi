@@ -17,7 +17,7 @@ public class ProviderResponse {
         this.auth_Id = provider.getAuthId();
         this.provider = provider.getName();
         // TODO need to change the logic here
-        this.identifier = provider.getName();        
+        this.identifier = provider.getName();
     }
 
     public String getIdentifier() {

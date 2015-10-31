@@ -14,13 +14,14 @@ import com.imi.rest.service.ProviderService;
 @RestController
 public class ProviderController {
 
-	@Autowired
-	ProviderService providerService;
-	
+    @Autowired
+    ProviderService providerService;
+
     @RequestMapping(value = "/provider", method = RequestMethod.GET)
-    public ProviderResponse providerResponse(@RequestHeader("provider") int providerId) throws ImiException {
-    	Provider provider=providerService.getProviderById(providerId);
-    	ProviderResponse providerResponse=new ProviderResponse(provider);
-		return providerResponse;
+    public ProviderResponse providerResponse(
+            @RequestHeader("provider") int providerId) throws ImiException {
+        Provider provider = providerService.getProviderById(providerId);
+        ProviderResponse providerResponse = new ProviderResponse(provider);
+        return providerResponse;
     }
 }

@@ -14,13 +14,10 @@ public class CountryResponse {
     private String countryIso;
     private String countryCode;
     private String country;
+    private MetaForCountries meta;
+    private Set<Country> countries = new TreeSet<Country>();
 
-    public CountryResponse(com.imi.rest.dao.model.Country countrySpecific) {
-        this.id = countrySpecific.getId();
-        this.countryIso = countrySpecific.getCountryIso();
-        this.country = countrySpecific.getCountry();
-    }
-
+    @JsonIgnore
     public Integer getId() {
         return id;
     }
@@ -29,6 +26,7 @@ public class CountryResponse {
         this.id = id;
     }
 
+    @JsonIgnore
     public void setCountryIso(String countryIso) {
         this.countryIso = countryIso;
     }
@@ -37,6 +35,7 @@ public class CountryResponse {
         return countryIso;
     }
 
+    @JsonIgnore
     public String getCountryCode() {
         return countryCode;
     }
@@ -45,6 +44,7 @@ public class CountryResponse {
         this.countryCode = countryCode;
     }
 
+    @JsonIgnore
     public String getCountry() {
         return country;
     }
@@ -52,9 +52,6 @@ public class CountryResponse {
     public void setCountry(String country) {
         this.country = country;
     }
-
-    private MetaForCountries meta;
-    private Set<Country> countries = new TreeSet<Country>();
 
     @JsonIgnore
     public MetaForCountries getMeta() {

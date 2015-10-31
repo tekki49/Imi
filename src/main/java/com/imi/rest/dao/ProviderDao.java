@@ -38,14 +38,13 @@ public class ProviderDao {
         }
         return providerList.get(0);
     }
-    
+
     @SuppressWarnings("unchecked")
-    public Provider getProviderByName(
-            String providerName) throws ImiException {
+    public Provider getProviderByName(String providerName) throws ImiException {
         Criteria criteria = getSession().createCriteria(Provider.class);
         criteria.add(Restrictions.eq("name", providerName));
         List<Provider> providerList = criteria.list();
-        if(providerList==null || providerList.size()==0)
+        if (providerList == null || providerList.size() == 0)
             throw new InvalidProviderException(providerName);
         return providerList.get(0);
     }

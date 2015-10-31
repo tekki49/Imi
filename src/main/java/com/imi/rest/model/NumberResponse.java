@@ -12,7 +12,7 @@ public class NumberResponse {
     private Meta meta;
     private List<Number> objects;
     private int count;
-    
+
     @JsonIgnore
     public Meta getMeta() {
         return meta;

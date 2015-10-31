@@ -10,12 +10,12 @@ public class ImiException extends Exception {
         super();
     }
 
-    public ImiException(String cause,String message) {
+    public ImiException(String cause, String message) {
         super(message);
         this.message = message;
-        this.cause=cause;
+        this.cause = cause;
     }
-    
+
     public ImiException(String message) {
         super(message);
         this.message = message;

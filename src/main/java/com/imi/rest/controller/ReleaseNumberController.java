@@ -31,7 +31,7 @@ public class ReleaseNumberController {
             @RequestHeader("provider") int providerId)
                     throws ClientProtocolException, IOException, ImiException {
         Provider provider = providerService.getProviderById(providerId);
-        releaseNumberService.releaseNumber(number,provider, countryIsoCode);
+        releaseNumberService.releaseNumber(number, provider, countryIsoCode);
         return ImiJsonUtil.getJSONString(number, "released");
     }
 

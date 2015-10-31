@@ -16,24 +16,26 @@ import com.imi.rest.dao.model.Purchase;
 @Repository
 public class PurchaseDao {
 
-	@Autowired
-	private SessionFactory sessionFactory;
-	 
+    @Autowired
+    private SessionFactory sessionFactory;
+
     protected Session getSession() {
         return sessionFactory.getCurrentSession();
     }
-	@SuppressWarnings("unchecked")
-	public Purchase getPurhcase(Integer purchaseId){
-		Criteria criteria = getSession().createCriteria(Purchase.class);
-        criteria.add(Restrictions.eq("id",purchaseId));
-        List<Purchase> purchaseList=criteria.list();
+
+    @SuppressWarnings("unchecked")
+    public Purchase getPurhcase(Integer purchaseId) {
+        Criteria criteria = getSession().createCriteria(Purchase.class);
+        criteria.add(Restrictions.eq("id", purchaseId));
+        List<Purchase> purchaseList = criteria.list();
         return purchaseList.get(0);
-	}
-	@SuppressWarnings("unchecked")
-	public Purchase getByNumber(Integer number){
-		Criteria criteria = getSession().createCriteria(Purchase.class);
-        criteria.add(Restrictions.eq("number",number));
-        List<Purchase> purchaseList=criteria.list();
+    }
+
+    @SuppressWarnings("unchecked")
+    public Purchase getByNumber(Integer number) {
+        Criteria criteria = getSession().createCriteria(Purchase.class);
+        criteria.add(Restrictions.eq("number", number));
+        List<Purchase> purchaseList = criteria.list();
         return purchaseList.get(0);
-	}
+    }
 }

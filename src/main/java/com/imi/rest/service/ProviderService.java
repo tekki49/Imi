@@ -14,11 +14,23 @@ public class ProviderService implements ProviderConstants {
     @Autowired
     private ProviderDao dao;
 
-    public Provider getProviderById(Integer providerId) throws ImiException {
+    public Provider getProviderById(int providerId) throws ImiException {
         return dao.getProvider(providerId);
     }
-    
+
     public Provider getProviderByName(String provider) throws ImiException {
         return dao.getProviderByName(provider);
+    }
+
+    public Provider getTwilioProvider() throws ImiException {
+        return getProviderByName(TWILIO);
+    }
+
+    public Provider getPlivioProvider() throws ImiException {
+        return getProviderByName(PLIVO);
+    }
+
+    public Provider getNexmoProvider() throws ImiException {
+        return getProviderByName(NEXMO);
     }
 }

@@ -25,6 +25,7 @@ import com.imi.rest.core.CountrySearch;
 import com.imi.rest.core.NumberSearch;
 import com.imi.rest.core.PurchaseNumber;
 import com.imi.rest.dao.model.Provider;
+import com.imi.rest.exception.ImiException;
 import com.imi.rest.model.Country;
 import com.imi.rest.model.CountryPricing;
 import com.imi.rest.model.Number;
@@ -39,12 +40,13 @@ public class NexmoFactoryImpl implements NumberSearch, CountrySearch,
         PurchaseNumber, UrlConstants, ProviderConstants {
 
     private String nexmoPricingResponse;
+    private static final String NEXMO_PRICING_FILE_PATH = "/nexmo_pricing.xls";
 
     @Override
     public List<Number> searchPhoneNumbers(Provider provider,
             ServiceConstants serviceTypeEnum, String countryIsoCode,
             String numberType, String pattern)
-                    throws ClientProtocolException, IOException {
+                    throws ClientProtocolException, IOException, ImiException {
         List<Number> phoneSearchResult = new ArrayList<Number>();
         searchPhoneNumbers(provider, serviceTypeEnum, countryIsoCode,
                 numberType, pattern, phoneSearchResult, Integer.MIN_VALUE, 1);
@@ -54,7 +56,7 @@ public class NexmoFactoryImpl implements NumberSearch, CountrySearch,
     void searchPhoneNumbers(Provider provider, ServiceConstants serviceTypeEnum,
             String countryIsoCode, String numberType, String pattern,
             List<Number> phoneSearchResult, int count, int index)
-                    throws ClientProtocolException, IOException {
+                    throws ClientProtocolException, IOException, ImiException {
         String nexmoPhoneSearchUrl = NEXMO_PHONE_SEARCH_URL;
         if (Integer.MIN_VALUE == count) {
             index = 1;
@@ -81,7 +83,7 @@ public class NexmoFactoryImpl implements NumberSearch, CountrySearch,
                 : numberResponse.getObjects() == null ? new ArrayList<Number>()
                         : numberResponse.getObjects();
         if (getNexmoPricingResponse() == null) {
-            setNexmoPricingResponse(getNexmoPricing("/nexmo_pricing.xls"));
+            setNexmoPricingResponse(getNexmoPricing(NEXMO_PRICING_FILE_PATH));
         }
         List<CountryPricing> countryPricingList = ImiJsonUtil
                 .deserializeList(nexmoPricingResponse, CountryPricing.class);
@@ -132,26 +134,29 @@ public class NexmoFactoryImpl implements NumberSearch, CountrySearch,
     }
 
     @Override
-    public Set<Country> importCountries(Provider provider)
-            throws FileNotFoundException, JsonParseException,
-            JsonMappingException, IOException {
-        Set<Country> countriesSet = new HashSet<Country>();
-        if (getNexmoPricingResponse() == null) {
-            setNexmoPricingResponse(getNexmoPricing("/nexmo_pricing.xls"));
-        }
-        List<CountryPricing> countryPricingList = ImiJsonUtil.deserializeList(
-                getNexmoPricingResponse(), CountryPricing.class);
-        for (CountryPricing countryPricing : countryPricingList) {
+    public Set<Country> importCountries() throws FileNotFoundException,
+            JsonParseException, JsonMappingException, IOException {
+        Set<Country> countrySet = new HashSet<Country>();
+        InputStream in = getClass()
+                .getResourceAsStream(NEXMO_PRICING_FILE_PATH);
+        HSSFWorkbook workbook = new HSSFWorkbook(in);
+        HSSFSheet sheet = workbook.getSheetAt(0);
+        for (int i = 1; i < sheet.getLastRowNum(); i++) {
             Country country = new Country();
-            country.setCountry(countryPricing.getCountry());
-            country.setIsoCountry(countryPricing.getCountryIsoCode());
-            countriesSet.add(country);
+            Row row = sheet.getRow(i);
+            country.setIsoCountry(row.getCell(0).toString());
+            country.setCountryCode(row.getCell(5).toString());
+            country.setCountry(row.getCell(1).toString());
+            countrySet.add(country);
         }
-        return countriesSet;
+        in.close();
+        workbook.close();
+        return countrySet;
     }
 
     public PurchaseResponse purchaseNumber(String number, Provider provider,
-            String countryIsoCode) throws ClientProtocolException, IOException {
+            String countryIsoCode)
+                    throws ClientProtocolException, IOException, ImiException {
         String nexmoPurchaseUrl = NEXMO_PURCHASE_URL;
         String nexmoNumber = number.trim() + countryIsoCode.trim();
         nexmoPurchaseUrl = nexmoPurchaseUrl
@@ -171,9 +176,12 @@ public class NexmoFactoryImpl implements NumberSearch, CountrySearch,
                 .replace("{api_secret}",
                         provider.getApiKey().replace("{country}", "")
                                 .replace("{msisdn}", nexmoNumber));
-        String response = HttpUtil.defaultHttpGetHandler(nexmoReleaseUrl,
-                BasicAuthUtil.getBasicAuthHash(provider.getAuthId(),
-                        provider.getApiKey()));
+        try {
+            String response = HttpUtil.defaultHttpGetHandler(nexmoReleaseUrl,
+                    BasicAuthUtil.getBasicAuthHash(provider.getAuthId(),
+                            provider.getApiKey()));
+        } catch (ImiException e) {
+        }
     }
 
     public String getNexmoPricingResponse() {
