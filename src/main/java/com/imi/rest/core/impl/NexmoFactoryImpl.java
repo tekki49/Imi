@@ -18,6 +18,8 @@ import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.imi.rest.constants.ForexConstants;
+import com.imi.rest.constants.NumberTypeConstants;
 import com.imi.rest.constants.ProviderConstants;
 import com.imi.rest.constants.ServiceConstants;
 import com.imi.rest.constants.UrlConstants;
@@ -37,19 +39,27 @@ import com.imi.rest.util.ImiJsonUtil;
 
 @Component
 public class NexmoFactoryImpl implements NumberSearch, CountrySearch,
-        PurchaseNumber, UrlConstants, ProviderConstants {
+        PurchaseNumber, UrlConstants, ProviderConstants, ForexConstants,NumberTypeConstants {
 
     private String nexmoPricingResponse;
     private static final String NEXMO_PRICING_FILE_PATH = "/nexmo_pricing.xls";
+    private static final int THRESHHOLD = 100;
 
     @Override
     public List<Number> searchPhoneNumbers(Provider provider,
             ServiceConstants serviceTypeEnum, String countryIsoCode,
             String numberType, String pattern)
                     throws ClientProtocolException, IOException, ImiException {
+        nexmoPricingResponse = null;
         List<Number> phoneSearchResult = new ArrayList<Number>();
+        String type = "Local";
+        if (numberType.equalsIgnoreCase(MOBILE)) {
+            type = "Mobile";
+        } else if (numberType.equalsIgnoreCase(TOLLFREE)) {
+            type = "Tollfree";
+        }
         searchPhoneNumbers(provider, serviceTypeEnum, countryIsoCode,
-                numberType, pattern, phoneSearchResult, Integer.MIN_VALUE, 1);
+                numberType, pattern, phoneSearchResult, Integer.MIN_VALUE, 0);
         return phoneSearchResult;
     }
 
@@ -57,6 +67,8 @@ public class NexmoFactoryImpl implements NumberSearch, CountrySearch,
             String countryIsoCode, String numberType, String pattern,
             List<Number> phoneSearchResult, int count, int index)
                     throws ClientProtocolException, IOException, ImiException {
+        if (index * 100 >= THRESHHOLD)
+            return;
         String nexmoPhoneSearchUrl = NEXMO_PHONE_SEARCH_URL;
         if (Integer.MIN_VALUE == count) {
             index = 1;
@@ -102,10 +114,17 @@ public class NexmoFactoryImpl implements NumberSearch, CountrySearch,
                         .equalsIgnoreCase("mobile-lvn")) {
                     nexmoNumber.setType("mobile");
                 }
-                nexmoNumber.setMonthlyRentalRate(countryPricing.getPricing()
-                        .get(type).get("setUpRateInEuros"));
-                nexmoNumber.setVoiceRate(countryPricing.getPricing().get(type)
-                        .get("voiceRateInEuros"));
+                nexmoNumber.setPriceUnit("EUR");
+                nexmoNumber
+                        .setMonthlyRentalRate(String.valueOf(Float
+                                .parseFloat(countryPricing.getPricing()
+                                        .get(type).get("monthlyRateInEuros"))
+                        * EUR_GBP));
+                nexmoNumber
+                        .setVoiceRate(String.valueOf(Float
+                                .parseFloat(countryPricing.getPricing()
+                                        .get(type).get("voiceRateInEuros"))
+                        * EUR_GBP));
                 nexmoNumber.setCountry(countryPricing.getCountry());
                 nexmoNumber.setProvider(NEXMO);
                 phoneSearchResult.add(nexmoNumber);
@@ -207,11 +226,11 @@ public class NexmoFactoryImpl implements NumberSearch, CountrySearch,
                     row.getCell(0).toString().split(" - ")[0]);
             Map<String, String> priceMap = new HashMap<String, String>();
             Map<String, Map<String, String>> pricing = new HashMap<String, Map<String, String>>();
-            priceMap.put("setUpRateInEuros", row.getCell(1).toString());
+            priceMap.put("monthlyRateInEuros", row.getCell(1).toString());
             priceMap.put("voiceRateInEuros", row.getCell(2).toString());
             pricing.put("normal", priceMap);
             priceMap = new HashMap<String, String>();
-            priceMap.put("setUpRateInEuros", row.getCell(3).toString());
+            priceMap.put("monthlyRateInEuros", row.getCell(3).toString());
             priceMap.put("voiceRateInEuros", row.getCell(4).toString());
             pricing.put("tollfree", priceMap);
             countryPricing.setPricing(pricing);

@@ -57,7 +57,7 @@ public class CountrySearchService implements ProviderConstants {
         return countryDao.getCountryByName(countryName);
     }
 
-    public com.imi.rest.dao.model.Country getCountryById(
+    public com.imi.rest.dao.model.Country getCountryByIsoCode(
             String countryIsoCode) {
         return countryDao.getCountryByIso(countryIsoCode);
     }

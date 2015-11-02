@@ -10,11 +10,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.imi.rest.dao.model.Country;
 import com.imi.rest.dao.model.Provider;
 import com.imi.rest.dao.model.Purchase;
 import com.imi.rest.exception.ImiException;
 import com.imi.rest.model.PurchaseDetails;
 import com.imi.rest.model.PurchaseResponse;
+import com.imi.rest.service.CountrySearchService;
 import com.imi.rest.service.ProviderService;
 import com.imi.rest.service.PurchaseNumberService;
 import com.imi.rest.service.PurchaseService;
@@ -28,16 +30,21 @@ public class PurchaseController {
     ProviderService providerService;
     @Autowired
     PurchaseService purchaseService;
+    @Autowired
+    CountrySearchService countrySearchService;
 
     @RequestMapping(value = "/purchase/{number}/{countryIsoCode}", method = RequestMethod.POST)
     public PurchaseDetails purchaseNumber(@PathVariable("number") String number,
             @PathVariable("countryIsoCode") String countryIsoCode,
-            @RequestHeader("provider") int providerId)
+            @RequestHeader("provider") String providerName)
                     throws ClientProtocolException, IOException, ImiException {
-        Provider provider = providerService.getProviderById(providerId);
-        purchaseNumberService.purchaseNumber(number, provider, countryIsoCode);
-        PurchaseDetails purchaseDetails2 = new PurchaseDetails();
-        return purchaseDetails2;
+        Provider provider = providerService.getProviderByName(providerName);
+        Country country=countrySearchService.getCountryByIsoCode(countryIsoCode);
+        purchaseNumberService.purchaseNumber(number, provider, country.getCountryCode());
+        PurchaseDetails purchaseDetails = new PurchaseDetails();
+        purchaseDetails.setCountry(country.getCountry());
+        purchaseDetails.setNumber(number);
+        return purchaseDetails;
     }
 
     @RequestMapping(value = "/purchaseByNumber", method = RequestMethod.POST)

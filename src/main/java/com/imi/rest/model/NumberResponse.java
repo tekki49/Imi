@@ -18,6 +18,7 @@ public class NumberResponse {
         return meta;
     }
 
+    @JsonProperty("meta")
     public void setMeta(Meta meta) {
         this.meta = meta;
     }

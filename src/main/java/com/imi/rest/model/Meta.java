@@ -6,25 +6,25 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Meta {
-    private String limit;
-    private String offset;
+    private int limit;
+    private int offset;
     private String previous;
     private String next;
     private int total;
 
-    public String getLimit() {
+    public int getLimit() {
         return limit;
     }
 
-    public void setLimit(String limit) {
+    public void setLimit(int limit) {
         this.limit = limit;
     }
 
-    public String getOffset() {
+    public int getOffset() {
         return offset;
     }
 
-    public void setOffset(String offset) {
+    public void setOffset(int offset) {
         this.offset = offset;
     }
 

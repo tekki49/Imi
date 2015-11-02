@@ -69,6 +69,7 @@ public class HttpUtil {
         HttpClient httpclient = new DefaultHttpClient();
         HttpPost httppost = new HttpPost(url);
         httppost.setHeader("Authorization", "Basic " + authHash);
+        httppost.setHeader("Content-Type", "application/json");
         List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
         for (String key : requestBody.keySet()) {
             nameValuePairs

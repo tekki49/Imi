@@ -9,14 +9,12 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Repository;
 
 import com.imi.rest.dao.model.Provider;
 import com.imi.rest.exception.ImiException;
 import com.imi.rest.exception.InvalidProviderException;
 
-@Configuration
 @Repository
 @Transactional
 public class ProviderDao {

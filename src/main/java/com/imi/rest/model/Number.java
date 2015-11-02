@@ -30,6 +30,7 @@ public class Number {
     private boolean voiceEnabled;
     private Map<String, Boolean> capabilities;
     private List<String> features;
+    private String priceUnit;
 
     public String getNumber() {
         return number;
@@ -257,4 +258,14 @@ public class Number {
         this.features = features;
     }
 
+    @JsonIgnore
+    public String getPriceUnit() {
+        return priceUnit;
+    }
+
+    public void setPriceUnit(String priceUnit) {
+        this.priceUnit = priceUnit;
+    }
+
+    
 }
