@@ -40,7 +40,7 @@ public class PurchaseController {
                     throws ClientProtocolException, IOException, ImiException {
         Provider provider = providerService.getProviderByName(providerName);
         Country country=countrySearchService.getCountryByIsoCode(countryIsoCode);
-        purchaseNumberService.purchaseNumber(number, provider, country.getCountryIsoNumber());
+        purchaseNumberService.purchaseNumber(number, provider, country.getCountryCode());
         PurchaseDetails purchaseDetails = new PurchaseDetails();
         purchaseDetails.setCountry(country.getCountry());
         purchaseDetails.setNumber(number);

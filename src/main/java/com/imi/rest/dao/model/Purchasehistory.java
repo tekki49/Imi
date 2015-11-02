@@ -1,10 +1,12 @@
 package com.imi.rest.dao.model;
 
-// Generated 2 Nov, 2015 11:07:48 AM by Hibernate Tools 4.3.1
+// Generated 2 Nov, 2015 11:29:17 AM by Hibernate Tools 4.3.1
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import static javax.persistence.GenerationType.IDENTITY;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -17,7 +19,7 @@ import javax.persistence.Table;
 @Table(name = "purchasehistory", catalog = "imi")
 public class Purchasehistory implements java.io.Serializable {
 
-	private int id;
+	private Integer id;
 	private Providercountry providercountry;
 	private Provisioning provisioning;
 	private Integer number;
@@ -34,16 +36,11 @@ public class Purchasehistory implements java.io.Serializable {
 	public Purchasehistory() {
 	}
 
-	public Purchasehistory(int id) {
-		this.id = id;
-	}
-
-	public Purchasehistory(int id, Providercountry providercountry,
+	public Purchasehistory(Providercountry providercountry,
 			Provisioning provisioning, Integer number, String numberType,
 			String restrictions, String monthlyRentalRate, String setUpRate,
 			String smsPrice, String voicePrice, String startDate,
 			String endDate, Integer resourceManagerId) {
-		this.id = id;
 		this.providercountry = providercountry;
 		this.provisioning = provisioning;
 		this.number = number;
@@ -59,12 +56,13 @@ public class Purchasehistory implements java.io.Serializable {
 	}
 
 	@Id
+	@GeneratedValue(strategy = IDENTITY)
 	@Column(name = "Id", unique = true, nullable = false)
-	public int getId() {
+	public Integer getId() {
 		return this.id;
 	}
 
-	public void setId(int id) {
+	public void setId(Integer id) {
 		this.id = id;
 	}
 

@@ -1,12 +1,14 @@
 package com.imi.rest.dao.model;
 
-// Generated 2 Nov, 2015 11:07:48 AM by Hibernate Tools 4.3.1
+// Generated 2 Nov, 2015 11:29:17 AM by Hibernate Tools 4.3.1
 
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import static javax.persistence.GenerationType.IDENTITY;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -18,46 +20,42 @@ import javax.persistence.Table;
 @Table(name = "country", catalog = "imi")
 public class Country implements java.io.Serializable {
 
-	private int id;
-	private String countryIsoCode;
+	private Integer id;
+	private String countryIso;
 	private String country;
-	private String countryIsoNumber;
+	private String countryCode;
 	private Set<Providercountry> providercountries = new HashSet<Providercountry>(
 			0);
 
 	public Country() {
 	}
 
-	public Country(int id) {
-		this.id = id;
-	}
-
-	public Country(int id, String countryIsoCode, String country,
-			String countryIsoNumber, Set<Providercountry> providercountries) {
-		this.id = id;
-		this.countryIsoCode = countryIsoCode;
+	public Country(String countryIso, String country, String countryCode,
+			Set<Providercountry> providercountries) {
+		this.countryIso = countryIso;
 		this.country = country;
-		this.countryIsoNumber = countryIsoNumber;
+		this.countryCode = countryCode;
 		this.providercountries = providercountries;
 	}
 
 	@Id
+	@GeneratedValue(strategy = IDENTITY)
 	@Column(name = "Id", unique = true, nullable = false)
-	public int getId() {
+	public Integer getId() {
 		return this.id;
 	}
 
-	public void setId(int id) {
+	public void setId(Integer id) {
 		this.id = id;
 	}
 
-	@Column(name = "CountryIsoCode", length = 45)
-	public String getCountryIsoCode() {
-		return this.countryIsoCode;
+	@Column(name = "CountryIso", length = 45)
+	public String getCountryIso() {
+		return this.countryIso;
 	}
 
-	public void setCountryIsoCode(String countryIsoCode) {
-		this.countryIsoCode = countryIsoCode;
+	public void setCountryIso(String countryIso) {
+		this.countryIso = countryIso;
 	}
 
 	@Column(name = "Country", length = 45)
@@ -69,13 +67,13 @@ public class Country implements java.io.Serializable {
 		this.country = country;
 	}
 
-	@Column(name = "CountryIsoNumber", length = 45)
-	public String getCountryIsoNumber() {
-		return this.countryIsoNumber;
+	@Column(name = "CountryCode", length = 45)
+	public String getCountryCode() {
+		return this.countryCode;
 	}
 
-	public void setCountryIsoNumber(String countryIsoNumber) {
-		this.countryIsoNumber = countryIsoNumber;
+	public void setCountryCode(String countryCode) {
+		this.countryCode = countryCode;
 	}
 
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "country")

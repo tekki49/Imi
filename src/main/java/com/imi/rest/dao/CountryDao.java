@@ -70,7 +70,7 @@ public class CountryDao {
             for (Country daoCountry : countryList) {
                 com.imi.rest.model.Country countryModel = new com.imi.rest.model.Country();
                 countryModel.setCountry(daoCountry.getCountry());
-                countryModel.setIsoCountry(daoCountry.getCountryIsoNumber());
+                countryModel.setIsoCountry(daoCountry.getCountryCode());
                 countrySet.add(countryModel);
             }
             return countrySet;
@@ -84,8 +84,8 @@ public class CountryDao {
             if (countryDao == null) {
                 countryDao = new Country();
                 countryDao.setCountry(countryModel.getCountry());
-                countryDao.setCountryIsoCode(countryModel.getCountryCode());
-                countryDao.setCountryIsoCode(countryModel.getIsoCountry());
+                countryDao.setCountryCode(countryModel.getCountryCode());
+                countryDao.setCountryIso(countryModel.getIsoCountry());
                 createNewCountry(countryDao);
             }
         }

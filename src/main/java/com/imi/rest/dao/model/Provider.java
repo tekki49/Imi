@@ -1,12 +1,14 @@
 package com.imi.rest.dao.model;
 
-// Generated 2 Nov, 2015 11:07:48 AM by Hibernate Tools 4.3.1
+// Generated 2 Nov, 2015 11:29:17 AM by Hibernate Tools 4.3.1
 
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import static javax.persistence.GenerationType.IDENTITY;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -18,7 +20,7 @@ import javax.persistence.Table;
 @Table(name = "provider", catalog = "imi")
 public class Provider implements java.io.Serializable {
 
-	private int id;
+	private Integer id;
 	private String apiKey;
 	private String authId;
 	private String name;
@@ -28,13 +30,8 @@ public class Provider implements java.io.Serializable {
 	public Provider() {
 	}
 
-	public Provider(int id) {
-		this.id = id;
-	}
-
-	public Provider(int id, String apiKey, String authId, String name,
+	public Provider(String apiKey, String authId, String name,
 			Set<Providercountry> providercountries) {
-		this.id = id;
 		this.apiKey = apiKey;
 		this.authId = authId;
 		this.name = name;
@@ -42,12 +39,13 @@ public class Provider implements java.io.Serializable {
 	}
 
 	@Id
+	@GeneratedValue(strategy = IDENTITY)
 	@Column(name = "Id", unique = true, nullable = false)
-	public int getId() {
+	public Integer getId() {
 		return this.id;
 	}
 
-	public void setId(int id) {
+	public void setId(Integer id) {
 		this.id = id;
 	}
 
