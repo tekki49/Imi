@@ -1,5 +1,6 @@
 package com.imi.rest.dao.model;
-// Generated Oct 27, 2015 4:52:41 PM by Hibernate Tools 4.0.0.Final
+
+// Generated 2 Nov, 2015 11:00:46 AM by Hibernate Tools 4.3.1
 
 import java.util.HashSet;
 import java.util.Set;
@@ -19,88 +20,87 @@ import javax.persistence.Table;
 @Table(name = "providercountry", catalog = "imi")
 public class Providercountry implements java.io.Serializable {
 
-    private int id;
-    private Country country;
-    private Provider provider;
-    private String services;
-    private Set<Purchasehistory> purchasehistories = new HashSet<Purchasehistory>(
-            0);
-    private Set<Purchase> purchases = new HashSet<Purchase>(0);
+	private int id;
+	private Country country;
+	private Provider provider;
+	private String services;
+	private Set<Purchase> purchases = new HashSet<Purchase>(0);
+	private Set<Purchasehistory> purchasehistories = new HashSet<Purchasehistory>(
+			0);
 
-    public Providercountry() {
-    }
+	public Providercountry() {
+	}
 
-    public Providercountry(int id) {
-        this.id = id;
-    }
+	public Providercountry(int id) {
+		this.id = id;
+	}
 
-    public Providercountry(int id, Country country, Provider provider,
-            String services, Set<Purchasehistory> purchasehistories,
-            Set<Purchase> purchases) {
-        this.id = id;
-        this.country = country;
-        this.provider = provider;
-        this.services = services;
-        this.purchasehistories = purchasehistories;
-        this.purchases = purchases;
-    }
+	public Providercountry(int id, Country country, Provider provider,
+			String services, Set<Purchase> purchases,
+			Set<Purchasehistory> purchasehistories) {
+		this.id = id;
+		this.country = country;
+		this.provider = provider;
+		this.services = services;
+		this.purchases = purchases;
+		this.purchasehistories = purchasehistories;
+	}
 
-    @Id
+	@Id
+	@Column(name = "Id", unique = true, nullable = false)
+	public int getId() {
+		return this.id;
+	}
 
-    @Column(name = "Id", unique = true, nullable = false)
-    public int getId() {
-        return this.id;
-    }
+	public void setId(int id) {
+		this.id = id;
+	}
 
-    public void setId(int id) {
-        this.id = id;
-    }
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "countryId")
+	public Country getCountry() {
+		return this.country;
+	}
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "countryId")
-    public Country getCountry() {
-        return this.country;
-    }
+	public void setCountry(Country country) {
+		this.country = country;
+	}
 
-    public void setCountry(Country country) {
-        this.country = country;
-    }
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "providerId")
+	public Provider getProvider() {
+		return this.provider;
+	}
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "providerId")
-    public Provider getProvider() {
-        return this.provider;
-    }
+	public void setProvider(Provider provider) {
+		this.provider = provider;
+	}
 
-    public void setProvider(Provider provider) {
-        this.provider = provider;
-    }
+	@Column(name = "services", length = 45)
+	public String getServices() {
+		return this.services;
+	}
 
-    @Column(name = "services", length = 45)
-    public String getServices() {
-        return this.services;
-    }
+	public void setServices(String services) {
+		this.services = services;
+	}
 
-    public void setServices(String services) {
-        this.services = services;
-    }
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "providercountry")
+	public Set<Purchase> getPurchases() {
+		return this.purchases;
+	}
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "providercountry")
-    public Set<Purchasehistory> getPurchasehistories() {
-        return this.purchasehistories;
-    }
+	public void setPurchases(Set<Purchase> purchases) {
+		this.purchases = purchases;
+	}
 
-    public void setPurchasehistories(Set<Purchasehistory> purchasehistories) {
-        this.purchasehistories = purchasehistories;
-    }
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "providercountry")
+	public Set<Purchasehistory> getPurchasehistories() {
+		return this.purchasehistories;
+	}
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "providercountry")
-    public Set<Purchase> getPurchases() {
-        return this.purchases;
-    }
-
-    public void setPurchases(Set<Purchase> purchases) {
-        this.purchases = purchases;
-    }
+	public void setPurchasehistories(Set<Purchasehistory> purchasehistories) {
+		this.purchasehistories = purchasehistories;
+	}
 
 }

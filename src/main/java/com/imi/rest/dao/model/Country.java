@@ -1,15 +1,12 @@
 package com.imi.rest.dao.model;
-// Generated Oct 27, 2015 4:52:41 PM by Hibernate Tools 4.0.0.Final
 
-import static javax.persistence.GenerationType.IDENTITY;
+// Generated 2 Nov, 2015 11:00:46 AM by Hibernate Tools 4.3.1
 
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -21,74 +18,62 @@ import javax.persistence.Table;
 @Table(name = "country", catalog = "imi")
 public class Country implements java.io.Serializable {
 
-    private int id;
-    private String countryIso;
-    private String countryCode;
-    private String country;
-    private Set<Providercountry> providercountries = new HashSet<Providercountry>(
-            0);
+	private int id;
+	private String countryIsoCode;
+	private String country;
+	private Set<Providercountry> providercountries = new HashSet<Providercountry>(
+			0);
 
-    public Country() {
-    }
+	public Country() {
+	}
 
-    public Country(int id) {
-        this.id = id;
-    }
+	public Country(int id) {
+		this.id = id;
+	}
 
-    public Country(int id, String countryIso, String countryCode,
-            String country, Set<Providercountry> providercountries) {
-        this.id = id;
-        this.countryIso = countryIso;
-        this.country = country;
-        this.countryCode = countryCode;
-        this.providercountries = providercountries;
-    }
+	public Country(int id, String countryIsoCode, String country,
+			Set<Providercountry> providercountries) {
+		this.id = id;
+		this.countryIsoCode = countryIsoCode;
+		this.country = country;
+		this.providercountries = providercountries;
+	}
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "Id", unique = true, nullable = false)
-    public int getId() {
-        return this.id;
-    }
+	@Id
+	@Column(name = "Id", unique = true, nullable = false)
+	public int getId() {
+		return this.id;
+	}
 
-    public void setId(int id) {
-        this.id = id;
-    }
+	public void setId(int id) {
+		this.id = id;
+	}
 
-    @Column(name = "CountryIso", length = 45)
-    public String getCountryIso() {
-        return this.countryIso;
-    }
+	@Column(name = "CountryIsoCode", length = 45)
+	public String getCountryIsoCode() {
+		return this.countryIsoCode;
+	}
 
-    public void setCountryIso(String countryIso) {
-        this.countryIso = countryIso;
-    }
+	public void setCountryIsoCode(String countryIsoCode) {
+		this.countryIsoCode = countryIsoCode;
+	}
 
-    @Column(name = "CountryCode", length = 45)
-    public String getCountryCode() {
-        return this.countryCode;
-    }
+	@Column(name = "Country", length = 45)
+	public String getCountry() {
+		return this.country;
+	}
 
-    public void setCountryCode(String countryCode) {
-        this.countryCode = countryCode;
-    }
+	public void setCountry(String country) {
+		this.country = country;
+	}
 
-    @Column(name = "Country", length = 45)
-    public String getCountry() {
-        return this.country;
-    }
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "country")
+	public Set<Providercountry> getProvidercountries() {
+		return this.providercountries;
+	}
 
-    public void setCountry(String country) {
-        this.country = country;
-    }
-
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "country")
-    public Set<Providercountry> getProvidercountries() {
-        return this.providercountries;
-    }
-
-    public void setProvidercountries(Set<Providercountry> providercountries) {
-        this.providercountries = providercountries;
-    }
+	public void setProvidercountries(Set<Providercountry> providercountries) {
+		this.providercountries = providercountries;
+	}
 
 }
