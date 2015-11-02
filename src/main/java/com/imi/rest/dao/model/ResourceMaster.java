@@ -1,13 +1,15 @@
 package com.imi.rest.dao.model;
 
-// Generated 2 Nov, 2015 11:29:17 AM by Hibernate Tools 4.3.1
+// Generated 2 Nov, 2015 11:54:20 AM by Hibernate Tools 4.3.1
 
 import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import static javax.persistence.GenerationType.IDENTITY;
 import javax.persistence.Id;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -39,6 +41,7 @@ public class ResourceMaster implements java.io.Serializable {
 	private String XParams;
 	private String operators;
 	private String countrys;
+	private ResourceAllocation resourceAllocation;
 
 	public ResourceMaster() {
 	}
@@ -60,7 +63,8 @@ public class ResourceMaster implements java.io.Serializable {
 			String tag, String cost, byte bindDetails, byte status,
 			byte resourceType, byte category, byte subCategory, Date createdOn,
 			Date updatedOn, String createdBy, String profile, String XParams,
-			String operators, String countrys) {
+			String operators, String countrys,
+			ResourceAllocation resourceAllocation) {
 		this.serviceCode = serviceCode;
 		this.direction = direction;
 		this.channel = channel;
@@ -78,6 +82,7 @@ public class ResourceMaster implements java.io.Serializable {
 		this.XParams = XParams;
 		this.operators = operators;
 		this.countrys = countrys;
+		this.resourceAllocation = resourceAllocation;
 	}
 
 	@Id
@@ -244,6 +249,15 @@ public class ResourceMaster implements java.io.Serializable {
 
 	public void setCountrys(String countrys) {
 		this.countrys = countrys;
+	}
+
+	@OneToOne(fetch = FetchType.LAZY, mappedBy = "resourceMaster")
+	public ResourceAllocation getResourceAllocation() {
+		return this.resourceAllocation;
+	}
+
+	public void setResourceAllocation(ResourceAllocation resourceAllocation) {
+		this.resourceAllocation = resourceAllocation;
 	}
 
 }

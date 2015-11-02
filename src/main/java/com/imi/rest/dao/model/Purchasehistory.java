@@ -1,6 +1,6 @@
 package com.imi.rest.dao.model;
 
-// Generated 2 Nov, 2015 11:29:17 AM by Hibernate Tools 4.3.1
+// Generated 2 Nov, 2015 11:54:20 AM by Hibernate Tools 4.3.1
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
