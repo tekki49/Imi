@@ -1,6 +1,6 @@
 package com.imi.rest.dao.model;
 
-// Generated 2 Nov, 2015 11:00:46 AM by Hibernate Tools 4.3.1
+// Generated 2 Nov, 2015 11:07:48 AM by Hibernate Tools 4.3.1
 
 import java.util.HashSet;
 import java.util.Set;
@@ -21,6 +21,7 @@ public class Country implements java.io.Serializable {
 	private int id;
 	private String countryIsoCode;
 	private String country;
+	private String countryIsoNumber;
 	private Set<Providercountry> providercountries = new HashSet<Providercountry>(
 			0);
 
@@ -32,10 +33,11 @@ public class Country implements java.io.Serializable {
 	}
 
 	public Country(int id, String countryIsoCode, String country,
-			Set<Providercountry> providercountries) {
+			String countryIsoNumber, Set<Providercountry> providercountries) {
 		this.id = id;
 		this.countryIsoCode = countryIsoCode;
 		this.country = country;
+		this.countryIsoNumber = countryIsoNumber;
 		this.providercountries = providercountries;
 	}
 
@@ -65,6 +67,15 @@ public class Country implements java.io.Serializable {
 
 	public void setCountry(String country) {
 		this.country = country;
+	}
+
+	@Column(name = "CountryIsoNumber", length = 45)
+	public String getCountryIsoNumber() {
+		return this.countryIsoNumber;
+	}
+
+	public void setCountryIsoNumber(String countryIsoNumber) {
+		this.countryIsoNumber = countryIsoNumber;
 	}
 
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "country")

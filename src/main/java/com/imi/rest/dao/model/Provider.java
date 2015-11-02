@@ -1,6 +1,6 @@
 package com.imi.rest.dao.model;
 
-// Generated 2 Nov, 2015 11:00:46 AM by Hibernate Tools 4.3.1
+// Generated 2 Nov, 2015 11:07:48 AM by Hibernate Tools 4.3.1
 
 import java.util.HashSet;
 import java.util.Set;
