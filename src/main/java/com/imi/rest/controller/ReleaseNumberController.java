@@ -28,10 +28,11 @@ public class ReleaseNumberController {
     @RequestMapping(value = "/release/{number}", method = RequestMethod.DELETE)
     public String releaseNumber(@PathVariable("number") String number,
             @PathVariable("countryIsoCode") String countryIsoCode,
-            @RequestHeader("provider") int providerId)
+            @RequestHeader("provider") String providerName)
                     throws ClientProtocolException, IOException, ImiException {
-        Provider provider = providerService.getProviderById(providerId);
-        releaseNumberService.releaseNumber(number, provider, countryIsoCode);
+        Provider provider = providerService.getProviderByName(
+                providerName == null ? "" : providerName.toUpperCase());
+        // releaseNumberService.releaseNumber(number, provider, countryIsoCode);
         return ImiJsonUtil.getJSONString(number, "released");
     }
 

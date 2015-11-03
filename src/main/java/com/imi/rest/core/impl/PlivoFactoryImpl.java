@@ -34,6 +34,7 @@ import com.imi.rest.model.PlivioPurchaseResponse;
 import com.imi.rest.model.PurchaseResponse;
 import com.imi.rest.service.CountrySearchService;
 import com.imi.rest.util.BasicAuthUtil;
+import com.imi.rest.util.DataFormatUtils;
 import com.imi.rest.util.HttpUtil;
 import com.imi.rest.util.ImiJsonUtil;
 
@@ -72,18 +73,18 @@ public class PlivoFactoryImpl
          * plivioNumber.setProvider(PLIVO); setServiceType(plivioNumber);
          * phoneSearchResult.add(plivioNumber); } }
          */
-        String type="any";
+        String type = "any";
         if (numberType.equalsIgnoreCase(LANDLINE)) {
             type = "fixed";
         } else if (numberType.equalsIgnoreCase(MOBILE)) {
             type = "mobile ";
         } else if (numberType.equalsIgnoreCase(TOLLFREE)) {
             type = "tollfree";
-        }else if (numberType.equalsIgnoreCase(LOCAL)) {
+        } else if (numberType.equalsIgnoreCase(LOCAL)) {
             type = "fixed";
         }
-        searchPhoneNumbers(provider, serviceTypeEnum, countryIsoCode,
-                type, pattern, phoneSearchResult, 0);
+        searchPhoneNumbers(provider, serviceTypeEnum, countryIsoCode, type,
+                pattern, phoneSearchResult, 0);
         return phoneSearchResult;
     }
 
@@ -102,7 +103,7 @@ public class PlivoFactoryImpl
         if (offset > 0) {
             plivioPhoneSearchUrl = plivioPhoneSearchUrl + "&offset=" + offset;
         }
-        String response;
+        String response = "";
         try {
             response = HttpUtil.defaultHttpGetHandler(plivioPhoneSearchUrl,
                     BasicAuthUtil.getBasicAuthHash(provider.getAuthId(),
@@ -121,20 +122,17 @@ public class PlivoFactoryImpl
                 plivioNumber.setProvider(PLIVO);
                 setServiceType(plivioNumber);
                 plivioNumber.setPriceUnit("USD");
-                String monthlyRentalRateInGBP = plivioNumber
-                        .getMonthlyRentalRate() == null
-                                ? null
-                                : String.valueOf(Float
-                                        .parseFloat(plivioNumber
-                                                .getMonthlyRentalRate())
-                                        * USD_GBP);
+                String monthlyRentalRateInGBP = DataFormatUtils.forexConvert(
+                        USD_GBP, plivioNumber.getMonthlyRentalRate());
                 plivioNumber.setMonthlyRentalRate(monthlyRentalRateInGBP);
-                String voiceRateInGBP = plivioNumber.getVoiceRate() == null
-                        ? null
-                        : String.valueOf(
-                                Float.parseFloat(plivioNumber.getVoiceRate())
-                                        * USD_GBP);
+                String voiceRateInGBP = DataFormatUtils.forexConvert(USD_GBP,
+                        plivioNumber.getVoiceRate());
                 plivioNumber.setVoiceRate(voiceRateInGBP);
+                if (numberType.equalsIgnoreCase("fixed")
+                        || numberType.equalsIgnoreCase("local")) {
+                    numberType = "Landline";
+                }
+                plivioNumber.setType(numberType.toLowerCase());
                 phoneSearchResult.add(plivioNumber);
             }
         }
@@ -199,15 +197,15 @@ public class PlivoFactoryImpl
     }
 
     public PurchaseResponse purchaseNumber(String number, Provider provider,
-            String countryIsoCode)
+            com.imi.rest.dao.model.Country country)
                     throws ClientProtocolException, IOException, ImiException {
         String plivioPurchaseUrl = PLIVO_PURCHASE_URL;
-        String plivioNumber = number.trim() + countryIsoCode.trim();
+        String plivioNumber = number.trim() + country.getCountryCode().trim();
         plivioPurchaseUrl = plivioPurchaseUrl.replace("{number}", plivioNumber);
         String response;
-        response = HttpUtil.defaultHttpPostHandler(plivioPurchaseUrl,new HashMap<String, String>(),
-                BasicAuthUtil.getBasicAuthHash(provider.getAuthId(),
-                        provider.getApiKey()));
+        response = HttpUtil.defaultHttpPostHandler(plivioPurchaseUrl,
+                new HashMap<String, String>(), BasicAuthUtil.getBasicAuthHash(
+                        provider.getAuthId(), provider.getApiKey()));
         PlivioPurchaseResponse plivioPurchaseResponse = ImiJsonUtil
                 .deserialize(response, PlivioPurchaseResponse.class);
         return null;

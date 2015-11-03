@@ -38,9 +38,11 @@ public class PurchaseController {
             @PathVariable("countryIsoCode") String countryIsoCode,
             @RequestHeader("provider") String providerName)
                     throws ClientProtocolException, IOException, ImiException {
-        Provider provider = providerService.getProviderByName(providerName);
-        Country country=countrySearchService.getCountryByIsoCode(countryIsoCode);
-        purchaseNumberService.purchaseNumber(number, provider, country.getCountryCode());
+        Provider provider = providerService.getProviderByName(
+                providerName == null ? "" : providerName.toUpperCase());
+        Country country = countrySearchService
+                .getCountryByIsoCode(countryIsoCode);
+        purchaseNumberService.purchaseNumber(number, provider, country);
         PurchaseDetails purchaseDetails = new PurchaseDetails();
         purchaseDetails.setCountry(country.getCountry());
         purchaseDetails.setNumber(number);

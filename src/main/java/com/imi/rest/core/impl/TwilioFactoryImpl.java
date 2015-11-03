@@ -17,6 +17,7 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
 import org.json.XML;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonParseException;
@@ -29,9 +30,9 @@ import com.imi.rest.constants.UrlConstants;
 import com.imi.rest.core.CountrySearch;
 import com.imi.rest.core.NumberSearch;
 import com.imi.rest.core.PurchaseNumber;
+import com.imi.rest.dao.model.Country;
 import com.imi.rest.dao.model.Provider;
 import com.imi.rest.exception.ImiException;
-import com.imi.rest.model.Country;
 import com.imi.rest.model.CountryPricing;
 import com.imi.rest.model.CountryResponse;
 import com.imi.rest.model.InboundCallPrice;
@@ -39,7 +40,9 @@ import com.imi.rest.model.Number;
 import com.imi.rest.model.NumberResponse;
 import com.imi.rest.model.PurchaseResponse;
 import com.imi.rest.service.CountrySearchService;
+import com.imi.rest.service.ProviderService;
 import com.imi.rest.util.BasicAuthUtil;
+import com.imi.rest.util.DataFormatUtils;
 import com.imi.rest.util.HttpUtil;
 import com.imi.rest.util.ImiJsonUtil;
 
@@ -56,11 +59,15 @@ public class TwilioFactoryImpl
     private String priceUnit;
     private Map<String, Map<String, String>> twilioMonthlyPriceMap;
 
+    @Autowired
+    private ProviderService providerService;
+
     @Override
     public List<Number> searchPhoneNumbers(Provider provider,
             ServiceConstants serviceTypeEnum, String countryIsoCode,
             String numberType, String pattern)
                     throws ClientProtocolException, IOException {
+        getTwilioPricing(countryIsoCode, provider);
         List<Number> phoneSearchResult = new ArrayList<Number>();
         String twilioPhoneSearchUrl = TWILIO_PHONE_SEARCH_URL;
         numberTypePricingMap = null;
@@ -80,7 +87,7 @@ public class TwilioFactoryImpl
             twilioPhoneSearchUrl = twilioPhoneSearchUrl.replace("Contains=&",
                     "");
         }
-        String response;
+        String response = "";
         try {
             response = HttpUtil.defaultHttpGetHandler(twilioPhoneSearchUrl,
                     BasicAuthUtil.getBasicAuthHash(provider.getAuthId(),
@@ -102,18 +109,16 @@ public class TwilioFactoryImpl
             if (twilioNumber != null) {
                 setServiceType(twilioNumber);
                 twilioNumber.setProvider(TWILIO);
-                twilioNumber.setType(numberType.equalsIgnoreCase("local")?"landline":numberType);
+                twilioNumber.setType(
+                        type.equalsIgnoreCase("local") ? "landline" : type);
                 twilioNumber.setPriceUnit(priceUnit);
-                String voiceRateInGBP = voiceRate == null ? null
-                        : String.valueOf(Float.parseFloat(voiceRate) * USD_GBP);
+
+                String voiceRateInGBP = DataFormatUtils.forexConvert(USD_GBP,
+                        voiceRate);
                 twilioNumber.setVoiceRate(voiceRateInGBP);
-                String monthlyRentalRateInGBP = twilioMonthlyPriceMap
-                        .get(countryIsoCode).get(type) == null
-                                ? null
-                                : String.valueOf(Float
-                                        .parseFloat(twilioMonthlyPriceMap
-                                                .get(countryIsoCode).get(type))
-                                        * USD_GBP);
+                String monthlyRentalRateInGBP = DataFormatUtils.forexConvert(
+                        USD_GBP,
+                        twilioMonthlyPriceMap.get(countryIsoCode).get(type));
                 twilioNumber.setMonthlyRentalRate(monthlyRentalRateInGBP);
                 phoneSearchResult.add(twilioNumber);
             }
@@ -228,13 +233,14 @@ public class TwilioFactoryImpl
         return servicesString;
     }
 
-    public Set<Country> importCountriesByUrl(Provider provider)
-            throws JsonParseException, JsonMappingException, IOException {
+    public Set<com.imi.rest.model.Country> importCountriesByUrl(
+            Provider provider) throws JsonParseException, JsonMappingException,
+                    IOException {
         String url = TWILIO_COUNTRY_LIST_URL;
         String authHash = BasicAuthUtil.getBasicAuthHash(provider.getAuthId(),
                 provider.getApiKey());
         String responseBody;
-        Set<Country> countrySet = new HashSet<Country>();
+        Set<com.imi.rest.model.Country> countrySet = new HashSet<com.imi.rest.model.Country>();
         try {
             responseBody = HttpUtil.defaultHttpGetHandler(url, authHash);
         } catch (ImiException e) {
@@ -260,9 +266,9 @@ public class TwilioFactoryImpl
     }
 
     @Override
-    public Set<Country> importCountries()
+    public Set<com.imi.rest.model.Country> importCountries()
             throws JsonParseException, JsonMappingException, IOException {
-        Set<Country> countrySet = new TreeSet<Country>();
+        Set<com.imi.rest.model.Country> countrySet = new TreeSet<com.imi.rest.model.Country>();
         String line = "";
         String splitBy = ",";
         BufferedReader reader = null;
@@ -274,7 +280,7 @@ public class TwilioFactoryImpl
             while ((line = reader.readLine()) != null) {
                 String[] row = line.split(splitBy);
                 if (counter != 0 && row.length > 1) {
-                    Country country = new Country();
+                    com.imi.rest.model.Country country = new com.imi.rest.model.Country();
                     country.setCountry(row[1]);
                     country.setIsoCountry(row[0]);
                     country.setCountryCode(row[2]);
@@ -299,9 +305,11 @@ public class TwilioFactoryImpl
     }
 
     public PurchaseResponse purchaseNumber(String number, Provider provider,
-            String countryIsoCode) throws ClientProtocolException, IOException {
+            Country country)
+                    throws ClientProtocolException, IOException, ImiException {
         String twilioPurchaseUrl = TWILIO_DUMMY_PURCHASE_URL;
-        String twilioNumber = "+" + countryIsoCode.trim() + number.trim();
+        String twilioNumber = "+" + country.getCountryCode().trim()
+                + number.trim();
         twilioPurchaseUrl = twilioPurchaseUrl.replace("{number}", twilioNumber);
         Map<String, String> requestBody = new HashMap<String, String>();
         requestBody.put("PhoneNumber", twilioNumber);
@@ -309,6 +317,8 @@ public class TwilioFactoryImpl
                 requestBody, BasicAuthUtil.getBasicAuthHash(
                         provider.getAuthId(), provider.getApiKey()));
         JSONObject twilioResponse = XML.toJSONObject(response);
+        getTwilioPricing(country.getCountryIso(),
+                providerService.getTwilioProvider());
         return null;
     }
 

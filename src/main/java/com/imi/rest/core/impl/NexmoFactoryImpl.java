@@ -38,8 +38,9 @@ import com.imi.rest.util.HttpUtil;
 import com.imi.rest.util.ImiJsonUtil;
 
 @Component
-public class NexmoFactoryImpl implements NumberSearch, CountrySearch,
-        PurchaseNumber, UrlConstants, ProviderConstants, ForexConstants,NumberTypeConstants {
+public class NexmoFactoryImpl
+        implements NumberSearch, CountrySearch, PurchaseNumber, UrlConstants,
+        ProviderConstants, ForexConstants, NumberTypeConstants {
 
     private String nexmoPricingResponse;
     private static final String NEXMO_PRICING_FILE_PATH = "/nexmo_pricing.xls";
@@ -52,14 +53,14 @@ public class NexmoFactoryImpl implements NumberSearch, CountrySearch,
                     throws ClientProtocolException, IOException, ImiException {
         nexmoPricingResponse = null;
         List<Number> phoneSearchResult = new ArrayList<Number>();
-        String type = "Local";
+        String type = "landline";
         if (numberType.equalsIgnoreCase(MOBILE)) {
-            type = "Mobile";
+            type = "mobile";
         } else if (numberType.equalsIgnoreCase(TOLLFREE)) {
-            type = "Tollfree";
+            type = "tollfree";
         }
-        searchPhoneNumbers(provider, serviceTypeEnum, countryIsoCode,
-                numberType, pattern, phoneSearchResult, Integer.MIN_VALUE, 0);
+        searchPhoneNumbers(provider, serviceTypeEnum, countryIsoCode, type,
+                pattern, phoneSearchResult, Integer.MIN_VALUE, 0);
         return phoneSearchResult;
     }
 
@@ -85,7 +86,11 @@ public class NexmoFactoryImpl implements NumberSearch, CountrySearch,
                 .replace("{pattern}", pattern)
                 .replace("{features}", serviceTypeEnum.toString().toUpperCase())
                 .replace("{index}", "" + index);
-        String response = HttpUtil.defaultHttpGetHandler(nexmoPhoneSearchUrl);
+        String response = "";
+        try {
+            response = HttpUtil.defaultHttpGetHandler(nexmoPhoneSearchUrl);
+        } catch (ImiException e) {
+        }
         NumberResponse numberResponse = ImiJsonUtil.deserialize(response,
                 NumberResponse.class);
         if (numberResponse == null)
@@ -113,6 +118,9 @@ public class NexmoFactoryImpl implements NumberSearch, CountrySearch,
                 if (nexmoNumber.getNumberType()
                         .equalsIgnoreCase("mobile-lvn")) {
                     nexmoNumber.setType("mobile");
+                } else if (nexmoNumber.getNumberType()
+                        .equalsIgnoreCase("local")) {
+                    nexmoNumber.setType("landline");
                 }
                 nexmoNumber.setPriceUnit("EUR");
                 nexmoNumber
@@ -174,10 +182,10 @@ public class NexmoFactoryImpl implements NumberSearch, CountrySearch,
     }
 
     public PurchaseResponse purchaseNumber(String number, Provider provider,
-            String countryIsoCode)
+            com.imi.rest.dao.model.Country country)
                     throws ClientProtocolException, IOException, ImiException {
         String nexmoPurchaseUrl = NEXMO_PURCHASE_URL;
-        String nexmoNumber = number.trim() + countryIsoCode.trim();
+        String nexmoNumber = number.trim() + country.getCountryCode().trim();
         nexmoPurchaseUrl = nexmoPurchaseUrl
                 .replace("{api_key}", provider.getAuthId())
                 .replace("{api_secret}", provider.getApiKey())

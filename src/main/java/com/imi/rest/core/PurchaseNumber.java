@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import org.apache.http.client.ClientProtocolException;
 
+import com.imi.rest.dao.model.Country;
 import com.imi.rest.dao.model.Provider;
 import com.imi.rest.exception.ImiException;
 import com.imi.rest.model.PurchaseResponse;
@@ -11,7 +12,7 @@ import com.imi.rest.model.PurchaseResponse;
 public interface PurchaseNumber {
 
     public PurchaseResponse purchaseNumber(String number, Provider provider,
-            String countryIsoCode)
+            Country country)
                     throws ClientProtocolException, IOException, ImiException;
 
 }

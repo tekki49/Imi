@@ -23,227 +23,226 @@ import org.hibernate.annotations.Parameter;
 @Table(name = "resource_allocation", catalog = "imi")
 public class ResourceAllocation implements java.io.Serializable {
 
-	private int resourceId;
-	private ResourceMaster resourceMaster;
-	private Date createdOn;
-	private String nodeId;
-	private String nodeType;
-	private byte status;
-	private Date updatedOn;
-	private Integer rcId;
-	private String userkey;
-	private String webappTitle;
-	private Date expiresOn;
-	private Date activatedOn;
-	private String createdBy;
-	private Integer groupId;
-	private Byte isDefault;
-	private Date approvedOn;
-	private String subuserUuid;
-	private String subuserUserId;
+    private int resourceId;
+    private ResourceMaster resourceMaster;
+    private Date createdOn;
+    private String nodeId;
+    private String nodeType;
+    private byte status;
+    private Date updatedOn;
+    private Integer rcId;
+    private String userkey;
+    private String webappTitle;
+    private Date expiresOn;
+    private Date activatedOn;
+    private String createdBy;
+    private Integer groupId;
+    private Byte isDefault;
+    private Date approvedOn;
+    private String subuserUuid;
+    private String subuserUserId;
 
-	public ResourceAllocation() {
-	}
+    public ResourceAllocation() {
+    }
 
-	public ResourceAllocation(ResourceMaster resourceMaster, byte status) {
-		this.resourceMaster = resourceMaster;
-		this.status = status;
-	}
+    public ResourceAllocation(ResourceMaster resourceMaster, byte status) {
+        this.resourceMaster = resourceMaster;
+        this.status = status;
+    }
 
-	public ResourceAllocation(ResourceMaster resourceMaster, Date createdOn,
-			String nodeId, String nodeType, byte status, Date updatedOn,
-			Integer rcId, String userkey, String webappTitle, Date expiresOn,
-			Date activatedOn, String createdBy, Integer groupId,
-			Byte isDefault, Date approvedOn, String subuserUuid,
-			String subuserUserId) {
-		this.resourceMaster = resourceMaster;
-		this.createdOn = createdOn;
-		this.nodeId = nodeId;
-		this.nodeType = nodeType;
-		this.status = status;
-		this.updatedOn = updatedOn;
-		this.rcId = rcId;
-		this.userkey = userkey;
-		this.webappTitle = webappTitle;
-		this.expiresOn = expiresOn;
-		this.activatedOn = activatedOn;
-		this.createdBy = createdBy;
-		this.groupId = groupId;
-		this.isDefault = isDefault;
-		this.approvedOn = approvedOn;
-		this.subuserUuid = subuserUuid;
-		this.subuserUserId = subuserUserId;
-	}
+    public ResourceAllocation(ResourceMaster resourceMaster, Date createdOn,
+            String nodeId, String nodeType, byte status, Date updatedOn,
+            Integer rcId, String userkey, String webappTitle, Date expiresOn,
+            Date activatedOn, String createdBy, Integer groupId, Byte isDefault,
+            Date approvedOn, String subuserUuid, String subuserUserId) {
+        this.resourceMaster = resourceMaster;
+        this.createdOn = createdOn;
+        this.nodeId = nodeId;
+        this.nodeType = nodeType;
+        this.status = status;
+        this.updatedOn = updatedOn;
+        this.rcId = rcId;
+        this.userkey = userkey;
+        this.webappTitle = webappTitle;
+        this.expiresOn = expiresOn;
+        this.activatedOn = activatedOn;
+        this.createdBy = createdBy;
+        this.groupId = groupId;
+        this.isDefault = isDefault;
+        this.approvedOn = approvedOn;
+        this.subuserUuid = subuserUuid;
+        this.subuserUserId = subuserUserId;
+    }
 
-	@GenericGenerator(name = "generator", strategy = "foreign", parameters = @Parameter(name = "property", value = "resourceMaster"))
-	@Id
-	@GeneratedValue(generator = "generator")
-	@Column(name = "resource_id", unique = true, nullable = false)
-	public int getResourceId() {
-		return this.resourceId;
-	}
+    @GenericGenerator(name = "generator", strategy = "foreign", parameters = @Parameter(name = "property", value = "resourceMaster") )
+    @Id
+    @GeneratedValue(generator = "generator")
+    @Column(name = "resource_id", unique = true, nullable = false)
+    public int getResourceId() {
+        return this.resourceId;
+    }
 
-	public void setResourceId(int resourceId) {
-		this.resourceId = resourceId;
-	}
+    public void setResourceId(int resourceId) {
+        this.resourceId = resourceId;
+    }
 
-	@OneToOne(fetch = FetchType.LAZY)
-	@PrimaryKeyJoinColumn
-	public ResourceMaster getResourceMaster() {
-		return this.resourceMaster;
-	}
+    @OneToOne(fetch = FetchType.LAZY)
+    @PrimaryKeyJoinColumn
+    public ResourceMaster getResourceMaster() {
+        return this.resourceMaster;
+    }
 
-	public void setResourceMaster(ResourceMaster resourceMaster) {
-		this.resourceMaster = resourceMaster;
-	}
+    public void setResourceMaster(ResourceMaster resourceMaster) {
+        this.resourceMaster = resourceMaster;
+    }
 
-	@Temporal(TemporalType.TIMESTAMP)
-	@Column(name = "created_on", length = 19)
-	public Date getCreatedOn() {
-		return this.createdOn;
-	}
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "created_on", length = 19)
+    public Date getCreatedOn() {
+        return this.createdOn;
+    }
 
-	public void setCreatedOn(Date createdOn) {
-		this.createdOn = createdOn;
-	}
+    public void setCreatedOn(Date createdOn) {
+        this.createdOn = createdOn;
+    }
 
-	@Column(name = "node_id")
-	public String getNodeId() {
-		return this.nodeId;
-	}
+    @Column(name = "node_id")
+    public String getNodeId() {
+        return this.nodeId;
+    }
 
-	public void setNodeId(String nodeId) {
-		this.nodeId = nodeId;
-	}
+    public void setNodeId(String nodeId) {
+        this.nodeId = nodeId;
+    }
 
-	@Column(name = "node_type")
-	public String getNodeType() {
-		return this.nodeType;
-	}
+    @Column(name = "node_type")
+    public String getNodeType() {
+        return this.nodeType;
+    }
 
-	public void setNodeType(String nodeType) {
-		this.nodeType = nodeType;
-	}
+    public void setNodeType(String nodeType) {
+        this.nodeType = nodeType;
+    }
 
-	@Column(name = "status", nullable = false)
-	public byte getStatus() {
-		return this.status;
-	}
+    @Column(name = "status", nullable = false)
+    public byte getStatus() {
+        return this.status;
+    }
 
-	public void setStatus(byte status) {
-		this.status = status;
-	}
+    public void setStatus(byte status) {
+        this.status = status;
+    }
 
-	@Temporal(TemporalType.TIMESTAMP)
-	@Column(name = "updated_on", length = 19)
-	public Date getUpdatedOn() {
-		return this.updatedOn;
-	}
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "updated_on", length = 19)
+    public Date getUpdatedOn() {
+        return this.updatedOn;
+    }
 
-	public void setUpdatedOn(Date updatedOn) {
-		this.updatedOn = updatedOn;
-	}
+    public void setUpdatedOn(Date updatedOn) {
+        this.updatedOn = updatedOn;
+    }
 
-	@Column(name = "rc_id")
-	public Integer getRcId() {
-		return this.rcId;
-	}
+    @Column(name = "rc_id")
+    public Integer getRcId() {
+        return this.rcId;
+    }
 
-	public void setRcId(Integer rcId) {
-		this.rcId = rcId;
-	}
+    public void setRcId(Integer rcId) {
+        this.rcId = rcId;
+    }
 
-	@Column(name = "userkey", length = 512)
-	public String getUserkey() {
-		return this.userkey;
-	}
+    @Column(name = "userkey", length = 512)
+    public String getUserkey() {
+        return this.userkey;
+    }
 
-	public void setUserkey(String userkey) {
-		this.userkey = userkey;
-	}
+    public void setUserkey(String userkey) {
+        this.userkey = userkey;
+    }
 
-	@Column(name = "webapp_title", length = 100)
-	public String getWebappTitle() {
-		return this.webappTitle;
-	}
+    @Column(name = "webapp_title", length = 100)
+    public String getWebappTitle() {
+        return this.webappTitle;
+    }
 
-	public void setWebappTitle(String webappTitle) {
-		this.webappTitle = webappTitle;
-	}
+    public void setWebappTitle(String webappTitle) {
+        this.webappTitle = webappTitle;
+    }
 
-	@Temporal(TemporalType.TIMESTAMP)
-	@Column(name = "expires_on", length = 19)
-	public Date getExpiresOn() {
-		return this.expiresOn;
-	}
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "expires_on", length = 19)
+    public Date getExpiresOn() {
+        return this.expiresOn;
+    }
 
-	public void setExpiresOn(Date expiresOn) {
-		this.expiresOn = expiresOn;
-	}
+    public void setExpiresOn(Date expiresOn) {
+        this.expiresOn = expiresOn;
+    }
 
-	@Temporal(TemporalType.TIMESTAMP)
-	@Column(name = "activated_on", length = 19)
-	public Date getActivatedOn() {
-		return this.activatedOn;
-	}
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "activated_on", length = 19)
+    public Date getActivatedOn() {
+        return this.activatedOn;
+    }
 
-	public void setActivatedOn(Date activatedOn) {
-		this.activatedOn = activatedOn;
-	}
+    public void setActivatedOn(Date activatedOn) {
+        this.activatedOn = activatedOn;
+    }
 
-	@Column(name = "created_by")
-	public String getCreatedBy() {
-		return this.createdBy;
-	}
+    @Column(name = "created_by")
+    public String getCreatedBy() {
+        return this.createdBy;
+    }
 
-	public void setCreatedBy(String createdBy) {
-		this.createdBy = createdBy;
-	}
+    public void setCreatedBy(String createdBy) {
+        this.createdBy = createdBy;
+    }
 
-	@Column(name = "group_id")
-	public Integer getGroupId() {
-		return this.groupId;
-	}
+    @Column(name = "group_id")
+    public Integer getGroupId() {
+        return this.groupId;
+    }
 
-	public void setGroupId(Integer groupId) {
-		this.groupId = groupId;
-	}
+    public void setGroupId(Integer groupId) {
+        this.groupId = groupId;
+    }
 
-	@Column(name = "is_default")
-	public Byte getIsDefault() {
-		return this.isDefault;
-	}
+    @Column(name = "is_default")
+    public Byte getIsDefault() {
+        return this.isDefault;
+    }
 
-	public void setIsDefault(Byte isDefault) {
-		this.isDefault = isDefault;
-	}
+    public void setIsDefault(Byte isDefault) {
+        this.isDefault = isDefault;
+    }
 
-	@Temporal(TemporalType.TIMESTAMP)
-	@Column(name = "approved_on", length = 19)
-	public Date getApprovedOn() {
-		return this.approvedOn;
-	}
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "approved_on", length = 19)
+    public Date getApprovedOn() {
+        return this.approvedOn;
+    }
 
-	public void setApprovedOn(Date approvedOn) {
-		this.approvedOn = approvedOn;
-	}
+    public void setApprovedOn(Date approvedOn) {
+        this.approvedOn = approvedOn;
+    }
 
-	@Column(name = "subuser_uuid", length = 50)
-	public String getSubuserUuid() {
-		return this.subuserUuid;
-	}
+    @Column(name = "subuser_uuid", length = 50)
+    public String getSubuserUuid() {
+        return this.subuserUuid;
+    }
 
-	public void setSubuserUuid(String subuserUuid) {
-		this.subuserUuid = subuserUuid;
-	}
+    public void setSubuserUuid(String subuserUuid) {
+        this.subuserUuid = subuserUuid;
+    }
 
-	@Column(name = "subuser_user_id", length = 256)
-	public String getSubuserUserId() {
-		return this.subuserUserId;
-	}
+    @Column(name = "subuser_user_id", length = 256)
+    public String getSubuserUserId() {
+        return this.subuserUserId;
+    }
 
-	public void setSubuserUserId(String subuserUserId) {
-		this.subuserUserId = subuserUserId;
-	}
+    public void setSubuserUserId(String subuserUserId) {
+        this.subuserUserId = subuserUserId;
+    }
 
 }

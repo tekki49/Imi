@@ -70,7 +70,7 @@ public class CountryDao {
             for (Country daoCountry : countryList) {
                 com.imi.rest.model.Country countryModel = new com.imi.rest.model.Country();
                 countryModel.setCountry(daoCountry.getCountry());
-                countryModel.setIsoCountry(daoCountry.getCountryCode());
+                countryModel.setIsoCountry(daoCountry.getCountryIso());
                 countrySet.add(countryModel);
             }
             return countrySet;

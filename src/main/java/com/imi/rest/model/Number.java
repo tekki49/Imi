@@ -267,5 +267,4 @@ public class Number {
         this.priceUnit = priceUnit;
     }
 
-    
 }
