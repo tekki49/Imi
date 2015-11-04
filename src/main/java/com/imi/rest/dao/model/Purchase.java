@@ -21,7 +21,7 @@ public class Purchase implements java.io.Serializable {
 
     private Integer id;
     private Providercountry providercountry;
-    private Integer number;
+    private String number;
     private String numberType;
     private String restrictions;
     private String monthlyRentalRate;
@@ -34,7 +34,7 @@ public class Purchase implements java.io.Serializable {
     public Purchase() {
     }
 
-    public Purchase(Providercountry providercountry, Integer number,
+    public Purchase(Providercountry providercountry, String number,
             String numberType, String restrictions, String monthlyRentalRate,
             String setUpRate, String smsRate, String voicePrice,
             String effectiveDate, Integer resouceManagerId) {
@@ -72,11 +72,11 @@ public class Purchase implements java.io.Serializable {
     }
 
     @Column(name = "Number")
-    public Integer getNumber() {
+    public String getNumber() {
         return this.number;
     }
 
-    public void setNumber(Integer number) {
+    public void setNumber(String number) {
         this.number = number;
     }
 

@@ -5,7 +5,7 @@ import com.imi.rest.dao.model.Purchase;
 public class PurchaseResponse {
 
     private Integer id;
-    private Integer number;
+    private String number;
     private String numberType;
     private String restrictions;
     private String monthlyRentalRate;
@@ -15,6 +15,10 @@ public class PurchaseResponse {
     private String effectiveDate;
     private Integer resourceManagerId;
     private Integer countryProviderId;
+
+    public PurchaseResponse(){
+
+    }
 
     public PurchaseResponse(Purchase purchase) {
         this.id = purchase.getId();
@@ -39,11 +43,11 @@ public class PurchaseResponse {
         this.id = id;
     }
 
-    public Integer getNumber() {
+    public String getNumber() {
         return number;
     }
 
-    public void setNumber(Integer number) {
+    public void setNumber(String number) {
         this.number = number;
     }
 
