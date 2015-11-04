@@ -27,10 +27,12 @@ import com.imi.rest.core.NumberSearch;
 import com.imi.rest.core.PurchaseNumber;
 import com.imi.rest.dao.model.Provider;
 import com.imi.rest.exception.ImiException;
+import com.imi.rest.model.BalanceResponse;
 import com.imi.rest.model.Country;
 import com.imi.rest.model.Number;
 import com.imi.rest.model.NumberResponse;
 import com.imi.rest.model.PlivioPurchaseResponse;
+import com.imi.rest.model.PlivoAccountResponse;
 import com.imi.rest.model.PurchaseResponse;
 import com.imi.rest.service.CountrySearchService;
 import com.imi.rest.util.BasicAuthUtil;
@@ -223,6 +225,22 @@ public class PlivoFactoryImpl
         } catch (ImiException e) {
             // TODO need to validate the response
         }
+    }
+    
+    public BalanceResponse checkBalance(Provider provider) throws ClientProtocolException, IOException {
+        String plivoAccountBalanceurl = PLIVO_ACCOUNT_BALANCE_URL;  
+        BalanceResponse balanceResponse = new BalanceResponse();
+        try {
+        	 String response = HttpUtil.defaultHttpGetHandler(plivoAccountBalanceurl,
+                    BasicAuthUtil.getBasicAuthHash(provider.getAuthId(),
+                            provider.getApiKey()));
+            PlivoAccountResponse plivoAccountResponse = ImiJsonUtil
+                    .deserialize(response, PlivoAccountResponse.class);
+            balanceResponse.setValue(plivoAccountResponse.getCash_credits());
+        } catch (ImiException e) {
+            // TODO need to validate the response
+        }
+        return balanceResponse;
     }
 
 }

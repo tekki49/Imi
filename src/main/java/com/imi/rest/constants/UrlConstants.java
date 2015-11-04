@@ -5,6 +5,7 @@ public interface UrlConstants {
     public static final String PLIVO_PHONE_SEARCH_URL = "https://api.plivo.com/v1/Account/MANMMWNGMWMZNKNDIWOD/PhoneNumber?country_iso={country_iso}&type={type}&services={services}&pattern={pattern}";
     public static final String PLIVO_PURCHASE_URL = "https://api.plivo.com/v1/Account/MANMMWNGMWMZNKNDIWOD/PhoneNumber/{number}/";
     public static final String PLIVO_RELEASE_URL = "https://api.plivo.com/v1/Account/MANMMWNGMWMZNKNDIWOD/Number/{number}/";
+    public static final String PLIVO_ACCOUNT_BALANCE_URL = "https://api.plivo.com/v1/Account/MANMMWNGMWMZNKNDIWOD/";
 
     // Twilio Constants
     public static final String TWILIO_PHONE_SEARCH_URL = "https://api.twilio.com/2010-04-01/Accounts/AC606f86ee4172ff7773d4162e7b62496c/AvailablePhoneNumbers/{country_iso}/{type}.json?Contains={pattern}&{services}";
@@ -18,5 +19,6 @@ public interface UrlConstants {
     public static final String NEXMO_PHONE_SEARCH_URL = "https://rest.nexmo.com/number/search/{api_key}/{api_secret}/{country_iso}?pattern={pattern}&size=100&features={features}&&search_pattern=1&&index={index}";
     public static final String NEXMO_PURCHASE_URL = "https://rest.nexmo.com/number/search/{api_key}/{api_secret}/{country}/{msisdn}";
     public static final String NEXMO_RELEASE_URL = "https://rest.nexmo.com/number/search/{api_key}/{api_secret}/{country}/{msisdn}";
+    public static final String NEXMO_ACCOUNT_BALANCE_URL = "https://rest.nexmo.com/account/get-balance/{api_key}/{api_secret}";
 
 }

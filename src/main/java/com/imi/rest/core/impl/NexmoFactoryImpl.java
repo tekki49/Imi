@@ -28,6 +28,7 @@ import com.imi.rest.core.NumberSearch;
 import com.imi.rest.core.PurchaseNumber;
 import com.imi.rest.dao.model.Provider;
 import com.imi.rest.exception.ImiException;
+import com.imi.rest.model.BalanceResponse;
 import com.imi.rest.model.Country;
 import com.imi.rest.model.CountryPricing;
 import com.imi.rest.model.Number;
@@ -248,6 +249,22 @@ public class NexmoFactoryImpl
         in.close();
         workbook.close();
         return response;
+    }
+    
+    public BalanceResponse checkBalance(Provider provider) throws ClientProtocolException, IOException {
+        String nexoAccountBalanceurl = NEXMO_ACCOUNT_BALANCE_URL;
+        nexoAccountBalanceurl = nexoAccountBalanceurl
+                .replace("{api_key}", provider.getAuthId())
+                .replace("{api_secret}",
+                        provider.getApiKey());
+        BalanceResponse balanceResponse = new BalanceResponse();
+        try {
+            String response = HttpUtil.defaultHttpGetHandler(nexoAccountBalanceurl,
+                    BasicAuthUtil.getBasicAuthHash(provider.getAuthId(), provider.getApiKey()));
+            balanceResponse = ImiJsonUtil.deserialize(response, BalanceResponse.class);
+        } catch (ImiException e) {
+        }
+        return balanceResponse;
     }
 
 }
