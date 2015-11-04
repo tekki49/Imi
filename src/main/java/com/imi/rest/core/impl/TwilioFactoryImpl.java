@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -32,7 +33,7 @@ import com.imi.rest.core.NumberSearch;
 import com.imi.rest.core.PurchaseNumber;
 import com.imi.rest.dao.model.Country;
 import com.imi.rest.dao.model.Provider;
-import com.imi.rest.dao.model.Purchase;
+import com.imi.rest.dao.model.TwilioNumberPrice;
 import com.imi.rest.exception.ImiException;
 import com.imi.rest.model.CountryPricing;
 import com.imi.rest.model.CountryResponse;
@@ -54,10 +55,10 @@ public class TwilioFactoryImpl implements NumberSearch, CountrySearch, PurchaseN
 	private static final String TWILIO_CSV_FILE_PATH = "/Twilio - Number Prices.csv";
 	private static final Logger LOG = Logger.getLogger(CountrySearchService.class);
 
-	private Map<String, String> numberTypePricingMap;
+	private TwilioNumberPrice numberTypePricing;
 	private String priceUnit;
 	private Map<String, Map<String, String>> twilioMonthlyPriceMap;
-	private Map<String, Map<String, String>> twilioMonthlyPriceMap2;
+	private Map<String, TwilioNumberPrice> twilioMonthlyPriceMap2;
 
 	@Autowired
 	private ProviderService providerService;
@@ -68,7 +69,7 @@ public class TwilioFactoryImpl implements NumberSearch, CountrySearch, PurchaseN
 		getTwilioPricing(countryIsoCode, provider);
 		List<Number> phoneSearchResult = new ArrayList<Number>();
 		String twilioPhoneSearchUrl = TWILIO_PHONE_SEARCH_URL;
-		numberTypePricingMap = null;
+		numberTypePricing = null;
 		priceUnit = null;
 		String servicesString = generateTwilioCapabilities(serviceTypeEnum);
 		String type = "Local";
@@ -92,10 +93,12 @@ public class TwilioFactoryImpl implements NumberSearch, CountrySearch, PurchaseN
 		NumberResponse numberResponse = ImiJsonUtil.deserialize(response, NumberResponse.class);
 		List<Number> twilioNumberList = numberResponse == null ? new ArrayList<Number>()
 				: numberResponse.getObjects() == null ? new ArrayList<Number>() : numberResponse.getObjects();
-		if (numberTypePricingMap == null) {
-			setNumberTypePricingMap(getTwilioPricing(countryIsoCode, provider));
+		String searchKey=countryIsoCode+"-"+numberType;
+		if (numberTypePricing == null) {
+			setNumberTypePricingMap((TwilioNumberPrice) getTwilioPricing(countryIsoCode, provider).get(searchKey));
 		}
-		String voiceRate = numberTypePricingMap.get(type.toLowerCase());
+		//String voiceRate = numberTypePricing.get(type.toLowerCase());
+		String voiceRate= numberTypePricing.getInboundVoicePrice();
 		for (Number twilioNumber : twilioNumberList) {
 			if (twilioNumber != null) {
 				setServiceType(twilioNumber);
@@ -114,8 +117,7 @@ public class TwilioFactoryImpl implements NumberSearch, CountrySearch, PurchaseN
 		return phoneSearchResult;
 	}
 
-	private Map getTwilioPricing(String countryIsoCode, Provider provider)
-			throws ClientProtocolException, IOException {
+	private Map getTwilioPricing(String countryIsoCode, Provider provider) throws ClientProtocolException, IOException {
 		Map<String, String> numberTypePricingMap = new HashMap<String, String>();
 		String pricingUrl = TWILIO_PRICING_URL;
 		pricingUrl = pricingUrl.replace("{Country}", countryIsoCode);
@@ -133,64 +135,39 @@ public class TwilioFactoryImpl implements NumberSearch, CountrySearch, PurchaseN
 					: inboundCallPrice.getBase_price();
 			numberTypePricingMap.put(inboundCallPrice.getNumber_type().replace(" ", "").trim(), basePrice);
 		}
-		if (twilioMonthlyPriceMap == null) {
+		if (twilioMonthlyPriceMap2 == null) {
 			String line = "";
 			String splitBy = ",";
 			BufferedReader reader = null;
-			//twilioMonthlyPriceMap = new HashMap<String, Map<String, String>>();
+			twilioMonthlyPriceMap2 = new HashMap<String,TwilioNumberPrice>();
 			try {
 				InputStream in = getClass().getResourceAsStream(TWILIO_CSV_FILE_PATH);
 				reader = new BufferedReader(new InputStreamReader(in, "UTF-8"));
 				int counter = 0;
-				/*
-				 * while ((line = reader.readLine()) != null) { String[] row =
-				 * line.split(splitBy); if (counter != 0 && row.length > 1) {
-				 * String isoCode = row[0]; String numberType = row[3]; String
-				 * monthlyRental = row[10]; Map<String, String>
-				 * numberTypePriceMap = null; if
-				 * (twilioMonthlyPriceMap.containsKey(isoCode)) {
-				 * numberTypePriceMap = twilioMonthlyPriceMap .get(isoCode);
-				 * numberTypePriceMap.put(numberType, monthlyRental); } else {
-				 * numberTypePriceMap = new HashMap<String, String>();
-				 * numberTypePriceMap.put(numberType, monthlyRental);
-				 * twilioMonthlyPriceMap.put(isoCode, numberTypePriceMap); } }
-				 * counter++; } } catch (FileNotFoundException e) {
-				 * LOG.error(e); } catch (IOException e) { LOG.error(e); }
-				 * finally { if (reader != null) { try { reader.close(); } catch
-				 * (IOException e2) { LOG.error(e2); } } } } return
-				 * numberTypePricingMap;
-				 */
 				while ((line = reader.readLine()) != null) {
 					String[] row = line.split(splitBy);
 					if (counter != 0 && row.length > 1) {
 						String isoCode = row[0];
 						String numberType = row[3];
-						// String monthlyRental = row[10];
-						if (isoCode.equals(countryIsoCode)) {
-							try{
-							Map<String, String> allPriceMap = new HashMap<String, String>();
-							String twilioPricingMapKey = isoCode +"-"+numberType;
-							allPriceMap.put("voiceEnabled", row[4]);
-							allPriceMap.put("trunkingEnabled", row[5]);
-							allPriceMap.put("smsEnabled", row[6]);
-							allPriceMap.put("mmsEnabled", row[7]);
-							allPriceMap.put("domesticVoiceOnly", row[8]);
-							allPriceMap.put("domesticSmsOnly", row[9]);
-							allPriceMap.put("monthlyRentalRate", row[10]);
-							allPriceMap.put("inboundVoicePrice", row[11]);
-							allPriceMap.put("inboundTrunkingPrice", row[12]);
-							allPriceMap.put("inboundSmsPrice", row[13]);
-							allPriceMap.put("inboundMmsPrice", row[14]);
-							allPriceMap.put("BetaStatus", row[15]);
-							allPriceMap.put("addressRequired", row[16]);
-							twilioMonthlyPriceMap2.put(twilioPricingMapKey, allPriceMap);
-							}
-							catch(Exception e){
-								System.out.println(e);
-							}
-
-						} else {
-							
+						try {
+							String twilioPricingMapKey = isoCode + "-" + numberType;
+							TwilioNumberPrice twilioNumberPrice=new TwilioNumberPrice();
+							twilioNumberPrice.setAddressRequired(row[16]);
+							twilioNumberPrice.setBetaStatus(row[15]);
+							twilioNumberPrice.setDomesticSmsOnly(row[9]);
+							twilioNumberPrice.setDomesticVoiceOnly(row[8]);
+							twilioNumberPrice.setInboundMmsPrice(row[14]);
+							twilioNumberPrice.setInboundSmsPrice(row[13]);
+							twilioNumberPrice.setInboundTrunkingPrice(row[12]);
+							twilioNumberPrice.setInboundVoicePrice(row[11]);
+							twilioNumberPrice.setMmsEnabled(row[7]);
+							twilioNumberPrice.setMonthlyRentalRate(row[10]);
+							twilioNumberPrice.setSmsEnabled(row[6]);
+							twilioNumberPrice.setTrunkingEnabled(row[5]);
+							twilioNumberPrice.setVoiceEnabled(row[4]);
+							twilioMonthlyPriceMap2.put(twilioPricingMapKey,twilioNumberPrice);
+						} catch (Exception e) {
+							System.out.println(e);
 						}
 
 					}
@@ -210,11 +187,39 @@ public class TwilioFactoryImpl implements NumberSearch, CountrySearch, PurchaseN
 				}
 			}
 		}
-//		return numberTypePricingMap;
+		// return numberTypePricingMap;
 		return twilioMonthlyPriceMap2;
 	}
 
-
+	public List<String> numberType(String countryIsoCode){
+		String line = "";
+		String splitBy = ",";
+		BufferedReader reader = null;
+		List<String> numberTypePerCountry = null;
+		try{
+		InputStream in = getClass().getResourceAsStream(TWILIO_CSV_FILE_PATH);
+		reader = new BufferedReader(new InputStreamReader(in, "UTF-8"));
+		int counter = 0;
+		while ((line = reader.readLine()) != null) {
+			numberTypePerCountry=new ArrayList<String>();
+			String[] row = line.split(splitBy);
+			if (counter != 0 && row.length > 1) {
+				String isoCode = row[0];
+				String numberType = row[3];
+				if(isoCode.equals(countryIsoCode)){
+				String entry=isoCode+"-"+numberType;
+				numberTypePerCountry.add(entry);
+				}
+			}
+			counter++;
+		}
+		}
+		catch(Exception e){
+			LOG.error(e);
+		}
+		return numberTypePerCountry;
+	}
+	
 	@Override
 	public void setServiceType(Number number) {
 		Map<String, Boolean> capabilties = number.getCapabilities();
@@ -323,18 +328,18 @@ public class TwilioFactoryImpl implements NumberSearch, CountrySearch, PurchaseN
 		String response = HttpUtil.defaultHttpPostHandler(twilioPurchaseUrl, requestBody,
 				BasicAuthUtil.getBasicAuthHash(provider.getAuthId(), provider.getApiKey()));
 		JSONObject twilioResponse = XML.toJSONObject(response);
-		
-		Map<String, Map<String,String>> twilioPrice = getTwilioPricing(country.getCountryIso(),
+
+		Map<String, Map<String, String>> twilioPrice = getTwilioPricing(country.getCountryIso(),
 				providerService.getTwilioProvider());
-		Set<String> twilioPriceKeySet=twilioPrice.keySet();
-		List<PurchaseResponse> priceArray=new ArrayList<PurchaseResponse>();
+		Set<String> twilioPriceKeySet = twilioPrice.keySet();
+		List<PurchaseResponse> priceArray = new ArrayList<PurchaseResponse>();
 		for (String param : twilioPriceKeySet) {
 			PurchaseResponse purchaseResponse = new PurchaseResponse();
 			purchaseResponse.setNumber(number);
-			String[] numType= param.split("-");
+			String[] numType = param.split("-");
 			purchaseResponse.setNumberType(numType[1]);
 			purchaseResponse.setRestrictions("");
-			purchaseResponse.setMonthlyRentalRate(twilioPrice.get(param).get("monthlyRentalRate"));		
+			purchaseResponse.setMonthlyRentalRate(twilioPrice.get(param).get("monthlyRentalRate"));
 			purchaseResponse.setSetUpRate("");
 			purchaseResponse.setSmsRate(twilioPrice.get(param).get("inboundSmsPrice"));
 			purchaseResponse.setVoicePrice(twilioPrice.get(param).get("inboundVoicePrice"));
@@ -343,7 +348,7 @@ public class TwilioFactoryImpl implements NumberSearch, CountrySearch, PurchaseN
 			purchaseResponse.setCountryProviderId(country.getId());
 			priceArray.add(purchaseResponse);
 		}
-		
+
 		return null;
 	}
 
@@ -351,12 +356,12 @@ public class TwilioFactoryImpl implements NumberSearch, CountrySearch, PurchaseN
 
 	}
 
-	public Map<String, String> getNumberTypePricingMap() {
-		return numberTypePricingMap;
+	public TwilioNumberPrice getNumberTypePricingMap() {
+		return numberTypePricing;
 	}
 
-	public void setNumberTypePricingMap(Map<String, String> numberTypePricingMap) {
-		this.numberTypePricingMap = numberTypePricingMap;
+	public void setNumberTypePricingMap(TwilioNumberPrice numberTypePricing) {
+		this.numberTypePricing = numberTypePricing;
 	}
 
 	public String getPriceUnit() {
