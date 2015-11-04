@@ -236,7 +236,10 @@ public class PlivoFactoryImpl
                             provider.getApiKey()));
             PlivoAccountResponse plivoAccountResponse = ImiJsonUtil
                     .deserialize(response, PlivoAccountResponse.class);
-            balanceResponse.setValue(plivoAccountResponse.getCash_credits());
+            balanceResponse.setAccountBalance(plivoAccountResponse.getCash_credits());
+            if(balanceResponse.getAccountBalance() != null){
+            	balanceResponse.setAccountBalance(balanceResponse.getAccountBalance()+" USD");
+            }
         } catch (ImiException e) {
             // TODO need to validate the response
         }

@@ -1,14 +1,15 @@
 package com.imi.rest.model;
 
 public class BalanceResponse {
-	private String value;
+	private String accountBalance;
 
-	public String getValue() {
-		return value;
+	public String getAccountBalance() {
+		return accountBalance;
 	}
 
-	public void setValue(String value) {
-		this.value = value;
+	public void setAccountBalance(String accountBalance) {
+		this.accountBalance = accountBalance;
 	}
 
+	
 }

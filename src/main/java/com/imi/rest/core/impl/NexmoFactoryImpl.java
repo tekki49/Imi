@@ -260,8 +260,11 @@ public class NexmoFactoryImpl
         BalanceResponse balanceResponse = new BalanceResponse();
         try {
             String response = HttpUtil.defaultHttpGetHandler(nexoAccountBalanceurl,
-                    BasicAuthUtil.getBasicAuthHash(provider.getAuthId(), provider.getApiKey()));
+                    BasicAuthUtil.getBasicAuthHash(provider.getAuthId(), provider.getApiKey())).replace("value", "accountBalance");
             balanceResponse = ImiJsonUtil.deserialize(response, BalanceResponse.class);
+            if(balanceResponse.getAccountBalance() != null){
+            	balanceResponse.setAccountBalance(balanceResponse.getAccountBalance()+" EUR");
+            }            
         } catch (ImiException e) {
         }
         return balanceResponse;
