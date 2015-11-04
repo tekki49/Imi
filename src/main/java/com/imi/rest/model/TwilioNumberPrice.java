@@ -1,4 +1,4 @@
-package com.imi.rest.dao.model;
+package com.imi.rest.model;
 
 public class TwilioNumberPrice {
 
