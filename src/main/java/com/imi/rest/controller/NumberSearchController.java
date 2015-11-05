@@ -6,6 +6,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -91,4 +92,27 @@ public class NumberSearchController {
         return numberResponse;
     }
 
+    @RequestMapping(value = "/PhoneNumber/{countryIsoCode}/{numberType}/{serviceType}/{nextPlivoIndex}/{nextNexmoIndex}", method = RequestMethod.GET)
+    public NumberResponse numberSearchResponse(
+            @PathVariable("countryIsoCode") final String countryIsoCode,
+            @PathVariable("numberType") final String numberType,
+            @PathVariable("serviceType") final String serviceType,
+            @PathVariable("nextPlivoIndex") final String nextPlivoIndex,
+            @PathVariable("nextNexmoIndex") final String nextNexmoIndex)
+                    throws ImiException {
+        NumberResponse numberResponse = new NumberResponse();
+        ServiceConstants serviceTypeEnum = ServiceConstants
+                .evaluate(serviceType);
+        List<Number> numberList = null;
+        try {
+            numberList = numberSearchService.searchPhoneNumbers(serviceTypeEnum,
+                    countryIsoCode, numberType, "");
+        } catch (IOException e) {
+            LOG.error(e.getMessage());
+        }
+        numberResponse.setObjects(numberList);
+        return numberResponse;
+    }
+
+    
 }

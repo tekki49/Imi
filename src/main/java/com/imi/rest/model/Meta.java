@@ -11,6 +11,10 @@ public class Meta {
     private String previous;
     private String next;
     private int total;
+    private String previousPlivoIndex;
+    private String previousNexmoIndex;
+    private String nextPlivoIndex;
+    private String nextNexmoIndex;
 
     public int getLimit() {
         return limit;
@@ -57,6 +61,38 @@ public class Meta {
     @JsonProperty("total_count")
     public void setTotalCount(int total) {
         this.total = total;
+    }
+
+    public String getPreviousPlivoIndex() {
+        return previousPlivoIndex;
+    }
+
+    public void setPreviousPlivoIndex(String previousPlivoIndex) {
+        this.previousPlivoIndex = previousPlivoIndex;
+    }
+
+    public String getPreviousNexmoIndex() {
+        return previousNexmoIndex;
+    }
+
+    public void setPreviousNexmoIndex(String previousNexmoIndex) {
+        this.previousNexmoIndex = previousNexmoIndex;
+    }
+
+    public String getNextPlivoIndex() {
+        return nextPlivoIndex;
+    }
+
+    public void setNextPlivoIndex(String nextPlivoIndex) {
+        this.nextPlivoIndex = nextPlivoIndex;
+    }
+
+    public String getNextNexmoIndex() {
+        return nextNexmoIndex;
+    }
+
+    public void setNextNexmoIndex(String nextNexmoIndex) {
+        this.nextNexmoIndex = nextNexmoIndex;
     }
 
 }
