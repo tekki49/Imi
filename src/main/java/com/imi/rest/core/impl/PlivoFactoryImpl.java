@@ -138,9 +138,7 @@ public class PlivoFactoryImpl
             Meta meta = numberResponse.getMeta() == null ? new Meta()
                     : numberResponse.getMeta();
             String previousPlivoIndex = meta.getNextPlivoIndex();
-            if ("FIRST".equalsIgnoreCase(meta.getPreviousPlivoIndex())) {
-                previousPlivoIndex = "FIRST";
-            }
+            previousPlivoIndex = "" + offset;
             String nextPlivoIndex = null;
             nextPlivoIndex = "" + (numberResponseFromPlivo.getMeta().getOffset()
                     + numberResponseFromPlivo.getMeta().getLimit());

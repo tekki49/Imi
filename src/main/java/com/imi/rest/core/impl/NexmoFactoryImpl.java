@@ -143,9 +143,7 @@ public class NexmoFactoryImpl
                     : numberResponse.getMeta();
             String nextNexmoIndex = null;
             String previousNexmoIndex = meta.getNextPlivoIndex();
-            if ("FIRST".equalsIgnoreCase(meta.getPreviousNexmoIndex())) {
-                previousNexmoIndex = "FIRST";
-            }
+            previousNexmoIndex = "" + index;
             nextNexmoIndex = "" + (index + 1);
             meta.setPreviousNexmoIndex(previousNexmoIndex);
             meta.setNextNexmoIndex(nextNexmoIndex);
