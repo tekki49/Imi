@@ -36,6 +36,15 @@ public class NumberSearchService implements ProviderConstants {
             String pattern, String nextPlivoIndex, String nextNexmoIndex)
                     throws ClientProtocolException, IOException, ImiException {
         NumberResponse numberResponse = new NumberResponse();
+        String twiloIndex = "";
+        if ("FIRST".equalsIgnoreCase(nextNexmoIndex)
+                || "FIRST".equalsIgnoreCase(nextPlivoIndex)
+                || "1".equalsIgnoreCase(nextNexmoIndex)
+                || "0".equalsIgnoreCase(nextPlivoIndex)) {
+            twiloIndex = "";
+        } else {
+            twiloIndex = "INDEXED";
+        }
         if (provider.getName().equalsIgnoreCase(PLIVO)) {
             plivoFactoryImpl.searchPhoneNumbers(
                     providerService.getPlivioProvider(), serviceTypeEnum,
@@ -44,7 +53,8 @@ public class NumberSearchService implements ProviderConstants {
         } else if (provider.getName().equalsIgnoreCase(TWILIO)) {
             twilioFactoryImpl.searchPhoneNumbers(
                     providerService.getTwilioProvider(), serviceTypeEnum,
-                    countryIsoCode, numberType, pattern, "", numberResponse);
+                    countryIsoCode, numberType, pattern, twiloIndex,
+                    numberResponse);
         } else if (provider.getName().equalsIgnoreCase(NEXMO)) {
             nexmoFactoryImpl.searchPhoneNumbers(
                     providerService.getNexmoProvider(), serviceTypeEnum,
@@ -61,12 +71,22 @@ public class NumberSearchService implements ProviderConstants {
             String nextPlivoIndex, String nextNexmoIndex)
                     throws ClientProtocolException, IOException, ImiException {
         NumberResponse numberResponse = new NumberResponse();
+        String twiloIndex = "";
+        if ("FIRST".equalsIgnoreCase(nextNexmoIndex)
+                || "FIRST".equalsIgnoreCase(nextPlivoIndex)
+                || "1".equalsIgnoreCase(nextNexmoIndex)
+                || "0".equalsIgnoreCase(nextPlivoIndex)) {
+            twiloIndex = "";
+        } else {
+            twiloIndex = "INDEXED";
+        }
         plivoFactoryImpl.searchPhoneNumbers(providerService.getPlivioProvider(),
                 serviceTypeEnum, countryIsoCode, numberType, pattern,
                 nextPlivoIndex, numberResponse);
         twilioFactoryImpl.searchPhoneNumbers(
                 providerService.getTwilioProvider(), serviceTypeEnum,
-                countryIsoCode, numberType, pattern, "", numberResponse);
+                countryIsoCode, numberType, pattern, twiloIndex,
+                numberResponse);
         nexmoFactoryImpl.searchPhoneNumbers(providerService.getNexmoProvider(),
                 serviceTypeEnum, countryIsoCode, numberType, pattern,
                 nextNexmoIndex, numberResponse);

@@ -70,7 +70,12 @@ public class TwilioFactoryImpl
             String numberType, String pattern, String index,
             NumberResponse numberResponse)
                     throws ClientProtocolException, IOException {
-        getTwilioPricing(countryIsoCode, provider);
+        if (!index.equalsIgnoreCase("")) {
+            return;
+        }
+        if (twilioMonthlyPriceMap == null) {
+            getTwilioPricing(countryIsoCode, provider);
+        }
         List<Number> numberSearchList = numberResponse.getObjects() == null
                 ? new ArrayList<Number>() : numberResponse.getObjects();
         String twilioPhoneSearchUrl = TWILIO_PHONE_SEARCH_URL;
@@ -89,6 +94,10 @@ public class TwilioFactoryImpl
                 .replace("{pattern}", "*" + pattern.trim() + "*")
                 .replace("{type}", type);
         String response = "";
+        if (pattern.equalsIgnoreCase("")) {
+            twilioPhoneSearchUrl = twilioPhoneSearchUrl.replace("Contains=**&",
+                    "");
+        }
         try {
             response = HttpUtil.defaultHttpGetHandler(twilioPhoneSearchUrl,
                     BasicAuthUtil.getBasicAuthHash(provider.getAuthId(),
