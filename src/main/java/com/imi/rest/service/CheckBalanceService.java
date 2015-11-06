@@ -15,7 +15,7 @@ import com.imi.rest.exception.InvalidProviderException;
 import com.imi.rest.model.BalanceResponse;
 
 @Service
-public class CheckBalanceService implements ProviderConstants{
+public class CheckBalanceService implements ProviderConstants {
 
     @Autowired
     PlivoFactoryImpl plivioFactoryImpl;
@@ -30,16 +30,17 @@ public class CheckBalanceService implements ProviderConstants{
     ProviderService providerService;
 
     public BalanceResponse checkBalance(String providerName)
-                    throws ClientProtocolException, IOException, ImiException {
+            throws ClientProtocolException, IOException, ImiException {
         BalanceResponse balanceResponse = new BalanceResponse();
         if (providerName.equalsIgnoreCase(PLIVO)) {
-            balanceResponse = plivioFactoryImpl.checkBalance(providerService.getPlivioProvider());
-        } 
-        else if (providerName.equalsIgnoreCase(TWILIO)) {
-        	//balanceResponse = twilioFactoryImpl.checkBalance(providerService.getTwilioProvider());
-        }
-        else if (providerName.equalsIgnoreCase(NEXMO)) {
-        	balanceResponse = nexmoFactoryImpl.checkBalance(providerService.getNexmoProvider());
+            balanceResponse = plivioFactoryImpl
+                    .checkBalance(providerService.getPlivioProvider());
+        } else if (providerName.equalsIgnoreCase(TWILIO)) {
+            // balanceResponse =
+            // twilioFactoryImpl.checkBalance(providerService.getTwilioProvider());
+        } else if (providerName.equalsIgnoreCase(NEXMO)) {
+            balanceResponse = nexmoFactoryImpl
+                    .checkBalance(providerService.getNexmoProvider());
         } else {
             throw new InvalidProviderException(providerName);
         }

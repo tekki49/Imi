@@ -16,7 +16,7 @@ public class PurchaseResponse {
     private Integer resourceManagerId;
     private Integer countryProviderId;
 
-    public PurchaseResponse(){
+    public PurchaseResponse() {
 
     }
 

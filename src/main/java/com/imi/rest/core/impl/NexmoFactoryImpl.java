@@ -31,10 +31,12 @@ import com.imi.rest.exception.ImiException;
 import com.imi.rest.model.BalanceResponse;
 import com.imi.rest.model.Country;
 import com.imi.rest.model.CountryPricing;
+import com.imi.rest.model.Meta;
 import com.imi.rest.model.Number;
 import com.imi.rest.model.NumberResponse;
 import com.imi.rest.model.PurchaseResponse;
 import com.imi.rest.util.BasicAuthUtil;
+import com.imi.rest.util.DataFormatUtils;
 import com.imi.rest.util.HttpUtil;
 import com.imi.rest.util.ImiJsonUtil;
 
@@ -45,41 +47,41 @@ public class NexmoFactoryImpl
 
     private String nexmoPricingResponse;
     private static final String NEXMO_PRICING_FILE_PATH = "/nexmo_pricing.xls";
-    private static final int THRESHHOLD = 100;
 
     @Override
-    public List<Number> searchPhoneNumbers(Provider provider,
+    public void searchPhoneNumbers(Provider provider,
             ServiceConstants serviceTypeEnum, String countryIsoCode,
-            String numberType, String pattern)
+            String numberType, String pattern, String nexmoIndex,
+            NumberResponse numberResponse)
                     throws ClientProtocolException, IOException, ImiException {
         nexmoPricingResponse = null;
-        List<Number> phoneSearchResult = new ArrayList<Number>();
+        List<Number> numberSearchList = numberResponse.getObjects() == null
+                ? new ArrayList<Number>() : numberResponse.getObjects();
         String type = "landline";
         if (numberType.equalsIgnoreCase(MOBILE)) {
             type = "mobile";
         } else if (numberType.equalsIgnoreCase(TOLLFREE)) {
             type = "tollfree";
         }
+        int index = 1;
+        if (!"FIRST".equalsIgnoreCase(nexmoIndex)) {
+            index = Integer.parseInt(nexmoIndex);
+        } else {
+            Meta meta = numberResponse.getMeta() == null ? new Meta()
+                    : numberResponse.getMeta();
+            meta.setPreviousNexmoIndex("FIRST");
+            numberResponse.setMeta(meta);
+        }
         searchPhoneNumbers(provider, serviceTypeEnum, countryIsoCode, type,
-                pattern, phoneSearchResult, Integer.MIN_VALUE, 0);
-        return phoneSearchResult;
+                pattern, numberSearchList, index, numberResponse);
     }
 
     void searchPhoneNumbers(Provider provider, ServiceConstants serviceTypeEnum,
             String countryIsoCode, String numberType, String pattern,
-            List<Number> phoneSearchResult, int count, int index)
+            List<Number> numberSearchList, int index,
+            NumberResponse numberResponse)
                     throws ClientProtocolException, IOException, ImiException {
-        if (index * 100 >= THRESHHOLD)
-            return;
         String nexmoPhoneSearchUrl = NEXMO_PHONE_SEARCH_URL;
-        if (Integer.MIN_VALUE == count) {
-            index = 1;
-        } else if (count - (index * 100) > 0) {
-            index++;
-        } else {
-            index = -1;
-            return;
-        }
         nexmoPhoneSearchUrl = nexmoPhoneSearchUrl
                 .replace("{country_iso}", countryIsoCode)
                 .replace("{api_key}", provider.getAuthId())
@@ -92,14 +94,15 @@ public class NexmoFactoryImpl
             response = HttpUtil.defaultHttpGetHandler(nexmoPhoneSearchUrl);
         } catch (ImiException e) {
         }
-        NumberResponse numberResponse = ImiJsonUtil.deserialize(response,
+        NumberResponse nexmoNumberResponse = ImiJsonUtil.deserialize(response,
                 NumberResponse.class);
-        if (numberResponse == null)
+        if (nexmoNumberResponse == null)
             return;
-        List<Number> nexmoNumberList = numberResponse == null
+        List<Number> nexmoNumberList = nexmoNumberResponse == null
                 ? new ArrayList<Number>()
-                : numberResponse.getObjects() == null ? new ArrayList<Number>()
-                        : numberResponse.getObjects();
+                : nexmoNumberResponse.getObjects() == null
+                        ? new ArrayList<Number>()
+                        : nexmoNumberResponse.getObjects();
         if (getNexmoPricingResponse() == null) {
             setNexmoPricingResponse(getNexmoPricing(NEXMO_PRICING_FILE_PATH));
         }
@@ -124,24 +127,31 @@ public class NexmoFactoryImpl
                     nexmoNumber.setType("landline");
                 }
                 nexmoNumber.setPriceUnit("EUR");
-                nexmoNumber
-                        .setMonthlyRentalRate(String.valueOf(Float
-                                .parseFloat(countryPricing.getPricing()
-                                        .get(type).get("monthlyRateInEuros"))
-                        * EUR_GBP));
-                nexmoNumber
-                        .setVoiceRate(String.valueOf(Float
-                                .parseFloat(countryPricing.getPricing()
-                                        .get(type).get("voiceRateInEuros"))
-                        * EUR_GBP));
+                nexmoNumber.setMonthlyRentalRate(DataFormatUtils
+                        .forexConvert(EUR_GBP, countryPricing.getPricing()
+                                .get(type).get("monthlyRateInEuros")));
+                nexmoNumber.setVoiceRate(DataFormatUtils.forexConvert(EUR_GBP,
+                        countryPricing.getPricing().get(type)
+                                .get("voiceRateInEuros")));
                 nexmoNumber.setCountry(countryPricing.getCountry());
                 nexmoNumber.setProvider(NEXMO);
-                phoneSearchResult.add(nexmoNumber);
+                numberSearchList.add(nexmoNumber);
             }
         }
-        count = numberResponse.getCount();
-        searchPhoneNumbers(provider, serviceTypeEnum, countryIsoCode,
-                numberType, pattern, phoneSearchResult, count, index);
+        if (nexmoNumberResponse.getCount() - index * 100 > 0) {
+            Meta meta = numberResponse.getMeta() == null ? new Meta()
+                    : numberResponse.getMeta();
+            String nextNexmoIndex = null;
+            String previousNexmoIndex = meta.getNextPlivoIndex();
+            if ("FIRST".equalsIgnoreCase(meta.getPreviousNexmoIndex())) {
+                previousNexmoIndex = "FIRST";
+            }
+            nextNexmoIndex = "" + (index + 1);
+            meta.setPreviousNexmoIndex(previousNexmoIndex);
+            meta.setNextNexmoIndex(nextNexmoIndex);
+            numberResponse.setMeta(meta);
+        }
+        numberResponse.setObjects(numberSearchList);
     }
 
     @Override
@@ -250,21 +260,26 @@ public class NexmoFactoryImpl
         workbook.close();
         return response;
     }
-    
-    public BalanceResponse checkBalance(Provider provider) throws ClientProtocolException, IOException {
+
+    public BalanceResponse checkBalance(Provider provider)
+            throws ClientProtocolException, IOException {
         String nexoAccountBalanceurl = NEXMO_ACCOUNT_BALANCE_URL;
         nexoAccountBalanceurl = nexoAccountBalanceurl
                 .replace("{api_key}", provider.getAuthId())
-                .replace("{api_secret}",
-                        provider.getApiKey());
+                .replace("{api_secret}", provider.getApiKey());
         BalanceResponse balanceResponse = new BalanceResponse();
         try {
-            String response = HttpUtil.defaultHttpGetHandler(nexoAccountBalanceurl,
-                    BasicAuthUtil.getBasicAuthHash(provider.getAuthId(), provider.getApiKey())).replace("value", "accountBalance");
-            balanceResponse = ImiJsonUtil.deserialize(response, BalanceResponse.class);
-            if(balanceResponse.getAccountBalance() != null){
-            	balanceResponse.setAccountBalance(balanceResponse.getAccountBalance()+" EUR");
-            }            
+            String response = HttpUtil
+                    .defaultHttpGetHandler(nexoAccountBalanceurl,
+                            BasicAuthUtil.getBasicAuthHash(provider.getAuthId(),
+                                    provider.getApiKey()))
+                    .replace("value", "accountBalance");
+            balanceResponse = ImiJsonUtil.deserialize(response,
+                    BalanceResponse.class);
+            if (balanceResponse.getAccountBalance() != null) {
+                balanceResponse.setAccountBalance(
+                        balanceResponse.getAccountBalance() + " EUR");
+            }
         } catch (ImiException e) {
         }
         return balanceResponse;

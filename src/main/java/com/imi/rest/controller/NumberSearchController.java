@@ -30,52 +30,55 @@ public class NumberSearchController {
 
 	@RequestMapping(value = "/PhoneNumber/{providerId}/{countryIsoCode}/{numberType}/{serviceType}/{pattern}", method = RequestMethod.GET)
 	public NumberResponse numberSearchResponseByProviderId(@PathVariable("countryIsoCode") final String countryIsoCode,
-			@PathVariable("providerId") final String providerId, @PathVariable("numberType") final String numberType,
+			@PathVariable("provider") final String provider, @PathVariable("numberType") final String numberType,
 			@PathVariable("serviceType") final String serviceType, @PathVariable("pattern") final String pattern)
 					throws ImiException {
-		NumberResponse numberResponse = new NumberResponse();
-		ServiceConstants serviceTypeEnum = ServiceConstants.evaluate(serviceType);
-		List<Number> numberList = null;
-		try {
-			numberList = numberSearchService.searchPhoneNumbers(serviceTypeEnum,
-					providerService.getProviderByName(providerId), countryIsoCode, numberType, pattern);
-		} catch (IOException e) {
-			LOG.error(e.getMessage());
-		}
-		numberResponse.setObjects(numberList);
-		return numberResponse;
+		NumberResponse numberResponse = null;
+        ServiceConstants serviceTypeEnum = ServiceConstants
+                .evaluate(serviceType);
+        try {
+            numberResponse = numberSearchService.searchPhoneNumbers(
+                    serviceTypeEnum,
+                    providerService.getProviderByName(provider), countryIsoCode,
+                    numberType, pattern, "FIRST", "FIRST");
+        } catch (IOException e) {
+            LOG.error(e.getMessage());
+        }
+        return numberResponse;
 	}
 
 	@RequestMapping(value = "/PhoneNumber/{countryIsoCode}/{numberType}/{serviceType}/{pattern}", method = RequestMethod.GET)
 	public NumberResponse numberSearchResponse(@PathVariable("countryIsoCode") final String countryIsoCode,
 			@PathVariable("numberType") final String numberType, @PathVariable("serviceType") final String serviceType,
 			@PathVariable("pattern") final String pattern) throws ImiException {
-		NumberResponse numberResponse = new NumberResponse();
-		ServiceConstants serviceTypeEnum = ServiceConstants.evaluate(serviceType);
-		List<Number> numberList = null;
-		try {
-			numberList = numberSearchService.searchPhoneNumbers(serviceTypeEnum, countryIsoCode, numberType, pattern);
-		} catch (IOException e) {
-			LOG.error(e.getMessage());
-		}
-		numberResponse.setObjects(numberList);
-		return numberResponse;
+		NumberResponse numberResponse = null;
+        ServiceConstants serviceTypeEnum = ServiceConstants
+                .evaluate(serviceType);
+        try {
+            numberResponse = numberSearchService.searchPhoneNumbers(
+                    serviceTypeEnum, countryIsoCode, numberType, pattern,
+                    "FIRST", "FIRST");
+        } catch (IOException e) {
+            LOG.error(e.getMessage());
+        }
+        return numberResponse;
 	}
 
 	@RequestMapping(value = "/PhoneNumber/{countryIsoCode}/{numberType}/{serviceType}", method = RequestMethod.GET)
 	public NumberResponse numberSearchResponse(@PathVariable("countryIsoCode") final String countryIsoCode,
 			@PathVariable("numberType") final String numberType, @PathVariable("serviceType") final String serviceType)
 					throws ImiException {
-		NumberResponse numberResponse = new NumberResponse();
-		ServiceConstants serviceTypeEnum = ServiceConstants.evaluate(serviceType);
-		List<Number> numberList = null;
-		try {
-			numberList = numberSearchService.searchPhoneNumbers(serviceTypeEnum, countryIsoCode, numberType, "");
-		} catch (IOException e) {
-			LOG.error(e.getMessage());
-		}
-		numberResponse.setObjects(numberList);
-		return numberResponse;
+		NumberResponse numberResponse = null;
+        ServiceConstants serviceTypeEnum = ServiceConstants
+                .evaluate(serviceType);
+        try {
+            numberResponse = numberSearchService.searchPhoneNumbers(
+                    serviceTypeEnum, countryIsoCode, numberType, "", "FIRST",
+                    "FIRST");
+        } catch (IOException e) {
+            LOG.error(e.getMessage());
+        }
+        return numberResponse;
 	}
 
 	@RequestMapping(value = "/PhoneNumber/{countryIsoCode}/{numberType}/{serviceType}/{nextPlivoIndex}/{nextNexmoIndex}", method = RequestMethod.GET)
@@ -83,41 +86,17 @@ public class NumberSearchController {
 			@PathVariable("numberType") final String numberType, @PathVariable("serviceType") final String serviceType,
 			@PathVariable("nextPlivoIndex") final String nextPlivoIndex,
 			@PathVariable("nextNexmoIndex") final String nextNexmoIndex) throws ImiException {
-		if (!(nextPlivoIndex.equals(null)) || !(nextNexmoIndex.equals(null))) {
-			NumberResponse numberResponse = new NumberResponse();
-			ServiceConstants serviceTypeEnum = ServiceConstants.evaluate(serviceType);
-			List<Number> numberList = null;
-			try {
-				numberList = numberSearchService.searchPhoneNumbers(serviceTypeEnum, countryIsoCode, numberType, "");
-			} catch (IOException e) {
-				LOG.error(e.getMessage());
-			}
-			numberResponse.setObjects(numberList);
-			return numberResponse;
-		} else {
-			return null;
-		}
-	}
-
-	@RequestMapping(value = "/PhoneNumber/{countryIsoCode}/{numberType}/{serviceType}/{previousPlivoIndex}/{previousNexmoIndex}", method = RequestMethod.GET)
-	public NumberResponse previousNumberSearchResponse(@PathVariable("countryIsoCode") final String countryIsoCode,
-			@PathVariable("numberType") final String numberType, @PathVariable("serviceType") final String serviceType,
-			@PathVariable("previousPlivoIndex") final String previousPlivoIndex,
-			@PathVariable("previousNexmoIndex") final String previousNexmoIndex) throws ImiException {
-		if (!(previousPlivoIndex.equals(null)) || !(previousNexmoIndex.equals(null))) {
-			NumberResponse numberResponse = new NumberResponse();
-			ServiceConstants serviceTypeEnum = ServiceConstants.evaluate(serviceType);
-			List<Number> numberList = null;
-			try {
-				numberList = numberSearchService.searchPhoneNumbers(serviceTypeEnum, countryIsoCode, numberType, "");
-			} catch (IOException e) {
-				LOG.error(e.getMessage());
-			}
-			numberResponse.setObjects(numberList);
-			return numberResponse;
-		} else {
-			return null;
-		}
+		NumberResponse numberResponse = null;
+        ServiceConstants serviceTypeEnum = ServiceConstants
+                .evaluate(serviceType);
+        try {
+            numberResponse = numberSearchService.searchPhoneNumbers(
+                    serviceTypeEnum, countryIsoCode, numberType, "",
+                    nextPlivoIndex, nextNexmoIndex);
+        } catch (IOException e) {
+            LOG.error(e.getMessage());
+        }
+        return numberResponse;
 	}
 
 }

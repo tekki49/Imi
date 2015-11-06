@@ -29,6 +29,7 @@ import com.imi.rest.dao.model.Provider;
 import com.imi.rest.exception.ImiException;
 import com.imi.rest.model.BalanceResponse;
 import com.imi.rest.model.Country;
+import com.imi.rest.model.Meta;
 import com.imi.rest.model.Number;
 import com.imi.rest.model.NumberResponse;
 import com.imi.rest.model.PlivioPurchaseResponse;
@@ -47,34 +48,17 @@ public class PlivoFactoryImpl
 
     private static final String PLIVO_CSV_FILE_PATH = "/plivo_inbound_rates.csv";
     // max no of numbers to be obtained
-    private static final int THRESHHOLD = 100;
     private static final Logger LOG = Logger
             .getLogger(CountrySearchService.class);
 
     @Override
-    public List<Number> searchPhoneNumbers(Provider provider,
+    public void searchPhoneNumbers(Provider provider,
             ServiceConstants serviceTypeEnum, String countryIsoCode,
-            String numberType, String pattern)
+            String numberType, String pattern, String index,
+            NumberResponse numberResponse)
                     throws ClientProtocolException, IOException, ImiException {
-        List<Number> phoneSearchResult = new ArrayList<Number>();
-        /*
-         * String plivioPhoneSearchUrl = PLIVO_PHONE_SEARCH_URL;
-         * plivioPhoneSearchUrl = plivioPhoneSearchUrl .replace("{country_iso}",
-         * countryIsoCode) .replace("{type}", numberType.toLowerCase())
-         * .replace("{services}", serviceTypeEnum.toString())
-         * .replace("{pattern}", "*"+pattern+"*"); String response; try {
-         * response = HttpUtil.defaultHttpGetHandler(plivioPhoneSearchUrl,
-         * BasicAuthUtil.getBasicAuthHash(provider.getAuthId(),
-         * provider.getApiKey())); } catch (ImiException e) { return
-         * phoneSearchResult; } NumberResponse numberResponse =
-         * ImiJsonUtil.deserialize(response, NumberResponse.class); List<Number>
-         * plivioNumberList = numberResponse == null ? new ArrayList<Number>() :
-         * numberResponse.getObjects() == null ? new ArrayList<Number>() :
-         * numberResponse.getObjects(); for (Number plivioNumber :
-         * plivioNumberList) { if (plivioNumber != null) {
-         * plivioNumber.setProvider(PLIVO); setServiceType(plivioNumber);
-         * phoneSearchResult.add(plivioNumber); } }
-         */
+        List<Number> numberSearchList = numberResponse.getObjects() == null
+                ? new ArrayList<Number>() : numberResponse.getObjects();
         String type = "any";
         if (numberType.equalsIgnoreCase(LANDLINE)) {
             type = "fixed";
@@ -85,17 +69,25 @@ public class PlivoFactoryImpl
         } else if (numberType.equalsIgnoreCase(LOCAL)) {
             type = "fixed";
         }
+        int offset = 0;
+        if (!index.equalsIgnoreCase("FIRST")) {
+            offset = Integer.parseInt(index);
+        } else {
+            Meta meta = numberResponse.getMeta() == null ? new Meta()
+                    : numberResponse.getMeta();
+            meta.setPreviousPlivoIndex("FIRST");
+            numberResponse.setMeta(meta);
+        }
+
         searchPhoneNumbers(provider, serviceTypeEnum, countryIsoCode, type,
-                pattern, phoneSearchResult, 0);
-        return phoneSearchResult;
+                pattern, numberSearchList, offset, numberResponse);
     }
 
     void searchPhoneNumbers(Provider provider, ServiceConstants serviceTypeEnum,
             String countryIsoCode, String numberType, String pattern,
-            List<Number> phoneSearchResult, int offset)
+            List<Number> numberSearchList, int offset,
+            NumberResponse numberResponse)
                     throws ClientProtocolException, IOException, ImiException {
-        if (offset >= THRESHHOLD)
-            return;
         String plivioPhoneSearchUrl = PLIVO_PHONE_SEARCH_URL;
         plivioPhoneSearchUrl = plivioPhoneSearchUrl
                 .replace("{country_iso}", countryIsoCode)
@@ -113,12 +105,13 @@ public class PlivoFactoryImpl
         } catch (ImiException e) {
             return;
         }
-        NumberResponse numberResponse = ImiJsonUtil.deserialize(response,
-                NumberResponse.class);
-        List<Number> plivioNumberList = numberResponse == null
+        NumberResponse numberResponseFromPlivo = ImiJsonUtil
+                .deserialize(response, NumberResponse.class);
+        List<Number> plivioNumberList = numberResponseFromPlivo == null
                 ? new ArrayList<Number>()
-                : numberResponse.getObjects() == null ? new ArrayList<Number>()
-                        : numberResponse.getObjects();
+                : numberResponseFromPlivo.getObjects() == null
+                        ? new ArrayList<Number>()
+                        : numberResponseFromPlivo.getObjects();
         for (Number plivioNumber : plivioNumberList) {
             if (plivioNumber != null) {
                 plivioNumber.setProvider(PLIVO);
@@ -135,17 +128,28 @@ public class PlivoFactoryImpl
                     numberType = "Landline";
                 }
                 plivioNumber.setType(numberType.toLowerCase());
-                phoneSearchResult.add(plivioNumber);
+                numberSearchList.add(plivioNumber);
             }
         }
-        if (numberResponse.getMeta() != null
-                && numberResponse.getMeta().getNext() != null
-                && !numberResponse.getMeta().getNext().equals("")) {
-            offset = numberResponse.getMeta().getOffset()
-                    + numberResponse.getMeta().getLimit();
-            searchPhoneNumbers(provider, serviceTypeEnum, countryIsoCode,
-                    numberType, pattern, phoneSearchResult, offset);
+
+        if (numberResponseFromPlivo.getMeta() != null
+                && numberResponseFromPlivo.getMeta().getNext() != null
+                && !numberResponseFromPlivo.getMeta().getNext().equals("")) {
+            Meta meta = numberResponse.getMeta() == null ? new Meta()
+                    : numberResponse.getMeta();
+            String previousPlivoIndex = meta.getNextPlivoIndex();
+            if ("FIRST".equalsIgnoreCase(meta.getPreviousPlivoIndex())) {
+                previousPlivoIndex = "FIRST";
+            }
+            String nextPlivoIndex = null;
+            nextPlivoIndex = "" + (numberResponseFromPlivo.getMeta().getOffset()
+                    + numberResponseFromPlivo.getMeta().getLimit());
+            meta.setPreviousPlivoIndex(previousPlivoIndex);
+            meta.setNextPlivoIndex(nextPlivoIndex);
+            numberResponse.setMeta(meta);
         }
+
+        numberResponse.setObjects(numberSearchList);
     }
 
     @Override
@@ -226,19 +230,22 @@ public class PlivoFactoryImpl
             // TODO need to validate the response
         }
     }
-    
-    public BalanceResponse checkBalance(Provider provider) throws ClientProtocolException, IOException {
-        String plivoAccountBalanceurl = PLIVO_ACCOUNT_BALANCE_URL;  
+
+    public BalanceResponse checkBalance(Provider provider)
+            throws ClientProtocolException, IOException {
+        String plivoAccountBalanceurl = PLIVO_ACCOUNT_BALANCE_URL;
         BalanceResponse balanceResponse = new BalanceResponse();
         try {
-        	 String response = HttpUtil.defaultHttpGetHandler(plivoAccountBalanceurl,
-                    BasicAuthUtil.getBasicAuthHash(provider.getAuthId(),
-                            provider.getApiKey()));
+            String response = HttpUtil.defaultHttpGetHandler(
+                    plivoAccountBalanceurl, BasicAuthUtil.getBasicAuthHash(
+                            provider.getAuthId(), provider.getApiKey()));
             PlivoAccountResponse plivoAccountResponse = ImiJsonUtil
                     .deserialize(response, PlivoAccountResponse.class);
-            balanceResponse.setAccountBalance(plivoAccountResponse.getCash_credits());
-            if(balanceResponse.getAccountBalance() != null){
-            	balanceResponse.setAccountBalance(balanceResponse.getAccountBalance()+" USD");
+            balanceResponse
+                    .setAccountBalance(plivoAccountResponse.getCash_credits());
+            if (balanceResponse.getAccountBalance() != null) {
+                balanceResponse.setAccountBalance(
+                        balanceResponse.getAccountBalance() + " USD");
             }
         } catch (ImiException e) {
             // TODO need to validate the response

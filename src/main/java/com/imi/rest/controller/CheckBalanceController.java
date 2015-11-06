@@ -10,26 +10,23 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.imi.rest.core.ReleaseNumber;
 import com.imi.rest.exception.ImiException;
 import com.imi.rest.model.BalanceResponse;
 import com.imi.rest.service.CheckBalanceService;
-import com.imi.rest.util.ImiJsonUtil;
 
 @RestController
 public class CheckBalanceController {
-	
-	private static final Logger LOG = Logger
+
+    private static final Logger LOG = Logger
             .getLogger(CheckBalanceController.class);
 
-	@Autowired
+    @Autowired
     CheckBalanceService checkBalanceService;
-	
+
     @RequestMapping(value = "/check/balance", method = RequestMethod.GET)
     public BalanceResponse getAccountBalance(
             @RequestHeader("provider") String providerName)
                     throws ClientProtocolException, IOException, ImiException {
-    	return checkBalanceService.checkBalance(providerName);
+        return checkBalanceService.checkBalance(providerName);
     }
 }

@@ -1,8 +1,6 @@
 package com.imi.rest.service;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.apache.http.client.ClientProtocolException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,13 +14,13 @@ import com.imi.rest.core.impl.TwilioFactoryImpl;
 import com.imi.rest.dao.model.Provider;
 import com.imi.rest.exception.ImiException;
 import com.imi.rest.exception.InvalidProviderException;
-import com.imi.rest.model.Number;
+import com.imi.rest.model.NumberResponse;
 
 @Service
 public class NumberSearchService implements ProviderConstants {
 
     @Autowired
-    PlivoFactoryImpl plivioFactoryImpl;
+    PlivoFactoryImpl plivoFactoryImpl;
 
     @Autowired
     TwilioFactoryImpl twilioFactoryImpl;
@@ -33,43 +31,46 @@ public class NumberSearchService implements ProviderConstants {
     @Autowired
     ProviderService providerService;
 
-    public List<Number> searchPhoneNumbers(ServiceConstants serviceTypeEnum,
+    public NumberResponse searchPhoneNumbers(ServiceConstants serviceTypeEnum,
             Provider provider, String countryIsoCode, String numberType,
-            String pattern)
+            String pattern, String nextPlivoIndex, String nextNexmoIndex)
                     throws ClientProtocolException, IOException, ImiException {
-        List<Number> phoneSearchResult = new ArrayList<Number>();
+        NumberResponse numberResponse = new NumberResponse();
         if (provider.getName().equalsIgnoreCase(PLIVO)) {
-            phoneSearchResult.addAll(plivioFactoryImpl.searchPhoneNumbers(
-                    provider, serviceTypeEnum, countryIsoCode, numberType,
-                    pattern));
+            plivoFactoryImpl.searchPhoneNumbers(
+                    providerService.getPlivioProvider(), serviceTypeEnum,
+                    countryIsoCode, numberType, pattern, nextPlivoIndex,
+                    numberResponse);
         } else if (provider.getName().equalsIgnoreCase(TWILIO)) {
-            phoneSearchResult.addAll(twilioFactoryImpl.searchPhoneNumbers(
-                    provider, serviceTypeEnum, countryIsoCode, numberType,
-                    pattern));
+            twilioFactoryImpl.searchPhoneNumbers(
+                    providerService.getTwilioProvider(), serviceTypeEnum,
+                    countryIsoCode, numberType, pattern, "", numberResponse);
         } else if (provider.getName().equalsIgnoreCase(NEXMO)) {
-            phoneSearchResult.addAll(nexmoFactoryImpl.searchPhoneNumbers(
-                    provider, serviceTypeEnum, countryIsoCode, numberType,
-                    pattern));
+            nexmoFactoryImpl.searchPhoneNumbers(
+                    providerService.getNexmoProvider(), serviceTypeEnum,
+                    countryIsoCode, numberType, pattern, nextNexmoIndex,
+                    numberResponse);
         } else {
             throw new InvalidProviderException(provider.getName());
         }
-        return phoneSearchResult;
+        return numberResponse;
     }
 
-    public List<Number> searchPhoneNumbers(ServiceConstants serviceTypeEnum,
-            String countryIsoCode, String numberType, String pattern)
+    public NumberResponse searchPhoneNumbers(ServiceConstants serviceTypeEnum,
+            String countryIsoCode, String numberType, String pattern,
+            String nextPlivoIndex, String nextNexmoIndex)
                     throws ClientProtocolException, IOException, ImiException {
-        List<Number> phoneSearchResult = new ArrayList<Number>();
-        phoneSearchResult.addAll(plivioFactoryImpl.searchPhoneNumbers(
-                providerService.getPlivioProvider(), serviceTypeEnum,
-                countryIsoCode, numberType, pattern));
-        phoneSearchResult.addAll(twilioFactoryImpl.searchPhoneNumbers(
+        NumberResponse numberResponse = new NumberResponse();
+        plivoFactoryImpl.searchPhoneNumbers(providerService.getPlivioProvider(),
+                serviceTypeEnum, countryIsoCode, numberType, pattern,
+                nextPlivoIndex, numberResponse);
+        twilioFactoryImpl.searchPhoneNumbers(
                 providerService.getTwilioProvider(), serviceTypeEnum,
-                countryIsoCode, numberType, pattern));
-        phoneSearchResult.addAll(nexmoFactoryImpl.searchPhoneNumbers(
-                providerService.getNexmoProvider(), serviceTypeEnum,
-                countryIsoCode, numberType, pattern));
-        return phoneSearchResult;
+                countryIsoCode, numberType, pattern, "", numberResponse);
+        nexmoFactoryImpl.searchPhoneNumbers(providerService.getNexmoProvider(),
+                serviceTypeEnum, countryIsoCode, numberType, pattern,
+                nextNexmoIndex, numberResponse);
+        return numberResponse;
     }
 
 }
