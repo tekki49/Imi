@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.imi.rest.dao.model.Country;
@@ -33,7 +34,7 @@ public class PurchaseController {
     @Autowired
     CountrySearchService countrySearchService;
 
-    @RequestMapping(value = "/purchase/{number}/{countryIsoCode}", method = RequestMethod.POST)
+   /* @RequestMapping(value = "/purchase/{number}/{countryIsoCode}", method = RequestMethod.POST)
     public PurchaseDetails purchaseNumber(@PathVariable("number") String number,
             @PathVariable("countryIsoCode") String countryIsoCode,
             @RequestHeader("provider") String providerName)
@@ -47,8 +48,31 @@ public class PurchaseController {
         purchaseDetails.setCountry(country.getCountry());
         purchaseDetails.setNumber(number);
         return purchaseDetails;
-    }
+    }*/
 
+    @RequestMapping(value = "/purchase", method = RequestMethod.POST)
+    public PurchaseDetails purchaseNumber(@RequestParam String number,@RequestParam String numberType,@RequestParam String serviceType,@RequestParam String countryIso,
+    		@RequestParam String providerName)
+                    throws ClientProtocolException, IOException, ImiException {
+        Provider provider = providerService.getProviderByName(
+                providerName == null ? "" : providerName.toUpperCase());
+        Country country = countrySearchService
+                .getCountryByIsoCode(countryIso);
+        PurchaseResponse purchaseResponse=purchaseNumberService.purchaseNumber(number,numberType, provider, country);
+        PurchaseDetails purchaseDetails = new PurchaseDetails();
+        purchaseDetails.setNumber(number);
+        purchaseDetails.setNumberType(numberType);
+        purchaseDetails.setService(serviceType);
+        purchaseDetails.setCountry(country.getCountry());
+        purchaseDetails.setMonthlyRentalRate(purchaseResponse.getMonthlyRentalRate());
+        purchaseDetails.setSetUpRate(purchaseResponse.getSetUpRate());
+        purchaseDetails.setSmsRate(purchaseResponse.getSmsRate());
+        purchaseDetails.setVoiceRate(purchaseResponse.getVoicePrice());
+        purchaseDetails.setProvider(providerName);
+        purchaseDetails.setRestriction(purchaseResponse.getRestrictions());
+        return purchaseDetails;
+    }
+    
     @RequestMapping(value = "/purchaseByNumber", method = RequestMethod.POST)
     public PurchaseResponse puchaseByNumber(
             @RequestHeader("number") Integer number) {

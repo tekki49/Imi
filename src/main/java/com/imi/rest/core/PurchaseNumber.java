@@ -11,7 +11,7 @@ import com.imi.rest.model.PurchaseResponse;
 
 public interface PurchaseNumber {
 
-    public PurchaseResponse purchaseNumber(String number, Provider provider,
+    public PurchaseResponse purchaseNumber(String number, String numberType, Provider provider,
             Country country)
                     throws ClientProtocolException, IOException, ImiException;
 

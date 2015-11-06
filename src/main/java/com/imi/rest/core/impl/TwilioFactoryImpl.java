@@ -150,6 +150,7 @@ public class TwilioFactoryImpl
                     BasicAuthUtil.getBasicAuthHash(provider.getAuthId(),
                             provider.getApiKey()));
         } catch (ImiException e) {
+       
             return twilioMonthlyPriceMap;
         }
         CountryPricing countryPricing = ImiJsonUtil
@@ -355,7 +356,7 @@ public class TwilioFactoryImpl
         return countrySet;
     }
 
-    public PurchaseResponse purchaseNumber(String number, Provider provider,
+    public PurchaseResponse purchaseNumber(String number,String numberType, Provider provider,
             Country country)
                     throws ClientProtocolException, IOException, ImiException {
         String twilioPurchaseUrl = TWILIO_DUMMY_PURCHASE_URL;
@@ -369,34 +370,24 @@ public class TwilioFactoryImpl
                         provider.getAuthId(), provider.getApiKey()));
         JSONObject twilioResponse = XML.toJSONObject(response);
 
-        Map<String, TwilioNumberPrice> twilioPrice = getTwilioPricing(
-                country.getCountryIso(), providerService.getTwilioProvider());
-        Set<String> twilioPriceKeySet = twilioPrice.keySet();
-        List<PurchaseResponse> priceArray = new ArrayList<PurchaseResponse>();
-        for (String param : twilioPriceKeySet) {
-            /*
-             * TwilioNumberPrice
-             * twilioNumberPrice=twilioMonthlyPriceMap2==null?twilioPrice.get(
-             * coun).getMonthlyRentalRate():twilioMonthlyPriceMap2.get(param);
-             * PurchaseResponse purchaseResponse = new PurchaseResponse();
-             * purchaseResponse.setNumber(number); String[] numType =
-             * param.split("-"); purchaseResponse.setNumberType(numType[1]);
-             * purchaseResponse.setRestrictions("");
-             * purchaseResponse.setMonthlyRentalRate(twilioMonthlyPriceMap2==
-             * null?twilioPrice.get(param).getMonthlyRentalRate():
-             * twilioMonthlyPriceMap2.get(param).getMonthlyRentalRate());
-             * purchaseResponse.setSetUpRate("");
-             * purchaseResponse.setSmsRate(twilioPrice.get(param).get);
-             * purchaseResponse.setVoicePrice(twilioPrice.get(param).get(
-             * "inboundVoicePrice")); purchaseResponse.setEffectiveDate("");
-             * purchaseResponse.setResourceManagerId(0);
-             * purchaseResponse.setCountryProviderId(country.getId());
-             * priceArray.add(purchaseResponse);
-             */
-        }
+        String searchKey=country.getCountryIso()+"-"+numberType;
+       TwilioNumberPrice twilioPrice = (twilioMonthlyPriceMap==null?getTwilioPricing(country.getCountryIso(), provider).get(searchKey)
+    		   :twilioMonthlyPriceMap.get(searchKey));
+		
+			PurchaseResponse purchaseResponse = new PurchaseResponse();
+			purchaseResponse.setNumber(number);
+			purchaseResponse.setNumberType(numberType);
+			purchaseResponse.setRestrictions("");
+			purchaseResponse.setMonthlyRentalRate(twilioPrice.getMonthlyRentalRate());
+			purchaseResponse.setSetUpRate("");
+			purchaseResponse.setSmsRate(twilioPrice.getInboundSmsPrice());
+			purchaseResponse.setVoicePrice(twilioPrice.getInboundVoicePrice());
+			purchaseResponse.setEffectiveDate("");
+			purchaseResponse.setResourceManagerId(0);
+			purchaseResponse.setCountryProviderId(country.getId());
 
-        return null;
-    }
+		return purchaseResponse;
+	}
 
     public void releaseNumber(String number, Provider provider,
             String countryIsoCode) {

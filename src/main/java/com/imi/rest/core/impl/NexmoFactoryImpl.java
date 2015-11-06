@@ -283,4 +283,11 @@ public class NexmoFactoryImpl
         return balanceResponse;
     }
 
+	@Override
+	public PurchaseResponse purchaseNumber(String number, String numberType, Provider provider,
+			com.imi.rest.dao.model.Country country) throws ClientProtocolException, IOException, ImiException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

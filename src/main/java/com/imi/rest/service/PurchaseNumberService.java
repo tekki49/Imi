@@ -14,6 +14,7 @@ import com.imi.rest.core.impl.TwilioFactoryImpl;
 import com.imi.rest.dao.model.Country;
 import com.imi.rest.dao.model.Provider;
 import com.imi.rest.exception.ImiException;
+import com.imi.rest.model.PurchaseResponse;
 
 @Service
 public class PurchaseNumberService implements ProviderConstants, UrlConstants {
@@ -27,17 +28,19 @@ public class PurchaseNumberService implements ProviderConstants, UrlConstants {
     @Autowired
     TwilioFactoryImpl twilioFactoryImpl;
 
-    public void purchaseNumber(String number, Provider provider,
+    public PurchaseResponse purchaseNumber(String number,String numberType, Provider provider,
             Country country)
                     throws ClientProtocolException, IOException, ImiException {
         if (provider.getName().equalsIgnoreCase(TWILIO)) {
-            twilioFactoryImpl.purchaseNumber(number, provider, country);
+           return twilioFactoryImpl.purchaseNumber(number, numberType, provider, country);
         } else if (provider.getName().equalsIgnoreCase(PLIVO)) {
-            plivioFactoryImpl.purchaseNumber(number, provider, country);
+            return plivioFactoryImpl.purchaseNumber(number, numberType, provider, country);
         } else if (provider.getName().equalsIgnoreCase(NEXMO)) {
-            nexmoFactoryImpl.purchaseNumber(number, provider, country);
+           return nexmoFactoryImpl.purchaseNumber(number,  numberType,provider, country);
         } else if (provider.getName().equalsIgnoreCase(TWILIO_DUMMY)) {
-            twilioFactoryImpl.purchaseNumber(number, provider, country);
+            return twilioFactoryImpl.purchaseNumber(number, numberType, provider, country);
+        } else{
+		return null;
         }
     }
 }
