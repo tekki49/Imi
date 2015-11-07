@@ -8,6 +8,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -27,6 +28,7 @@ import com.imi.rest.core.NumberSearch;
 import com.imi.rest.core.PurchaseNumber;
 import com.imi.rest.dao.model.Provider;
 import com.imi.rest.exception.ImiException;
+import com.imi.rest.model.ApplicationResponse;
 import com.imi.rest.model.BalanceResponse;
 import com.imi.rest.model.Country;
 import com.imi.rest.model.Meta;
@@ -256,6 +258,197 @@ public class PlivoFactoryImpl
 			com.imi.rest.dao.model.Country country) throws ClientProtocolException, IOException, ImiException {
 		// TODO Auto-generated method stub
 		return null;
+	}
+	private ApplicationResponse createApplication(ApplicationResponse plivoApplication, Provider provider){
+    	String plivoCreateApplicationurl = PLIVO_APPLICATION_CREATE_URL;
+    	ApplicationResponse plivoApplicationResponse = new ApplicationResponse();
+        try {
+        	Map<String, String> requestBody = new HashMap<String, String>();
+        	
+            if(plivoApplication.getVoiceUrl() != null){
+            	requestBody.put("answer_url", plivoApplication.getVoiceUrl());
+            }
+            if(plivoApplication.getApp_name() != null){
+        		requestBody.put("app_name", plivoApplication.getApp_name());
+        	}
+            if(plivoApplication.getVoiceMethod() != null){
+            	requestBody.put("answer_method", plivoApplication.getVoiceMethod());
+            }
+            if(plivoApplication.getStatusCallback() != null){
+            	requestBody.put("hangup_url", plivoApplication.getStatusCallback());
+            }
+            if(plivoApplication.getStatusCallbackMethod() != null){
+            	requestBody.put("hangup_method", plivoApplication.getStatusCallbackMethod());
+            }
+            if(plivoApplication.getVoiceFallback() != null){
+            	requestBody.put("fallback_answer_url", plivoApplication.getVoiceFallback());
+            }
+            if(plivoApplication.getVoiceFallbackMethod() != null){
+            	requestBody.put("fallback_method", plivoApplication.getVoiceFallbackMethod());
+            }
+            if(plivoApplication.getSmsUrl() != null){
+            	requestBody.put("message_url", plivoApplication.getSmsUrl());
+            }
+            if(plivoApplication.getSmsMethod() != null){
+            	requestBody.put("message_method", plivoApplication.getSmsMethod());
+            }
+            if(plivoApplication.getDefault_number_app() != null){
+            	requestBody.put("default_number_app", plivoApplication.getDefault_number_app().toString());
+            }
+            if(plivoApplication.getDefault_endpoint_app() != null){
+            	requestBody.put("default_endpoint_app", plivoApplication.getDefault_endpoint_app().toString());
+            }
+        	 String response = HttpUtil.defaultHttpPostHandler(plivoCreateApplicationurl, requestBody,
+                    BasicAuthUtil.getBasicAuthHash(provider.getAuthId(), provider.getApiKey()));
+            plivoApplicationResponse = ImiJsonUtil.deserialize(response, ApplicationResponse.class);
+        } catch (ClientProtocolException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+        return plivoApplicationResponse;
+    }
+
+    private ApplicationResponse updateApplication(ApplicationResponse plivoApplication, Provider provider) 
+    		throws  ClientProtocolException, IOException {
+    	String plivoApplicationUpdateUrl = PLIVO_APPLICATION_UPDATE_URL;
+    	plivoApplicationUpdateUrl = plivoApplicationUpdateUrl.replace("{app_id}", plivoApplication.getApp_id());
+    	ApplicationResponse currentPlivoApplication = getApplication(plivoApplication.getApp_id(), provider);
+    	Map<String, String> requestBody = new HashMap<String, String>();
+        if(plivoApplication.getVoiceUrl() != null 
+        		&& plivoApplication.getVoiceUrl()!=currentPlivoApplication.getVoiceUrl()){
+        	requestBody.put("answer_url", plivoApplication.getVoiceUrl());
+        }
+        if(plivoApplication.getApp_name() != null 
+        		&& plivoApplication.getApp_name() != currentPlivoApplication.getApp_name()){
+    		requestBody.put("app_name", plivoApplication.getApp_name());
+    	}
+        if(plivoApplication.getVoiceMethod() != null
+        		&& plivoApplication.getVoiceMethod()!=currentPlivoApplication.getVoiceMethod()){
+        	requestBody.put("answer_method", plivoApplication.getVoiceMethod());
+        }
+        if(plivoApplication.getStatusCallback() != null){
+        	requestBody.put("hangup_url", plivoApplication.getStatusCallback());
+        }
+        if(plivoApplication.getStatusCallbackMethod() != null){
+        	requestBody.put("hangup_method", plivoApplication.getStatusCallbackMethod());
+        }
+        if(plivoApplication.getVoiceFallback() != null){
+        	requestBody.put("fallback_answer_url", plivoApplication.getVoiceFallback());
+        }
+        if(plivoApplication.getVoiceFallbackMethod() != null){
+        	requestBody.put("fallback_method", plivoApplication.getVoiceFallbackMethod());
+        }
+        if(plivoApplication.getSmsUrl() != null){
+        	requestBody.put("message_url", plivoApplication.getSmsUrl());
+        }
+        if(plivoApplication.getSmsMethod() != null){
+        	requestBody.put("message_method", plivoApplication.getSmsMethod());
+        }
+        if(plivoApplication.getDefault_number_app() != null){
+        	requestBody.put("default_number_app", plivoApplication.getDefault_number_app().toString());
+        }
+        if(plivoApplication.getDefault_endpoint_app() != null){
+        	requestBody.put("default_endpoint_app", plivoApplication.getDefault_endpoint_app().toString());
+        }
+		String response = HttpUtil.defaultHttpPostHandler(plivoApplicationUpdateUrl, requestBody,
+		        BasicAuthUtil.getBasicAuthHash(provider.getAuthId(), provider.getApiKey()));
+		PlivioPurchaseResponse plivoResponse =ImiJsonUtil
+                .deserialize(response, PlivioPurchaseResponse.class);
+		if(plivoResponse.getMessage().equals("changed")){
+			plivoApplication = getApplication(currentPlivoApplication.getApp_id(), provider);
+		}
+		else{
+			//throw exception saying parameters sent were wrong 
+		}
+		return plivoApplication;
+    }
+
+	private ApplicationResponse getApplication(String app_id, Provider provider) {
+		String plivoApplicationUpdateUrl = PLIVO_APPLICATION_UPDATE_URL;
+		plivoApplicationUpdateUrl = plivoApplicationUpdateUrl.replace("{app_id}", app_id);
+		ApplicationResponse plivoApplicationResponse = new ApplicationResponse();
+		try {
+			String response = HttpUtil.defaultHttpGetHandler(plivoApplicationUpdateUrl,
+			        BasicAuthUtil.getBasicAuthHash(provider.getAuthId(),
+			                provider.getApiKey()));
+			plivoApplicationResponse = ImiJsonUtil
+	                .deserialize(response, ApplicationResponse.class);
+		} catch (ClientProtocolException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ImiException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return plivoApplicationResponse;
+	}
+	public ApplicationResponse updateNumber(String number,ApplicationResponse 
+			applicationResponsetoModify,  Provider provider) {
+		String plivoNumberUpdateUrl = PLIVO_RELEASE_URL;
+		plivoNumberUpdateUrl = plivoNumberUpdateUrl.replace("{number}", number);
+		PlivioPurchaseResponse plivioPurchaseResponse = new PlivioPurchaseResponse();
+		ApplicationResponse plivoApplicationResponse = new ApplicationResponse();
+		try {
+			plivoApplicationResponse = getApplicationByNumber(number, provider);
+			if(plivoApplicationResponse!=null){
+				plivoApplicationResponse = updateApplication(applicationResponsetoModify, provider);
+			}
+			else{
+				plivoApplicationResponse = createApplication(applicationResponsetoModify, provider);
+			}
+			Map<String, String> requestBody = new HashMap<>();
+			requestBody.put("app_id", plivoApplicationResponse.getApp_id());
+			String response = HttpUtil.defaultHttpPostHandler(plivoNumberUpdateUrl, requestBody,
+			        BasicAuthUtil.getBasicAuthHash(provider.getAuthId(),
+			                provider.getApiKey()));
+			plivioPurchaseResponse = ImiJsonUtil
+	                .deserialize(response, PlivioPurchaseResponse.class);
+			if(!plivioPurchaseResponse.getMessage().equals("changed")){
+				String message = "application created successfully, but not assigned to the upadted number";
+				ImiException e = new ImiException("", message);
+				throw e;
+			}
+		} catch (ClientProtocolException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ImiException e1) {
+			e1.printStackTrace();
+		}
+		return plivoApplicationResponse;
+	}
+	private ApplicationResponse getApplicationByNumber(String number, Provider provider) {
+		String plivoNumberGetUrl = PLIVO_RELEASE_URL;
+		plivoNumberGetUrl = plivoNumberGetUrl.replace("{number}", number);
+		ApplicationResponse plivoApplicationResponse = new ApplicationResponse();
+		try {
+			String response = HttpUtil.defaultHttpGetHandler(plivoNumberGetUrl, 
+			        BasicAuthUtil.getBasicAuthHash(provider.getAuthId(),
+			                provider.getApiKey()));
+			Number numberObj = ImiJsonUtil.deserialize(response, Number.class);
+			String app_id = numberObj.getApplication().substring(
+					numberObj.getApplication().lastIndexOf("Application/")+12,
+					numberObj.getApplication().length()).trim();
+			if(app_id.length()>0){
+				plivoApplicationResponse = getApplication(app_id, provider);
+			}			
+		} catch (ClientProtocolException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ImiException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return plivoApplicationResponse;
 	}
 
 }

@@ -31,7 +31,12 @@ public class Number {
     private Map<String, Boolean> capabilities;
     private List<String> features;
     private String priceUnit;
-
+    private String added_on;
+    private String alias;
+    private String api_id;
+    private String application;
+    private String sub_account;
+    
     public String getNumber() {
         return number;
     }
@@ -57,6 +62,10 @@ public class Number {
 
     @JsonProperty("numberType")
     public void setNumberType(String numberType) {
+        this.numberType = numberType;
+    }
+    @JsonProperty("number_type")
+    public void setnumber_type(String numberType) {
         this.numberType = numberType;
     }
 
@@ -140,12 +149,56 @@ public class Number {
         this.voiceRate = voiceRate;
     }
 
-    public String getProvider() {
+    public String getAdded_on() {
+		return added_on;
+	}
+
+	public void setAdded_on(String added_on) {
+		this.added_on = added_on;
+	}
+
+	public String getAlias() {
+		return alias;
+	}
+
+	public void setAlias(String alias) {
+		this.alias = alias;
+	}
+
+	public String getApi_id() {
+		return api_id;
+	}
+
+	public void setApi_id(String api_id) {
+		this.api_id = api_id;
+	}
+
+	public String getApplication() {
+		return application;
+	}
+
+	public void setApplication(String application) {
+		this.application = application;
+	}
+
+	public String getSub_account() {
+		return sub_account;
+	}
+
+	public void setSub_account(String sub_account) {
+		this.sub_account = sub_account;
+	}
+
+	public String getProvider() {
         return provider;
     }
 
     @JsonProperty("provider")
     public void setProvider(String provider) {
+        this.provider = provider;
+    }
+    @JsonProperty("carrier")
+    public void setCarrier(String provider) {
         this.provider = provider;
     }
 

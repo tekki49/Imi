@@ -14,6 +14,8 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Row;
+import org.json.JSONObject;
+import org.json.XML;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonParseException;
@@ -28,6 +30,7 @@ import com.imi.rest.core.NumberSearch;
 import com.imi.rest.core.PurchaseNumber;
 import com.imi.rest.dao.model.Provider;
 import com.imi.rest.exception.ImiException;
+import com.imi.rest.model.ApplicationResponse;
 import com.imi.rest.model.BalanceResponse;
 import com.imi.rest.model.Country;
 import com.imi.rest.model.CountryPricing;
@@ -288,6 +291,49 @@ public class NexmoFactoryImpl
 			com.imi.rest.dao.model.Country country) throws ClientProtocolException, IOException, ImiException {
 		// TODO Auto-generated method stub
 		return null;
+	}
+	public ApplicationResponse updateNumber(String number, String countryIsoCode, ApplicationResponse application,
+    		Provider provider) throws ImiException, ClientProtocolException, IOException {
+    	String nexmoAccountUpdateUrl = NEXMO_ACCOUNT_UPDATE_URL;
+    	String nexmoNumber = number.trim() + countryIsoCode.trim();
+    	nexmoAccountUpdateUrl = nexmoAccountUpdateUrl
+                .replace("{country}", countryIsoCode)
+                .replace("{api_key}", provider.getAuthId())
+                .replace("{api_secret}", provider.getApiKey())
+                .replace("{msisdn}", nexmoNumber);
+    	nexmoAccountUpdateUrl = getUpdatedUrl(nexmoAccountUpdateUrl, application);
+        Map<String, String> requestBody = new HashMap<String, String>();
+		String response = HttpUtil.defaultHttpPostHandler(nexmoAccountUpdateUrl, requestBody,
+		        BasicAuthUtil.getBasicAuthHash(provider.getAuthId(), provider.getApiKey()));
+		JSONObject nexmoResponse = XML.toJSONObject(response);
+		if(nexmoResponse.get("status").equals("200")){
+			// what to do after success
+		}
+		else if (nexmoResponse.get("status").equals("420")){
+			//throw exception saying parameters sent were wrong
+		}
+		return new ApplicationResponse();
+    }
+	public String getUpdatedUrl(String url, ApplicationResponse modifyapplication){
+		String toAppend = "?";
+		if(modifyapplication.getFriendlyName() != null){
+			toAppend.concat("moHttpUrl="+modifyapplication.getFriendlyName()+"&");
+		}
+		if(modifyapplication.getApiVersion() != null){
+			toAppend.concat("moSmppSysType="+modifyapplication.getApiVersion()+"&");
+		}
+		if(modifyapplication.getVoiceUrl() != null){
+			toAppend.concat("voiceCallbackType="+modifyapplication.getVoiceUrl()+"&");
+		}
+		if(modifyapplication.getVoiceMethod() != null){
+			toAppend.concat("voiceCallbackValue="+modifyapplication.getVoiceMethod()+"&");
+		}
+		if(modifyapplication.getVoiceFallback() != null){
+			toAppend.concat("voiceStatusCallback="+modifyapplication.getVoiceFallback()+"&");
+		}
+		toAppend = toAppend.substring(0, toAppend.length()-1);
+		url.concat(toAppend);
+		return url;
 	}
 
 }

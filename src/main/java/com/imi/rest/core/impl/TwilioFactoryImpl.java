@@ -5,7 +5,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -34,6 +33,8 @@ import com.imi.rest.core.PurchaseNumber;
 import com.imi.rest.dao.model.Country;
 import com.imi.rest.dao.model.Provider;
 import com.imi.rest.exception.ImiException;
+import com.imi.rest.model.ApplicationResponse;
+import com.imi.rest.model.ApplicationResponseList;
 import com.imi.rest.model.CountryPricing;
 import com.imi.rest.model.CountryResponse;
 import com.imi.rest.model.InboundCallPrice;
@@ -409,5 +410,105 @@ public class TwilioFactoryImpl
     public void setPriceUnit(String priceUnit) {
         this.priceUnit = priceUnit;
     }
+    
+    public ApplicationResponse updateNumber(String number, ApplicationResponse 
+			applicationResponsetoModify, Provider provider) {
+		String twilioNumberUpdateUrl = TWILIO_NUMBER_UPDATE_URL;
+		ApplicationResponse incomingPhoneNumber = getIncomingPhoneNumber( number, provider);
+		twilioNumberUpdateUrl = twilioNumberUpdateUrl.replace("{IncomingPhoneNumberSid}", incomingPhoneNumber.getSid());
+		twilioNumberUpdateUrl = getUpdatedUrl(twilioNumberUpdateUrl, applicationResponsetoModify);
+		ApplicationResponse applicationResponse = new ApplicationResponse();
+		try {
+			String response = HttpUtil.defaultHttpPostHandler(twilioNumberUpdateUrl, new HashMap<String, String>(),
+			        BasicAuthUtil.getBasicAuthHash(provider.getAuthId(),
+			                provider.getApiKey()));
+			applicationResponse = ImiJsonUtil.deserialize(response, ApplicationResponse.class);
+		} catch (ClientProtocolException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return applicationResponse;
+	}
+
+	private ApplicationResponse getIncomingPhoneNumber(String number, Provider provider) {
+		String twilioNumberGetUrl = TWILIO_PURCHASE_URL;
+		twilioNumberGetUrl = twilioNumberGetUrl.replace("{number}", number);
+		ApplicationResponse applicationResponse = new ApplicationResponse();
+		try {
+			String response = HttpUtil.defaultHttpGetHandler(twilioNumberGetUrl, 
+			        BasicAuthUtil.getBasicAuthHash(provider.getAuthId(),
+			                provider.getApiKey()));
+			ApplicationResponseList incomingPhoneNumbers = ImiJsonUtil
+	                .deserialize(response, ApplicationResponseList.class);
+			applicationResponse = incomingPhoneNumbers.getObjects().get(0);
+		} catch (ClientProtocolException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ImiException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return applicationResponse;
+	}
+	private String getUpdatedUrl(String url, ApplicationResponse modifyapplication){
+		String toAppend = "?";
+		if(modifyapplication.getFriendlyName() != null){
+			toAppend.concat("FriendlyName="+modifyapplication.getFriendlyName()+"&");
+		}
+		if(modifyapplication.getApiVersion() != null){
+			toAppend.concat("ApiVersion="+modifyapplication.getApiVersion()+"&");
+		}
+		if(modifyapplication.getVoiceUrl() != null){
+			toAppend.concat("VoiceUrl="+modifyapplication.getVoiceUrl()+"&");
+		}
+		if(modifyapplication.getVoiceMethod() != null){
+			toAppend.concat("VoiceMethod="+modifyapplication.getVoiceMethod()+"&");
+		}
+		if(modifyapplication.getVoiceFallback() != null){
+			toAppend.concat("VoiceFallbackUrl="+modifyapplication.getVoiceFallback()+"&");
+		}
+		if(modifyapplication.getVoiceFallbackMethod() != null){
+			toAppend.concat("VoiceFallbackMethod="+modifyapplication.getVoiceFallbackMethod()+"&");
+		}
+		if(modifyapplication.getStatusCallback() != null){
+			toAppend.concat("StatusCallback="+modifyapplication.getStatusCallback()+"&");
+		}
+		if(modifyapplication.getStatusCallbackMethod() != null){
+			toAppend.concat("StatusCallbackMethod="+modifyapplication.getStatusCallbackMethod()+"&");
+		}
+		if(modifyapplication.getVoiceCallerIdLookup() != null){
+			toAppend.concat("VoiceCallerIdLookup="+modifyapplication.getVoiceCallerIdLookup()+"&");
+		}
+		if(modifyapplication.getVoiceApplicationSid() != null){
+			toAppend.concat("VoiceApplicationSid="+modifyapplication.getVoiceApplicationSid()+"&");
+		}
+		if(modifyapplication.getTrunkSid() != null){
+			toAppend.concat("TrunkSid="+modifyapplication.getTrunkSid()+"&");
+		}
+		if(modifyapplication.getSmsUrl() != null){
+			toAppend.concat("SmsUrl="+modifyapplication.getSmsUrl()+"&");
+		}
+		if(modifyapplication.getSmsFallbackUrl() != null){
+			toAppend.concat("SmsFallbackUrl="+modifyapplication.getSmsFallbackUrl()+"&");
+		}
+		if(modifyapplication.getSmsFallbackMethod() != null){
+			toAppend.concat("SmsFallbackMethod="+modifyapplication.getSmsFallbackMethod()+"&");
+		}
+		if(modifyapplication.getSmsApplicationSid() != null){
+			toAppend.concat("SmsApplicationSid="+modifyapplication.getSmsApplicationSid()+"&");
+		}
+		if(modifyapplication.getAccountSid() != null){
+			toAppend.concat("AccountSid="+modifyapplication.getAccountSid()+"&");
+		}
+		toAppend = toAppend.substring(0, toAppend.length()-1);
+		url.concat(toAppend);
+		return url;
+	}
 
 }
