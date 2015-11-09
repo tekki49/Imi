@@ -24,7 +24,7 @@ public class PurchaseResponse {
 
     public PurchaseResponse(Purchase purchase) {
         this.id = purchase.getId();
-        this.number = purchase.getNumber();
+        this.number = purchase.getNumber().toString();
         this.numberType = purchase.getNumberType();
         this.restrictions = purchase.getRestrictions();
         this.monthlyRentalRate = purchase.getMonthlyRentalRate();

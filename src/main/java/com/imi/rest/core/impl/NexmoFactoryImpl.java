@@ -17,6 +17,7 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Row;
 import org.json.JSONObject;
 import org.json.XML;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonParseException;
@@ -29,6 +30,7 @@ import com.imi.rest.constants.UrlConstants;
 import com.imi.rest.core.CountrySearch;
 import com.imi.rest.core.NumberSearch;
 import com.imi.rest.core.PurchaseNumber;
+import com.imi.rest.dao.ForexDao;
 import com.imi.rest.dao.model.Provider;
 import com.imi.rest.exception.ImiException;
 import com.imi.rest.model.ApplicationResponse;
@@ -39,6 +41,7 @@ import com.imi.rest.model.Meta;
 import com.imi.rest.model.Number;
 import com.imi.rest.model.NumberResponse;
 import com.imi.rest.model.PurchaseResponse;
+import com.imi.rest.service.ForexService;
 import com.imi.rest.util.BasicAuthUtil;
 import com.imi.rest.util.DataFormatUtils;
 import com.imi.rest.util.HttpUtil;
@@ -47,10 +50,13 @@ import com.imi.rest.util.ImiJsonUtil;
 @Component
 public class NexmoFactoryImpl
         implements NumberSearch, CountrySearch, PurchaseNumber, UrlConstants,
-        ProviderConstants, ForexConstants, NumberTypeConstants {
+        ProviderConstants, NumberTypeConstants {
 
     private String nexmoPricingResponse;
     private static final String NEXMO_PRICING_FILE_PATH = "/nexmo_pricing.xls";
+    private Double forexValue;
+	@Autowired
+	ForexService forexService;
 
     @Override
     public void searchPhoneNumbers(Provider provider,
@@ -117,6 +123,9 @@ public class NexmoFactoryImpl
             countryPricingMap.put(countryPricing.getCountryIsoCode(),
                     countryPricing);
         }
+        if(forexValue==0){
+			forexValue=forexService.getForexValueByName("USD_GBP").getValue();
+		}
         for (Number nexmoNumber : nexmoNumberList) {
             if (nexmoNumber != null) {
                 setServiceType(nexmoNumber);
@@ -132,9 +141,9 @@ public class NexmoFactoryImpl
                 }
                 nexmoNumber.setPriceUnit("EUR");
                 nexmoNumber.setMonthlyRentalRate(DataFormatUtils
-                        .forexConvert(EUR_GBP, countryPricing.getPricing()
+                        .forexConvert(forexValue, countryPricing.getPricing()
                                 .get(type).get("monthlyRateInEuros")));
-                nexmoNumber.setVoiceRate(DataFormatUtils.forexConvert(EUR_GBP,
+                nexmoNumber.setVoiceRate(DataFormatUtils.forexConvert(forexValue,
                         countryPricing.getPricing().get(type)
                                 .get("voiceRateInEuros")));
                 nexmoNumber.setCountry(countryPricing.getCountry());

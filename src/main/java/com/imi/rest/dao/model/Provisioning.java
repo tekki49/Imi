@@ -1,6 +1,5 @@
 package com.imi.rest.dao.model;
-
-// Generated 2 Nov, 2015 11:54:20 AM by Hibernate Tools 4.3.1
+// Generated 9 Nov, 2015 4:39:35 PM by Hibernate Tools 4.3.1.Final
 
 import java.util.HashSet;
 import java.util.Set;
@@ -20,160 +19,158 @@ import javax.persistence.Table;
 @Table(name = "provisioning", catalog = "imi")
 public class Provisioning implements java.io.Serializable {
 
-    private Integer id;
-    private String voiceUrl;
-    private String voiceMethod;
-    private String voiceFallbackUrl;
-    private String voiceFallbackMethod;
-    private String statusCallBack;
-    private String statusCallbackMethod;
-    private String smsUrl;
-    private String smsMethod;
-    private String smsFallbackUrl;
-    private String smsFallbackMethod;
-    private String smsStatusCallback;
-    private Set<Purchasehistory> purchasehistories = new HashSet<Purchasehistory>(
-            0);
+	private Integer id;
+	private String voiceUrl;
+	private String voiceMethod;
+	private String voiceFallbackUrl;
+	private String voiceFallbackMethod;
+	private String statusCallBack;
+	private String statusCallbackMethod;
+	private String smsUrl;
+	private String smsMethod;
+	private String smsFallbackUrl;
+	private String smsFallbackMethod;
+	private String smsStatusCallback;
+	private Set<Purchasehistory> purchasehistories = new HashSet<Purchasehistory>(0);
 
-    public Provisioning() {
-    }
+	public Provisioning() {
+	}
 
-    public Provisioning(String voiceUrl, String voiceMethod,
-            String voiceFallbackUrl, String voiceFallbackMethod,
-            String statusCallBack, String statusCallbackMethod, String smsUrl,
-            String smsMethod, String smsFallbackUrl, String smsFallbackMethod,
-            String smsStatusCallback, Set<Purchasehistory> purchasehistories) {
-        this.voiceUrl = voiceUrl;
-        this.voiceMethod = voiceMethod;
-        this.voiceFallbackUrl = voiceFallbackUrl;
-        this.voiceFallbackMethod = voiceFallbackMethod;
-        this.statusCallBack = statusCallBack;
-        this.statusCallbackMethod = statusCallbackMethod;
-        this.smsUrl = smsUrl;
-        this.smsMethod = smsMethod;
-        this.smsFallbackUrl = smsFallbackUrl;
-        this.smsFallbackMethod = smsFallbackMethod;
-        this.smsStatusCallback = smsStatusCallback;
-        this.purchasehistories = purchasehistories;
-    }
+	public Provisioning(String voiceUrl, String voiceMethod, String voiceFallbackUrl, String voiceFallbackMethod,
+			String statusCallBack, String statusCallbackMethod, String smsUrl, String smsMethod, String smsFallbackUrl,
+			String smsFallbackMethod, String smsStatusCallback, Set<Purchasehistory> purchasehistories) {
+		this.voiceUrl = voiceUrl;
+		this.voiceMethod = voiceMethod;
+		this.voiceFallbackUrl = voiceFallbackUrl;
+		this.voiceFallbackMethod = voiceFallbackMethod;
+		this.statusCallBack = statusCallBack;
+		this.statusCallbackMethod = statusCallbackMethod;
+		this.smsUrl = smsUrl;
+		this.smsMethod = smsMethod;
+		this.smsFallbackUrl = smsFallbackUrl;
+		this.smsFallbackMethod = smsFallbackMethod;
+		this.smsStatusCallback = smsStatusCallback;
+		this.purchasehistories = purchasehistories;
+	}
 
-    @Id
-    @GeneratedValue(strategy = IDENTITY)
-    @Column(name = "Id", unique = true, nullable = false)
-    public Integer getId() {
-        return this.id;
-    }
+	@Id
+	@GeneratedValue(strategy = IDENTITY)
 
-    public void setId(Integer id) {
-        this.id = id;
-    }
+	@Column(name = "Id", unique = true, nullable = false)
+	public Integer getId() {
+		return this.id;
+	}
 
-    @Column(name = "VoiceUrl", length = 45)
-    public String getVoiceUrl() {
-        return this.voiceUrl;
-    }
+	public void setId(Integer id) {
+		this.id = id;
+	}
 
-    public void setVoiceUrl(String voiceUrl) {
-        this.voiceUrl = voiceUrl;
-    }
+	@Column(name = "VoiceUrl", length = 45)
+	public String getVoiceUrl() {
+		return this.voiceUrl;
+	}
 
-    @Column(name = "VoiceMethod", length = 45)
-    public String getVoiceMethod() {
-        return this.voiceMethod;
-    }
+	public void setVoiceUrl(String voiceUrl) {
+		this.voiceUrl = voiceUrl;
+	}
 
-    public void setVoiceMethod(String voiceMethod) {
-        this.voiceMethod = voiceMethod;
-    }
+	@Column(name = "VoiceMethod", length = 45)
+	public String getVoiceMethod() {
+		return this.voiceMethod;
+	}
 
-    @Column(name = "VoiceFallbackUrl", length = 45)
-    public String getVoiceFallbackUrl() {
-        return this.voiceFallbackUrl;
-    }
+	public void setVoiceMethod(String voiceMethod) {
+		this.voiceMethod = voiceMethod;
+	}
 
-    public void setVoiceFallbackUrl(String voiceFallbackUrl) {
-        this.voiceFallbackUrl = voiceFallbackUrl;
-    }
+	@Column(name = "VoiceFallbackUrl", length = 45)
+	public String getVoiceFallbackUrl() {
+		return this.voiceFallbackUrl;
+	}
 
-    @Column(name = "VoiceFallbackMethod", length = 45)
-    public String getVoiceFallbackMethod() {
-        return this.voiceFallbackMethod;
-    }
+	public void setVoiceFallbackUrl(String voiceFallbackUrl) {
+		this.voiceFallbackUrl = voiceFallbackUrl;
+	}
 
-    public void setVoiceFallbackMethod(String voiceFallbackMethod) {
-        this.voiceFallbackMethod = voiceFallbackMethod;
-    }
+	@Column(name = "VoiceFallbackMethod", length = 45)
+	public String getVoiceFallbackMethod() {
+		return this.voiceFallbackMethod;
+	}
 
-    @Column(name = "StatusCallBack", length = 45)
-    public String getStatusCallBack() {
-        return this.statusCallBack;
-    }
+	public void setVoiceFallbackMethod(String voiceFallbackMethod) {
+		this.voiceFallbackMethod = voiceFallbackMethod;
+	}
 
-    public void setStatusCallBack(String statusCallBack) {
-        this.statusCallBack = statusCallBack;
-    }
+	@Column(name = "StatusCallBack", length = 45)
+	public String getStatusCallBack() {
+		return this.statusCallBack;
+	}
 
-    @Column(name = "StatusCallbackMethod", length = 45)
-    public String getStatusCallbackMethod() {
-        return this.statusCallbackMethod;
-    }
+	public void setStatusCallBack(String statusCallBack) {
+		this.statusCallBack = statusCallBack;
+	}
 
-    public void setStatusCallbackMethod(String statusCallbackMethod) {
-        this.statusCallbackMethod = statusCallbackMethod;
-    }
+	@Column(name = "StatusCallbackMethod", length = 45)
+	public String getStatusCallbackMethod() {
+		return this.statusCallbackMethod;
+	}
 
-    @Column(name = "SmsUrl", length = 45)
-    public String getSmsUrl() {
-        return this.smsUrl;
-    }
+	public void setStatusCallbackMethod(String statusCallbackMethod) {
+		this.statusCallbackMethod = statusCallbackMethod;
+	}
 
-    public void setSmsUrl(String smsUrl) {
-        this.smsUrl = smsUrl;
-    }
+	@Column(name = "SmsUrl", length = 45)
+	public String getSmsUrl() {
+		return this.smsUrl;
+	}
 
-    @Column(name = "SmsMethod", length = 45)
-    public String getSmsMethod() {
-        return this.smsMethod;
-    }
+	public void setSmsUrl(String smsUrl) {
+		this.smsUrl = smsUrl;
+	}
 
-    public void setSmsMethod(String smsMethod) {
-        this.smsMethod = smsMethod;
-    }
+	@Column(name = "SmsMethod", length = 45)
+	public String getSmsMethod() {
+		return this.smsMethod;
+	}
 
-    @Column(name = "SmsFallbackUrl", length = 45)
-    public String getSmsFallbackUrl() {
-        return this.smsFallbackUrl;
-    }
+	public void setSmsMethod(String smsMethod) {
+		this.smsMethod = smsMethod;
+	}
 
-    public void setSmsFallbackUrl(String smsFallbackUrl) {
-        this.smsFallbackUrl = smsFallbackUrl;
-    }
+	@Column(name = "SmsFallbackUrl", length = 45)
+	public String getSmsFallbackUrl() {
+		return this.smsFallbackUrl;
+	}
 
-    @Column(name = "SmsFallbackMethod", length = 45)
-    public String getSmsFallbackMethod() {
-        return this.smsFallbackMethod;
-    }
+	public void setSmsFallbackUrl(String smsFallbackUrl) {
+		this.smsFallbackUrl = smsFallbackUrl;
+	}
 
-    public void setSmsFallbackMethod(String smsFallbackMethod) {
-        this.smsFallbackMethod = smsFallbackMethod;
-    }
+	@Column(name = "SmsFallbackMethod", length = 45)
+	public String getSmsFallbackMethod() {
+		return this.smsFallbackMethod;
+	}
 
-    @Column(name = "SmsStatusCallback", length = 45)
-    public String getSmsStatusCallback() {
-        return this.smsStatusCallback;
-    }
+	public void setSmsFallbackMethod(String smsFallbackMethod) {
+		this.smsFallbackMethod = smsFallbackMethod;
+	}
 
-    public void setSmsStatusCallback(String smsStatusCallback) {
-        this.smsStatusCallback = smsStatusCallback;
-    }
+	@Column(name = "SmsStatusCallback", length = 45)
+	public String getSmsStatusCallback() {
+		return this.smsStatusCallback;
+	}
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "provisioning")
-    public Set<Purchasehistory> getPurchasehistories() {
-        return this.purchasehistories;
-    }
+	public void setSmsStatusCallback(String smsStatusCallback) {
+		this.smsStatusCallback = smsStatusCallback;
+	}
 
-    public void setPurchasehistories(Set<Purchasehistory> purchasehistories) {
-        this.purchasehistories = purchasehistories;
-    }
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "provisioning")
+	public Set<Purchasehistory> getPurchasehistories() {
+		return this.purchasehistories;
+	}
+
+	public void setPurchasehistories(Set<Purchasehistory> purchasehistories) {
+		this.purchasehistories = purchasehistories;
+	}
 
 }
