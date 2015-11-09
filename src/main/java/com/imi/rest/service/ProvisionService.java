@@ -14,9 +14,10 @@ import com.imi.rest.exception.ImiException;
 import com.imi.rest.exception.InvalidProviderException;
 import com.imi.rest.model.ApplicationResponse;
 import com.imi.rest.model.BalanceResponse;
+
 @Service
-public class ProvisionService implements ProviderConstants{
-	@Autowired
+public class ProvisionService implements ProviderConstants {
+    @Autowired
     TwilioFactoryImpl twilioFactoryImpl;
     @Autowired
     PlivoFactoryImpl plivoFactoryImpl;
@@ -24,22 +25,25 @@ public class ProvisionService implements ProviderConstants{
     NexmoFactoryImpl nexmoFactoryImpl;
     @Autowired
     ProviderService providerService;
-    
-	public ApplicationResponse provisionNumber(String number,String countryIsoCode, 
-			String providerName, ApplicationResponse application) throws ClientProtocolException, IOException, ImiException {
-		ApplicationResponse applicationResponse = new ApplicationResponse();
-		if (providerName.equalsIgnoreCase(PLIVO)) {
-			applicationResponse = plivoFactoryImpl.
-					updateNumber(number, application, providerService.getPlivioProvider());
-		} else if (providerName.equalsIgnoreCase(TWILIO)) {
-			applicationResponse = twilioFactoryImpl.
-					updateNumber(number, application, providerService.getTwilioProvider());
-		} else if (providerName.equalsIgnoreCase(NEXMO)) {
-			applicationResponse = nexmoFactoryImpl.
-					updateNumber(number, countryIsoCode, applicationResponse, providerService.getNexmoProvider());
-		} else {
-			throw new InvalidProviderException(providerName);
-		}
-		return applicationResponse;
-	}
+
+    public ApplicationResponse provisionNumber(String number,
+            String countryIsoCode, String providerName,
+            ApplicationResponse application)
+                    throws ClientProtocolException, IOException, ImiException {
+        ApplicationResponse applicationResponse = new ApplicationResponse();
+        if (providerName.equalsIgnoreCase(PLIVO)) {
+            applicationResponse = plivoFactoryImpl.updateNumber(number,
+                    application, providerService.getPlivioProvider());
+        } else if (providerName.equalsIgnoreCase(TWILIO)) {
+            applicationResponse = twilioFactoryImpl.updateNumber(number,
+                    application, providerService.getTwilioProvider());
+        } else if (providerName.equalsIgnoreCase(NEXMO)) {
+            applicationResponse = nexmoFactoryImpl.updateNumber(number,
+                    countryIsoCode, applicationResponse,
+                    providerService.getNexmoProvider());
+        } else {
+            throw new InvalidProviderException(providerName);
+        }
+        return applicationResponse;
+    }
 }

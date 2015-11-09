@@ -36,7 +36,8 @@ public class Number {
     private String api_id;
     private String application;
     private String sub_account;
-    
+    private String status;
+
     public String getNumber() {
         return number;
     }
@@ -64,6 +65,7 @@ public class Number {
     public void setNumberType(String numberType) {
         this.numberType = numberType;
     }
+
     @JsonProperty("number_type")
     public void setnumber_type(String numberType) {
         this.numberType = numberType;
@@ -150,46 +152,46 @@ public class Number {
     }
 
     public String getAdded_on() {
-		return added_on;
-	}
+        return added_on;
+    }
 
-	public void setAdded_on(String added_on) {
-		this.added_on = added_on;
-	}
+    public void setAdded_on(String added_on) {
+        this.added_on = added_on;
+    }
 
-	public String getAlias() {
-		return alias;
-	}
+    public String getAlias() {
+        return alias;
+    }
 
-	public void setAlias(String alias) {
-		this.alias = alias;
-	}
+    public void setAlias(String alias) {
+        this.alias = alias;
+    }
 
-	public String getApi_id() {
-		return api_id;
-	}
+    public String getApi_id() {
+        return api_id;
+    }
 
-	public void setApi_id(String api_id) {
-		this.api_id = api_id;
-	}
+    public void setApi_id(String api_id) {
+        this.api_id = api_id;
+    }
 
-	public String getApplication() {
-		return application;
-	}
+    public String getApplication() {
+        return application;
+    }
 
-	public void setApplication(String application) {
-		this.application = application;
-	}
+    public void setApplication(String application) {
+        this.application = application;
+    }
 
-	public String getSub_account() {
-		return sub_account;
-	}
+    public String getSub_account() {
+        return sub_account;
+    }
 
-	public void setSub_account(String sub_account) {
-		this.sub_account = sub_account;
-	}
+    public void setSub_account(String sub_account) {
+        this.sub_account = sub_account;
+    }
 
-	public String getProvider() {
+    public String getProvider() {
         return provider;
     }
 
@@ -197,6 +199,7 @@ public class Number {
     public void setProvider(String provider) {
         this.provider = provider;
     }
+
     @JsonProperty("carrier")
     public void setCarrier(String provider) {
         this.provider = provider;
@@ -318,6 +321,15 @@ public class Number {
 
     public void setPriceUnit(String priceUnit) {
         this.priceUnit = priceUnit;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    @JsonProperty("status")
+    public void setStatus(String status) {
+        this.status = status;
     }
 
 }

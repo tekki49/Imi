@@ -28,19 +28,23 @@ public class PurchaseNumberService implements ProviderConstants, UrlConstants {
     @Autowired
     TwilioFactoryImpl twilioFactoryImpl;
 
-    public PurchaseResponse purchaseNumber(String number,String numberType, Provider provider,
-            Country country)
+    public PurchaseResponse purchaseNumber(String number, String numberType,
+            Provider provider, Country country)
                     throws ClientProtocolException, IOException, ImiException {
         if (provider.getName().equalsIgnoreCase(TWILIO)) {
-           return twilioFactoryImpl.purchaseNumber(number, numberType, provider, country);
+            return twilioFactoryImpl.purchaseNumber(number, numberType,
+                    provider, country);
         } else if (provider.getName().equalsIgnoreCase(PLIVO)) {
-            return plivioFactoryImpl.purchaseNumber(number, numberType, provider, country);
+            return plivioFactoryImpl.purchaseNumber(number, numberType,
+                    provider, country);
         } else if (provider.getName().equalsIgnoreCase(NEXMO)) {
-           return nexmoFactoryImpl.purchaseNumber(number,  numberType,provider, country);
+            return nexmoFactoryImpl.purchaseNumber(number, numberType, provider,
+                    country);
         } else if (provider.getName().equalsIgnoreCase(TWILIO_DUMMY)) {
-            return twilioFactoryImpl.purchaseNumber(number, numberType, provider, country);
-        } else{
-		return null;
+            return twilioFactoryImpl.purchaseNumber(number, numberType,
+                    provider, country);
+        } else {
+            return null;
         }
     }
 }

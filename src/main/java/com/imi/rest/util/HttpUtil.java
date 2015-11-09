@@ -1,6 +1,10 @@
 package com.imi.rest.util;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -10,6 +14,7 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
@@ -64,18 +69,38 @@ public class HttpUtil {
     }
 
     public static String defaultHttpPostHandler(String url,
-            Map<String, String> requestBody, String authHash)
-                    throws ClientProtocolException, IOException {
+            Map<String, String> requestBody, String authHash,
+            String contentType) throws ClientProtocolException, IOException {
         HttpClient httpclient = new DefaultHttpClient();
         HttpPost httppost = new HttpPost(url);
         httppost.setHeader("Authorization", "Basic " + authHash);
-        // httppost.setHeader("Content-Type", "application/json");
+        if (contentType != null) {
+            httppost.setHeader("Content-Type", contentType);
+        }
         List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
         for (String key : requestBody.keySet()) {
             nameValuePairs
                     .add(new BasicNameValuePair(key, requestBody.get(key)));
         }
         httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+        HttpResponse response = httpclient.execute(httppost);
+        return EntityUtils.toString(response.getEntity());
+    }
+
+    public static String defaultHttpDeleteHandler(String url,
+            Map<String, String> requestBody, String authHash,
+            String contentType) throws IOException {
+        HttpClient httpclient = new DefaultHttpClient();
+        HttpDelete httppost = new HttpDelete(url);
+        httppost.setHeader("Authorization", "Basic " + authHash);
+        if (contentType != null) {
+            httppost.setHeader("Content-Type", contentType);
+        }
+        List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
+        for (String key : requestBody.keySet()) {
+            nameValuePairs
+                    .add(new BasicNameValuePair(key, requestBody.get(key)));
+        }
         HttpResponse response = httpclient.execute(httppost);
         return EntityUtils.toString(response.getEntity());
     }

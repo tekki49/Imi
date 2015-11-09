@@ -14,10 +14,10 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.apache.http.client.ClientProtocolException;
+import org.apache.http.entity.ContentType;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
 import org.json.XML;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonParseException;
@@ -43,7 +43,6 @@ import com.imi.rest.model.NumberResponse;
 import com.imi.rest.model.PurchaseResponse;
 import com.imi.rest.model.TwilioNumberPrice;
 import com.imi.rest.service.CountrySearchService;
-import com.imi.rest.service.ProviderService;
 import com.imi.rest.util.BasicAuthUtil;
 import com.imi.rest.util.DataFormatUtils;
 import com.imi.rest.util.HttpUtil;
@@ -61,9 +60,6 @@ public class TwilioFactoryImpl
     private TwilioNumberPrice numberTypePricing;
     private String priceUnit;
     private Map<String, TwilioNumberPrice> twilioMonthlyPriceMap;
-
-    @Autowired
-    private ProviderService providerService;
 
     @Override
     public void searchPhoneNumbers(Provider provider,
@@ -151,7 +147,7 @@ public class TwilioFactoryImpl
                     BasicAuthUtil.getBasicAuthHash(provider.getAuthId(),
                             provider.getApiKey()));
         } catch (ImiException e) {
-       
+
             return twilioMonthlyPriceMap;
         }
         CountryPricing countryPricing = ImiJsonUtil
@@ -357,8 +353,8 @@ public class TwilioFactoryImpl
         return countrySet;
     }
 
-    public PurchaseResponse purchaseNumber(String number,String numberType, Provider provider,
-            Country country)
+    public PurchaseResponse purchaseNumber(String number, String numberType,
+            Provider provider, Country country)
                     throws ClientProtocolException, IOException, ImiException {
         String twilioPurchaseUrl = TWILIO_DUMMY_PURCHASE_URL;
         String twilioNumber = "+" + country.getCountryCode().trim()
@@ -368,30 +364,45 @@ public class TwilioFactoryImpl
         requestBody.put("PhoneNumber", twilioNumber);
         String response = HttpUtil.defaultHttpPostHandler(twilioPurchaseUrl,
                 requestBody, BasicAuthUtil.getBasicAuthHash(
-                        provider.getAuthId(), provider.getApiKey()));
+                        provider.getAuthId(), provider.getApiKey()),
+                null);
         JSONObject twilioResponse = XML.toJSONObject(response);
 
-        String searchKey=country.getCountryIso()+"-"+numberType;
-       TwilioNumberPrice twilioPrice = (twilioMonthlyPriceMap==null?getTwilioPricing(country.getCountryIso(), provider).get(searchKey)
-    		   :twilioMonthlyPriceMap.get(searchKey));
-		
-			PurchaseResponse purchaseResponse = new PurchaseResponse();
-			purchaseResponse.setNumber(number);
-			purchaseResponse.setNumberType(numberType);
-			purchaseResponse.setRestrictions("");
-			purchaseResponse.setMonthlyRentalRate(twilioPrice.getMonthlyRentalRate());
-			purchaseResponse.setSetUpRate("");
-			purchaseResponse.setSmsRate(twilioPrice.getInboundSmsPrice());
-			purchaseResponse.setVoicePrice(twilioPrice.getInboundVoicePrice());
-			purchaseResponse.setEffectiveDate("");
-			purchaseResponse.setResourceManagerId(0);
-			purchaseResponse.setCountryProviderId(country.getId());
+        String searchKey = country.getCountryIso() + "-" + numberType;
+        TwilioNumberPrice twilioPrice = (twilioMonthlyPriceMap == null
+                ? getTwilioPricing(country.getCountryIso(), provider)
+                        .get(searchKey)
+                : twilioMonthlyPriceMap.get(searchKey));
 
-		return purchaseResponse;
-	}
+        PurchaseResponse purchaseResponse = new PurchaseResponse();
+        purchaseResponse.setNumber(number);
+        purchaseResponse.setNumberType(numberType);
+        purchaseResponse.setRestrictions("");
+        purchaseResponse
+                .setMonthlyRentalRate(twilioPrice.getMonthlyRentalRate());
+        purchaseResponse.setSetUpRate("");
+        purchaseResponse.setSmsRate(twilioPrice.getInboundSmsPrice());
+        purchaseResponse.setVoicePrice(twilioPrice.getInboundVoicePrice());
+        purchaseResponse.setEffectiveDate("");
+        purchaseResponse.setResourceManagerId(0);
+        purchaseResponse.setCountryProviderId(country.getId());
+
+        return purchaseResponse;
+    }
 
     public void releaseNumber(String number, Provider provider,
-            String countryIsoCode) {
+            String countryIsoCode) throws IOException {
+        // TODO: need to get IncomingPhoneNumberSid
+        String incomingPhoneNumberSid = number;
+        String twilioReleaseurl = TWILIO_RELEASE_URL;
+        twilioReleaseurl = twilioReleaseurl
+                .replace("{AccountSid}", provider.getAuthId())
+                .replace("{IncomingPhoneNumberSid}", incomingPhoneNumberSid);
+        String response = HttpUtil.defaultHttpDeleteHandler(twilioReleaseurl,
+                new HashMap<String, String>(), BasicAuthUtil.getBasicAuthHash(
+                        provider.getAuthId(), provider.getApiKey()),
+                null);
+        // need to handle release response
 
     }
 
@@ -410,105 +421,137 @@ public class TwilioFactoryImpl
     public void setPriceUnit(String priceUnit) {
         this.priceUnit = priceUnit;
     }
-    
-    public ApplicationResponse updateNumber(String number, ApplicationResponse 
-			applicationResponsetoModify, Provider provider) {
-		String twilioNumberUpdateUrl = TWILIO_NUMBER_UPDATE_URL;
-		ApplicationResponse incomingPhoneNumber = getIncomingPhoneNumber( number, provider);
-		twilioNumberUpdateUrl = twilioNumberUpdateUrl.replace("{IncomingPhoneNumberSid}", incomingPhoneNumber.getSid());
-		twilioNumberUpdateUrl = getUpdatedUrl(twilioNumberUpdateUrl, applicationResponsetoModify);
-		ApplicationResponse applicationResponse = new ApplicationResponse();
-		try {
-			String response = HttpUtil.defaultHttpPostHandler(twilioNumberUpdateUrl, new HashMap<String, String>(),
-			        BasicAuthUtil.getBasicAuthHash(provider.getAuthId(),
-			                provider.getApiKey()));
-			applicationResponse = ImiJsonUtil.deserialize(response, ApplicationResponse.class);
-		} catch (ClientProtocolException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return applicationResponse;
-	}
 
-	private ApplicationResponse getIncomingPhoneNumber(String number, Provider provider) {
-		String twilioNumberGetUrl = TWILIO_PURCHASE_URL;
-		twilioNumberGetUrl = twilioNumberGetUrl.replace("{number}", number);
-		ApplicationResponse applicationResponse = new ApplicationResponse();
-		try {
-			String response = HttpUtil.defaultHttpGetHandler(twilioNumberGetUrl, 
-			        BasicAuthUtil.getBasicAuthHash(provider.getAuthId(),
-			                provider.getApiKey()));
-			ApplicationResponseList incomingPhoneNumbers = ImiJsonUtil
-	                .deserialize(response, ApplicationResponseList.class);
-			applicationResponse = incomingPhoneNumbers.getObjects().get(0);
-		} catch (ClientProtocolException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ImiException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return applicationResponse;
-	}
-	private String getUpdatedUrl(String url, ApplicationResponse modifyapplication){
-		String toAppend = "?";
-		if(modifyapplication.getFriendlyName() != null){
-			toAppend.concat("FriendlyName="+modifyapplication.getFriendlyName()+"&");
-		}
-		if(modifyapplication.getApiVersion() != null){
-			toAppend.concat("ApiVersion="+modifyapplication.getApiVersion()+"&");
-		}
-		if(modifyapplication.getVoiceUrl() != null){
-			toAppend.concat("VoiceUrl="+modifyapplication.getVoiceUrl()+"&");
-		}
-		if(modifyapplication.getVoiceMethod() != null){
-			toAppend.concat("VoiceMethod="+modifyapplication.getVoiceMethod()+"&");
-		}
-		if(modifyapplication.getVoiceFallback() != null){
-			toAppend.concat("VoiceFallbackUrl="+modifyapplication.getVoiceFallback()+"&");
-		}
-		if(modifyapplication.getVoiceFallbackMethod() != null){
-			toAppend.concat("VoiceFallbackMethod="+modifyapplication.getVoiceFallbackMethod()+"&");
-		}
-		if(modifyapplication.getStatusCallback() != null){
-			toAppend.concat("StatusCallback="+modifyapplication.getStatusCallback()+"&");
-		}
-		if(modifyapplication.getStatusCallbackMethod() != null){
-			toAppend.concat("StatusCallbackMethod="+modifyapplication.getStatusCallbackMethod()+"&");
-		}
-		if(modifyapplication.getVoiceCallerIdLookup() != null){
-			toAppend.concat("VoiceCallerIdLookup="+modifyapplication.getVoiceCallerIdLookup()+"&");
-		}
-		if(modifyapplication.getVoiceApplicationSid() != null){
-			toAppend.concat("VoiceApplicationSid="+modifyapplication.getVoiceApplicationSid()+"&");
-		}
-		if(modifyapplication.getTrunkSid() != null){
-			toAppend.concat("TrunkSid="+modifyapplication.getTrunkSid()+"&");
-		}
-		if(modifyapplication.getSmsUrl() != null){
-			toAppend.concat("SmsUrl="+modifyapplication.getSmsUrl()+"&");
-		}
-		if(modifyapplication.getSmsFallbackUrl() != null){
-			toAppend.concat("SmsFallbackUrl="+modifyapplication.getSmsFallbackUrl()+"&");
-		}
-		if(modifyapplication.getSmsFallbackMethod() != null){
-			toAppend.concat("SmsFallbackMethod="+modifyapplication.getSmsFallbackMethod()+"&");
-		}
-		if(modifyapplication.getSmsApplicationSid() != null){
-			toAppend.concat("SmsApplicationSid="+modifyapplication.getSmsApplicationSid()+"&");
-		}
-		if(modifyapplication.getAccountSid() != null){
-			toAppend.concat("AccountSid="+modifyapplication.getAccountSid()+"&");
-		}
-		toAppend = toAppend.substring(0, toAppend.length()-1);
-		url.concat(toAppend);
-		return url;
-	}
+    public ApplicationResponse updateNumber(String number,
+            ApplicationResponse applicationResponsetoModify,
+            Provider provider) {
+        String twilioNumberUpdateUrl = TWILIO_NUMBER_UPDATE_URL;
+        ApplicationResponse incomingPhoneNumber = getIncomingPhoneNumber(number,
+                provider);
+        twilioNumberUpdateUrl = twilioNumberUpdateUrl.replace(
+                "{IncomingPhoneNumberSid}", incomingPhoneNumber.getSid());
+        twilioNumberUpdateUrl = getUpdatedUrl(twilioNumberUpdateUrl,
+                applicationResponsetoModify);
+        ApplicationResponse applicationResponse = new ApplicationResponse();
+        try {
+            String response = HttpUtil.defaultHttpPostHandler(
+                    twilioNumberUpdateUrl, new HashMap<String, String>(),
+                    BasicAuthUtil.getBasicAuthHash(provider.getAuthId(),
+                            provider.getApiKey()),
+                    null);
+            applicationResponse = ImiJsonUtil.deserialize(response,
+                    ApplicationResponse.class);
+        } catch (ClientProtocolException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return applicationResponse;
+    }
+
+    /***
+     * Y purchasing the second time?
+     * 
+     * @param number
+     * @param provider
+     * @return
+     */
+    private ApplicationResponse getIncomingPhoneNumber(String number,
+            Provider provider) {
+        String twilioNumberGetUrl = TWILIO_PURCHASE_URL;
+        twilioNumberGetUrl = twilioNumberGetUrl.replace("{number}", number);
+        ApplicationResponse applicationResponse = new ApplicationResponse();
+        try {
+            String response = HttpUtil.defaultHttpGetHandler(twilioNumberGetUrl,
+                    BasicAuthUtil.getBasicAuthHash(provider.getAuthId(),
+                            provider.getApiKey()));
+            ApplicationResponseList incomingPhoneNumbers = ImiJsonUtil
+                    .deserialize(response, ApplicationResponseList.class);
+            applicationResponse = incomingPhoneNumbers.getObjects().get(0);
+        } catch (ClientProtocolException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (ImiException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return applicationResponse;
+    }
+
+    private String getUpdatedUrl(String url,
+            ApplicationResponse modifyapplication) {
+        String toAppend = "?";
+        if (modifyapplication.getFriendlyName() != null) {
+            toAppend.concat("FriendlyName="
+                    + modifyapplication.getFriendlyName() + "&");
+        }
+        if (modifyapplication.getApiVersion() != null) {
+            toAppend.concat(
+                    "ApiVersion=" + modifyapplication.getApiVersion() + "&");
+        }
+        if (modifyapplication.getVoiceUrl() != null) {
+            toAppend.concat(
+                    "VoiceUrl=" + modifyapplication.getVoiceUrl() + "&");
+        }
+        if (modifyapplication.getVoiceMethod() != null) {
+            toAppend.concat(
+                    "VoiceMethod=" + modifyapplication.getVoiceMethod() + "&");
+        }
+        if (modifyapplication.getVoiceFallback() != null) {
+            toAppend.concat("VoiceFallbackUrl="
+                    + modifyapplication.getVoiceFallback() + "&");
+        }
+        if (modifyapplication.getVoiceFallbackMethod() != null) {
+            toAppend.concat("VoiceFallbackMethod="
+                    + modifyapplication.getVoiceFallbackMethod() + "&");
+        }
+        if (modifyapplication.getStatusCallback() != null) {
+            toAppend.concat("StatusCallback="
+                    + modifyapplication.getStatusCallback() + "&");
+        }
+        if (modifyapplication.getStatusCallbackMethod() != null) {
+            toAppend.concat("StatusCallbackMethod="
+                    + modifyapplication.getStatusCallbackMethod() + "&");
+        }
+        if (modifyapplication.getVoiceCallerIdLookup() != null) {
+            toAppend.concat("VoiceCallerIdLookup="
+                    + modifyapplication.getVoiceCallerIdLookup() + "&");
+        }
+        if (modifyapplication.getVoiceApplicationSid() != null) {
+            toAppend.concat("VoiceApplicationSid="
+                    + modifyapplication.getVoiceApplicationSid() + "&");
+        }
+        if (modifyapplication.getTrunkSid() != null) {
+            toAppend.concat(
+                    "TrunkSid=" + modifyapplication.getTrunkSid() + "&");
+        }
+        if (modifyapplication.getSmsUrl() != null) {
+            toAppend.concat("SmsUrl=" + modifyapplication.getSmsUrl() + "&");
+        }
+        if (modifyapplication.getSmsFallbackUrl() != null) {
+            toAppend.concat("SmsFallbackUrl="
+                    + modifyapplication.getSmsFallbackUrl() + "&");
+        }
+        if (modifyapplication.getSmsFallbackMethod() != null) {
+            toAppend.concat("SmsFallbackMethod="
+                    + modifyapplication.getSmsFallbackMethod() + "&");
+        }
+        if (modifyapplication.getSmsApplicationSid() != null) {
+            toAppend.concat("SmsApplicationSid="
+                    + modifyapplication.getSmsApplicationSid() + "&");
+        }
+        if (modifyapplication.getAccountSid() != null) {
+            toAppend.concat(
+                    "AccountSid=" + modifyapplication.getAccountSid() + "&");
+        }
+        toAppend = toAppend.substring(0, toAppend.length() - 1);
+        url.concat(toAppend);
+        return url;
+    }
 
 }

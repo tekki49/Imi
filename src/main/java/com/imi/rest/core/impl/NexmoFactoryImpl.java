@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.http.client.ClientProtocolException;
+import org.apache.http.entity.ContentType;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Row;
@@ -193,19 +194,6 @@ public class NexmoFactoryImpl
         return countrySet;
     }
 
-    public PurchaseResponse purchaseNumber(String number, Provider provider,
-            com.imi.rest.dao.model.Country country)
-                    throws ClientProtocolException, IOException, ImiException {
-        String nexmoPurchaseUrl = NEXMO_PURCHASE_URL;
-        String nexmoNumber = number.trim() + country.getCountryCode().trim();
-        nexmoPurchaseUrl = nexmoPurchaseUrl
-                .replace("{api_key}", provider.getAuthId())
-                .replace("{api_secret}", provider.getApiKey())
-                .replace("{country}", "").replace("{msisdn}", nexmoNumber);
-        String response = HttpUtil.defaultHttpGetHandler(nexmoPurchaseUrl);
-        return null;
-    }
-
     public void releaseNumber(String number, Provider provider,
             String countryIsoCode) throws ClientProtocolException, IOException {
         String nexmoReleaseUrl = NEXMO_RELEASE_URL;
@@ -215,12 +203,12 @@ public class NexmoFactoryImpl
                 .replace("{api_secret}",
                         provider.getApiKey().replace("{country}", "")
                                 .replace("{msisdn}", nexmoNumber));
-        try {
-            String response = HttpUtil.defaultHttpGetHandler(nexmoReleaseUrl,
-                    BasicAuthUtil.getBasicAuthHash(provider.getAuthId(),
-                            provider.getApiKey()));
-        } catch (ImiException e) {
-        }
+        // TODO handle release response
+        String response = HttpUtil.defaultHttpPostHandler(nexmoReleaseUrl,
+                new HashMap<String, String>(),
+                BasicAuthUtil.getBasicAuthHash(provider.getAuthId(),
+                        provider.getApiKey()),
+                ContentType.APPLICATION_FORM_URLENCODED.getMimeType());
     }
 
     public String getNexmoPricingResponse() {
@@ -286,54 +274,79 @@ public class NexmoFactoryImpl
         return balanceResponse;
     }
 
-	@Override
-	public PurchaseResponse purchaseNumber(String number, String numberType, Provider provider,
-			com.imi.rest.dao.model.Country country) throws ClientProtocolException, IOException, ImiException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	public ApplicationResponse updateNumber(String number, String countryIsoCode, ApplicationResponse application,
-    		Provider provider) throws ImiException, ClientProtocolException, IOException {
-    	String nexmoAccountUpdateUrl = NEXMO_ACCOUNT_UPDATE_URL;
-    	String nexmoNumber = number.trim() + countryIsoCode.trim();
-    	nexmoAccountUpdateUrl = nexmoAccountUpdateUrl
+    @Override
+    public PurchaseResponse purchaseNumber(String number, String numberType,
+            Provider provider, com.imi.rest.dao.model.Country country)
+                    throws ClientProtocolException, IOException, ImiException {
+        String nexmoPurchaseUrl = NEXMO_PURCHASE_URL;
+        nexmoPurchaseUrl = nexmoPurchaseUrl
+                .replace("{api_key}", provider.getAuthId())
+                .replace("{api_secret}", provider.getApiKey())
+                .replace("{country}", country.getCountryIso())
+                .replace("{msisdn}", "" + number);
+        String response = HttpUtil.defaultHttpPostHandler(nexmoPurchaseUrl,
+                new HashMap<String, String>(),
+                BasicAuthUtil.getBasicAuthHash(provider.getAuthId(),
+                        provider.getApiKey()),
+                ContentType.APPLICATION_FORM_URLENCODED.getMimeType());
+        // TODO need to map response accordingly
+        return null;
+    }
+
+    public ApplicationResponse updateNumber(String number,
+            String countryIsoCode, ApplicationResponse application,
+            Provider provider)
+                    throws ImiException, ClientProtocolException, IOException {
+        String nexmoAccountUpdateUrl = NEXMO_ACCOUNT_UPDATE_URL;
+        String nexmoNumber = number.trim() + countryIsoCode.trim();
+        nexmoAccountUpdateUrl = nexmoAccountUpdateUrl
                 .replace("{country}", countryIsoCode)
                 .replace("{api_key}", provider.getAuthId())
                 .replace("{api_secret}", provider.getApiKey())
                 .replace("{msisdn}", nexmoNumber);
-    	nexmoAccountUpdateUrl = getUpdatedUrl(nexmoAccountUpdateUrl, application);
+        nexmoAccountUpdateUrl = getUpdatedUrl(nexmoAccountUpdateUrl,
+                application);
         Map<String, String> requestBody = new HashMap<String, String>();
-		String response = HttpUtil.defaultHttpPostHandler(nexmoAccountUpdateUrl, requestBody,
-		        BasicAuthUtil.getBasicAuthHash(provider.getAuthId(), provider.getApiKey()));
-		JSONObject nexmoResponse = XML.toJSONObject(response);
-		if(nexmoResponse.get("status").equals("200")){
-			// what to do after success
-		}
-		else if (nexmoResponse.get("status").equals("420")){
-			//throw exception saying parameters sent were wrong
-		}
-		return new ApplicationResponse();
+        String response = HttpUtil.defaultHttpPostHandler(nexmoAccountUpdateUrl,
+                requestBody,
+                BasicAuthUtil.getBasicAuthHash(provider.getAuthId(),
+                        provider.getApiKey()),
+                ContentType.APPLICATION_JSON.getMimeType());
+        JSONObject nexmoResponse = XML.toJSONObject(response);
+        if (nexmoResponse.get("status").equals("200")) {
+            // what to do after success
+        } else if (nexmoResponse.get("status").equals("420")) {
+            // throw exception saying parameters sent were wrong
+        }
+        return new ApplicationResponse();
     }
-	public String getUpdatedUrl(String url, ApplicationResponse modifyapplication){
-		String toAppend = "?";
-		if(modifyapplication.getFriendlyName() != null){
-			toAppend.concat("moHttpUrl="+modifyapplication.getFriendlyName()+"&");
-		}
-		if(modifyapplication.getApiVersion() != null){
-			toAppend.concat("moSmppSysType="+modifyapplication.getApiVersion()+"&");
-		}
-		if(modifyapplication.getVoiceUrl() != null){
-			toAppend.concat("voiceCallbackType="+modifyapplication.getVoiceUrl()+"&");
-		}
-		if(modifyapplication.getVoiceMethod() != null){
-			toAppend.concat("voiceCallbackValue="+modifyapplication.getVoiceMethod()+"&");
-		}
-		if(modifyapplication.getVoiceFallback() != null){
-			toAppend.concat("voiceStatusCallback="+modifyapplication.getVoiceFallback()+"&");
-		}
-		toAppend = toAppend.substring(0, toAppend.length()-1);
-		url.concat(toAppend);
-		return url;
-	}
+
+    public String getUpdatedUrl(String url,
+            ApplicationResponse modifyapplication) {
+        String toAppend = "?";
+        if (modifyapplication.getFriendlyName() != null) {
+            toAppend.concat(
+                    "moHttpUrl=" + modifyapplication.getFriendlyName() + "&");
+        }
+        if (modifyapplication.getApiVersion() != null) {
+            toAppend.concat(
+                    "moSmppSysType=" + modifyapplication.getApiVersion() + "&");
+        }
+        if (modifyapplication.getVoiceUrl() != null) {
+            toAppend.concat("voiceCallbackType="
+                    + modifyapplication.getVoiceUrl() + "&");
+        }
+        if (modifyapplication.getVoiceMethod() != null) {
+            toAppend.concat("voiceCallbackValue="
+                    + modifyapplication.getVoiceMethod() + "&");
+        }
+        if (modifyapplication.getVoiceFallback() != null) {
+            toAppend.concat("voiceStatusCallback="
+                    + modifyapplication.getVoiceFallback() + "&");
+        }
+        toAppend = toAppend.substring(0, toAppend.length() - 1);
+        url.concat(toAppend);
+        return url;
+    }
 
 }

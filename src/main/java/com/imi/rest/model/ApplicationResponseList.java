@@ -8,8 +8,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ApplicationResponseList {
-	
-	private Meta meta;
+
+    private Meta meta;
     private List<ApplicationResponse> objects;
     private int count;
 
@@ -24,18 +24,19 @@ public class ApplicationResponseList {
     }
 
     public List<ApplicationResponse> getObjects() {
-		return objects;
-	}
+        return objects;
+    }
 
-	public void setObjects(List<ApplicationResponse> objects) {
-		this.objects = objects;
-	}
+    public void setObjects(List<ApplicationResponse> objects) {
+        this.objects = objects;
+    }
 
-	@JsonProperty("incoming_phone_numbers")
+    @JsonProperty("incoming_phone_numbers")
     public void setIncoming_phone_numbers(List<ApplicationResponse> objects) {
         this.objects = objects;
     }
-	@JsonIgnore
+
+    @JsonIgnore
     public int getCount() {
         return count;
     }

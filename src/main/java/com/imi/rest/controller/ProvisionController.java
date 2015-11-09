@@ -17,17 +17,18 @@ import com.imi.rest.service.ProvisionService;
 
 @RestController
 public class ProvisionController {
-	
-	
-	@Autowired
-	ProvisionService provisionService;
-	
-	@RequestMapping(value = "/number/update/{number}", method = RequestMethod.POST)
-    public ApplicationResponse provisionNumber(@PathVariable("number") String number,  
-    		@RequestHeader("provider") String providerName,
-    		@RequestBody ApplicationResponse application)
-    		throws ClientProtocolException, IOException, ImiException {
-		ApplicationResponse applicationResponse = provisionService.provisionNumber(number, "", providerName, application);
-		return applicationResponse;
-	}
+
+    @Autowired
+    ProvisionService provisionService;
+
+    @RequestMapping(value = "/number/update/{number}", method = RequestMethod.POST)
+    public ApplicationResponse provisionNumber(
+            @PathVariable("number") String number,
+            @RequestHeader("provider") String providerName,
+            @RequestBody ApplicationResponse application)
+                    throws ClientProtocolException, IOException, ImiException {
+        ApplicationResponse applicationResponse = provisionService
+                .provisionNumber(number, "", providerName, application);
+        return applicationResponse;
+    }
 }

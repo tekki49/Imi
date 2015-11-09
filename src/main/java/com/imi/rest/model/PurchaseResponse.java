@@ -15,6 +15,8 @@ public class PurchaseResponse {
     private String effectiveDate;
     private Integer resourceManagerId;
     private Integer countryProviderId;
+    private String status;
+    private boolean addressRequired;
 
     public PurchaseResponse() {
 
@@ -122,4 +124,21 @@ public class PurchaseResponse {
     public void setCountryProviderId(Integer countryProviderId) {
         this.countryProviderId = countryProviderId;
     }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public boolean isAddressRequired() {
+        return addressRequired;
+    }
+
+    public void setAddressRequired(boolean addressRequired) {
+        this.addressRequired = addressRequired;
+    }
+
 }

@@ -12,28 +12,31 @@ import org.springframework.stereotype.Repository;
 
 import com.imi.rest.dao.model.Provisioning;
 import com.imi.rest.exception.ImiException;
+
 @Configuration
 @Repository
 public class ProvisioningDao {
 
-	@Autowired
+    @Autowired
     private SessionFactory sessionFactory;
 
     protected Session getSession() {
         return sessionFactory.getCurrentSession();
     }
-	
-	public void updateProvisioning(Provisioning provisioning){
-		getSession().saveOrUpdate(provisioning);
-	}
-	
-	public Provisioning getProvisioning(String provisioningId) throws ImiException{
-		Criteria criteria = getSession().createCriteria(Provisioning.class);
+
+    public void updateProvisioning(Provisioning provisioning) {
+        getSession().saveOrUpdate(provisioning);
+    }
+
+    public Provisioning getProvisioning(String provisioningId)
+            throws ImiException {
+        Criteria criteria = getSession().createCriteria(Provisioning.class);
         criteria.add(Restrictions.eq("Id", provisioningId));
         List<Provisioning> provisioningList = criteria.list();
         if (provisioningList == null || provisioningList.size() == 0) {
-            throw new ImiException("provisioningId: "+ provisioningId +" is not valid");
+            throw new ImiException(
+                    "provisioningId: " + provisioningId + " is not valid");
         }
         return provisioningList.get(0);
-	}
+    }
 }
