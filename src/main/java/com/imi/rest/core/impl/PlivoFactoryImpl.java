@@ -344,19 +344,30 @@ public class PlivoFactoryImpl
                     BasicAuthUtil.getBasicAuthHash(provider.getAuthId(),
                             provider.getApiKey()),
                     ContentType.APPLICATION_JSON.getMimeType());
-            plivoApplicationResponse = ImiJsonUtil.deserialize(response,
-                    ApplicationResponse.class);
+            PlivioPurchaseResponse plivoResponse = ImiJsonUtil.deserialize(response,
+                    PlivioPurchaseResponse.class);
+            if (plivoResponse.getMessage().equals("created")) {
+                plivoApplicationResponse = getApplication(
+                		plivoResponse.getApp_id(), provider);
+            } else {
+                String message = "Application was not created successfully, "
+                		+ "some parameters passed to create application were wrong";
+                ImiException e = new ImiException(message);
+                throw e;
+            }
         } catch (ClientProtocolException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
-        }
+        } catch (ImiException e) {
+			e.printStackTrace();
+		}
         return plivoApplicationResponse;
     }
 
     private ApplicationResponse updateApplication(
             ApplicationResponse plivoApplication, Provider provider)
-                    throws ClientProtocolException, IOException {
+                    throws ClientProtocolException, IOException, ImiException {
         String plivoApplicationUpdateUrl = PLIVO_APPLICATION_UPDATE_URL;
         plivoApplicationUpdateUrl = plivoApplicationUpdateUrl
                 .replace("{auth_id}", provider.getAuthId())
@@ -414,9 +425,13 @@ public class PlivoFactoryImpl
                 PlivioPurchaseResponse.class);
         if (plivoResponse.getMessage().equals("changed")) {
             plivoApplication = getApplication(
-                    currentPlivoApplication.getApp_id(), provider);
+                    plivoResponse.getApp_id(), provider);
         } else {
-            // throw exception saying parameters sent were wrong
+            String message = "Application was not updated successfully, "
+            		+ "Some Parameters to update Application were wrong "
+            		+ "Please Check Whether appropriate values are being sent";
+            ImiException e = new ImiException(message);
+            throw e;
         }
         return plivoApplication;
     }
@@ -449,13 +464,13 @@ public class PlivoFactoryImpl
 
     public ApplicationResponse updateNumber(String number,
             ApplicationResponse applicationResponsetoModify,
-            Provider provider) {
+            Provider provider) throws JsonParseException, JsonMappingException, IOException, ImiException {
         String plivoNumberUpdateUrl = PLIVO_RELEASE_URL;
         plivoNumberUpdateUrl = plivoNumberUpdateUrl.replace("{number}", number)
                 .replace("{auth_id}", provider.getAuthId());
         PlivioPurchaseResponse plivioPurchaseResponse = new PlivioPurchaseResponse();
         ApplicationResponse plivoApplicationResponse = new ApplicationResponse();
-        try {
+
             plivoApplicationResponse = getApplicationByNumber(number, provider);
             if (plivoApplicationResponse != null) {
                 plivoApplicationResponse = updateApplication(
@@ -474,20 +489,50 @@ public class PlivoFactoryImpl
             plivioPurchaseResponse = ImiJsonUtil.deserialize(response,
                     PlivioPurchaseResponse.class);
             if (!plivioPurchaseResponse.getMessage().equals("changed")) {
-                String message = "application created successfully, but not assigned to the upadted number";
+                String message = "application created successfully, but not assigned to "
+                		+ "the number: '"+number+"'";
                 ImiException e = new ImiException("", message);
                 throw e;
             }
-        } catch (ClientProtocolException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (ImiException e1) {
-            e1.printStackTrace();
-        }
         return plivoApplicationResponse;
+    }
+    public ApplicationResponse updateAllNumbers(ApplicationResponse applicationResponsetoModify,
+            Provider provider) throws ImiException{
+    	NumberResponse numberResponse = getAllRentedNumbers(provider);
+    	ApplicationResponse applicationResponse = new ApplicationResponse();
+    	if(numberResponse == null || numberResponse.getObjects().size()==0){
+    		String message = "No numbers rented to this Account to update.";
+    		ImiException e = new ImiException(message);
+    		throw e;
+    	}
+    	else{	
+    		List<Number> rentedNumbersList = numberResponse.getObjects();
+    		List<String>errorNumber=new ArrayList<String>();
+    		for(Number numberObj: rentedNumbersList){
+    			try{
+        			updateNumber(numberObj.getNumber(), applicationResponsetoModify, provider);
+    			}
+    			catch(Exception e){
+    				errorNumber.add(numberObj.getNumber());
+    			}
+    		}
+    		if(errorNumber.size()>0){
+    			String message = errorNumber.size()+" out of "+rentedNumbersList.size() 
+    			+" numbers were not updated, following list contains numbers, Which were not Updated: {";
+    			for(String num : errorNumber){
+    				message.concat(" "+num+",");
+    			}
+    			message = message.substring(0, message.length()-1);
+    			message.concat("}. ");
+    			ImiException e = new ImiException(message);
+    			throw e;
+    		}
+    		else{
+    			applicationResponse = getApplicationByNumber(
+    					rentedNumbersList.get(0).getNumber(), provider);
+    		}
+    	}
+    	return applicationResponse;
     }
 
     private ApplicationResponse getApplicationByNumber(String number,
@@ -510,6 +555,11 @@ public class PlivoFactoryImpl
             if (app_id.length() > 0) {
                 plivoApplicationResponse = getApplication(app_id, provider);
             }
+            else{
+            	String message = "No application is assigned to Number: '"+number+"'";
+            	ImiException e = new ImiException(message);
+            	throw e;       	
+            }
         } catch (ClientProtocolException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -521,6 +571,26 @@ public class PlivoFactoryImpl
             e.printStackTrace();
         }
         return plivoApplicationResponse;
+    }
+    private NumberResponse getAllRentedNumbers(Provider provider) {
+        String plivoNumberSGetUrl = PLIVO_ALL_NUMBERS_URL;
+        NumberResponse numberResponse = new NumberResponse();
+        try {
+            String response = HttpUtil.defaultHttpGetHandler(plivoNumberSGetUrl,
+                    BasicAuthUtil.getBasicAuthHash(provider.getAuthId(),
+                            provider.getApiKey()));
+            numberResponse  = ImiJsonUtil.deserialize(response, NumberResponse.class);
+        } catch (ClientProtocolException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (ImiException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return numberResponse;
     }
 
 }

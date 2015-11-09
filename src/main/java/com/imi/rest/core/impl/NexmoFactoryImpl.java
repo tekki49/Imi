@@ -313,12 +313,22 @@ public class NexmoFactoryImpl
                         provider.getApiKey()),
                 ContentType.APPLICATION_JSON.getMimeType());
         JSONObject nexmoResponse = XML.toJSONObject(response);
+        ApplicationResponse applicationResponse = new ApplicationResponse();
         if (nexmoResponse.get("status").equals("200")) {
-            // what to do after success
+            applicationResponse.setMoHttpUrl(application.getMoHttpUrl());
+            applicationResponse.setPhone_number(number);
+            applicationResponse.setMoSmppSysType(application.getMoSmppSysType());
+            applicationResponse.setVoiceCallbackType(application.getVoiceCallbackType());
+            applicationResponse.setVoiceCallbackValue(application.getVoiceCallbackValue());
+            applicationResponse.setStatusCallback(application.getStatusCallback());
         } else if (nexmoResponse.get("status").equals("420")) {
-            // throw exception saying parameters sent were wrong
+        	String message = "Number was not updated successfully, "
+            		+ "Some Parameters to update Number were wrong "
+            		+ "Please Check Whether appropriate values are being sent";
+            ImiException e = new ImiException(message);
+            throw e;
         }
-        return new ApplicationResponse();
+        return applicationResponse;
     }
 
     public String getUpdatedUrl(String url,

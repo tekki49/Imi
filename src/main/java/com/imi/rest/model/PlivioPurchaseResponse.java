@@ -1,5 +1,6 @@
 package com.imi.rest.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -10,6 +11,7 @@ public class PlivioPurchaseResponse {
     private String message;
     private NumberStatus numberStatus;
     private String status;
+    private String app_id;
 
     public String getApiId() {
         return apiId;
@@ -46,4 +48,13 @@ public class PlivioPurchaseResponse {
     public void setStatus(String status) {
         this.status = status;
     }
+    @JsonIgnore
+	public String getApp_id() {
+		return app_id;
+	}
+
+	public void setApp_id(String app_id) {
+		this.app_id = app_id;
+	}
+    
 }

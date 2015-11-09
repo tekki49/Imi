@@ -31,4 +31,13 @@ public class ProvisionController {
                 .provisionNumber(number, "", providerName, application);
         return applicationResponse;
     }
+    @RequestMapping(value = "/number/updateAll", method = RequestMethod.POST)
+    public ApplicationResponse provisionNumbers(
+            @RequestHeader("provider") String providerName,
+            @RequestBody ApplicationResponse application)
+                    throws ClientProtocolException, IOException, ImiException {
+        ApplicationResponse applicationResponse = provisionService
+                .provisionAllNumbers(providerName, application);
+        return applicationResponse;
+    }
 }

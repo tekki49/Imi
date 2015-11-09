@@ -5,6 +5,7 @@ public interface UrlConstants {
     public static final String PLIVO_PHONE_SEARCH_URL = "https://api.plivo.com/v1/Account/{auth_id}/PhoneNumber?country_iso={country_iso}&type={type}&services={services}&pattern={pattern}";
     public static final String PLIVO_PURCHASE_URL = "https://api.plivo.com/v1/Account/{auth_id}/PhoneNumber/{number}//";
     public static final String PLIVO_RELEASE_URL = "https://api.plivo.com/v1/Account/{auth_id}/Number/{number}/";
+    public static final String PLIVO_ALL_NUMBERS_URL = "https://api.plivo.com/v1/Account/{auth_id}/Number/";
     public static final String PLIVO_ACCOUNT_BALANCE_URL = "https://api.plivo.com/v1/Account/{auth_id}/";
     public static final String PLIVO_APPLICATION_CREATE_URL = "https://api.plivo.com/v1/Account/{auth_id}/Application/";
     public static final String PLIVO_APPLICATION_UPDATE_URL = "https://api.plivo.com/v1/Account/{auth_id}/Application/{app_id}/";
