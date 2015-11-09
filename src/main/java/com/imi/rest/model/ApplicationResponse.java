@@ -2,6 +2,7 @@ package com.imi.rest.model;
 
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -92,7 +93,7 @@ public class ApplicationResponse {
     public String getUri() {
         return uri;
     }
-
+    @JsonIgnore
     public Map<String, Boolean> getCapabilities() {
         return capabilities;
     }

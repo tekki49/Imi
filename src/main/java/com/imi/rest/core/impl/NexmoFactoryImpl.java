@@ -324,26 +324,21 @@ public class NexmoFactoryImpl
     public String getUpdatedUrl(String url,
             ApplicationResponse modifyapplication) {
         String toAppend = "?";
-        if (modifyapplication.getFriendlyName() != null) {
-            toAppend.concat(
-                    "moHttpUrl=" + modifyapplication.getFriendlyName() + "&");
-        }
-        if (modifyapplication.getApiVersion() != null) {
-            toAppend.concat(
-                    "moSmppSysType=" + modifyapplication.getApiVersion() + "&");
-        }
-        if (modifyapplication.getVoiceUrl() != null) {
-            toAppend.concat("voiceCallbackType="
-                    + modifyapplication.getVoiceUrl() + "&");
-        }
-        if (modifyapplication.getVoiceMethod() != null) {
-            toAppend.concat("voiceCallbackValue="
-                    + modifyapplication.getVoiceMethod() + "&");
-        }
-        if (modifyapplication.getVoiceFallback() != null) {
-            toAppend.concat("voiceStatusCallback="
-                    + modifyapplication.getVoiceFallback() + "&");
-        }
+        if(modifyapplication.getMoHttpUrl() != null){
+			toAppend.concat("moHttpUrl="+modifyapplication.getMoHttpUrl()+"&");
+		}
+		if(modifyapplication.getMoSmppSysType() != null){
+			toAppend.concat("moSmppSysType="+modifyapplication.getMoSmppSysType()+"&");
+		}
+		if(modifyapplication.getVoiceCallbackType() != null){
+			toAppend.concat("voiceCallbackType="+modifyapplication.getVoiceCallbackType()+"&");
+		}
+		if(modifyapplication.getVoiceCallbackValue() != null){
+			toAppend.concat("voiceCallbackValue="+modifyapplication.getVoiceCallbackValue()+"&");
+		}
+		if(modifyapplication.getStatusCallback() != null){
+			toAppend.concat("voiceStatusCallback="+modifyapplication.getStatusCallback()+"&");
+		}
         toAppend = toAppend.substring(0, toAppend.length() - 1);
         url.concat(toAppend);
         return url;

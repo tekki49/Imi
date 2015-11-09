@@ -151,41 +151,41 @@ public class Number {
         this.voiceRate = voiceRate;
     }
 
+    @JsonIgnore
     public String getAdded_on() {
-        return added_on;
-    }
+		return added_on;
+	}
+	public void setAdded_on(String added_on) {
+		this.added_on = added_on;
+	}
+    @JsonIgnore
+	public String getAlias() {
+		return alias;
+	}
 
-    public void setAdded_on(String added_on) {
-        this.added_on = added_on;
-    }
+	public void setAlias(String alias) {
+		this.alias = alias;
+	}
+    @JsonIgnore
+	public String getApi_id() {
+		return api_id;
+	}
 
-    public String getAlias() {
-        return alias;
-    }
+	public void setApi_id(String api_id) {
+		this.api_id = api_id;
+	}
+    @JsonIgnore
+	public String getApplication() {
+		return application;
+	}
 
-    public void setAlias(String alias) {
-        this.alias = alias;
-    }
-
-    public String getApi_id() {
-        return api_id;
-    }
-
-    public void setApi_id(String api_id) {
-        this.api_id = api_id;
-    }
-
-    public String getApplication() {
-        return application;
-    }
-
-    public void setApplication(String application) {
-        this.application = application;
-    }
-
-    public String getSub_account() {
-        return sub_account;
-    }
+	public void setApplication(String application) {
+		this.application = application;
+	}
+    @JsonIgnore
+	public String getSub_account() {
+		return sub_account;
+	}
 
     public void setSub_account(String sub_account) {
         this.sub_account = sub_account;
