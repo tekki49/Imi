@@ -108,7 +108,7 @@ public class PlivoFactoryImpl implements NumberSearch, CountrySearch, PurchaseNu
 		List<Number> plivioNumberList = numberResponseFromPlivo == null ? new ArrayList<Number>()
 				: numberResponseFromPlivo.getObjects() == null ? new ArrayList<Number>()
 						: numberResponseFromPlivo.getObjects();
-		if(forexValue==0){
+		if(forexValue==null){
 			forexValue=forexService.getForexValueByName("USD_GBP").getValue();
 		}		
 		for (Number plivioNumber : plivioNumberList) {

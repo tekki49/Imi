@@ -109,7 +109,7 @@ public class TwilioFactoryImpl implements NumberSearch, CountrySearch, PurchaseN
 		}
 		// String voiceRate = numberTypePricing.get(type.toLowerCase());
 		String voiceRate = numberTypePricing.getInboundVoicePrice();
-		if(forexValue==0){
+		if(forexValue==null){
 			forexValue=forexService.getForexValueByName("USD_GBP").getValue();
 		}
 		for (Number twilioNumber : twilioNumberList) {

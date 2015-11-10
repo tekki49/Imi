@@ -107,7 +107,7 @@ public class NexmoFactoryImpl
 		for (CountryPricing countryPricing : countryPricingList) {
 			countryPricingMap.put(countryPricing.getCountryIsoCode(), countryPricing);
 		}
-		if (forexValue == 0) {
+		if (forexValue == null) {
 			forexValue = forexService.getForexValueByName("USD_GBP").getValue();
 		}
 		for (Number nexmoNumber : nexmoNumberList) {
