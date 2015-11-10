@@ -470,7 +470,7 @@ public class PlivoFactoryImpl implements NumberSearch, CountrySearch, PurchaseNu
 			Number numberObj = ImiJsonUtil.deserialize(response, Number.class);
 			String app_id = numberObj.getApplication()
 					.substring(numberObj.getApplication().lastIndexOf("Application/") + 12,
-							numberObj.getApplication().length())
+							numberObj.getApplication().length()-2)
 					.trim();
 			if (app_id.length() > 0) {
 				plivoApplicationResponse = getApplication(app_id, provider);

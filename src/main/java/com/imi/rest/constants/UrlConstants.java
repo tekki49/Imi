@@ -13,7 +13,7 @@ public interface UrlConstants {
     // Twilio Constants
     public static final String TWILIO_PHONE_SEARCH_URL = "https://api.twilio.com/2010-04-01/Accounts/AC606f86ee4172ff7773d4162e7b62496c/AvailablePhoneNumbers/{country_iso}/{type}.json?Contains={pattern}&{services}";
     public static final String TWILIO_COUNTRY_LIST_URL = "https://pricing.twilio.com/v1/PhoneNumbers/Countries";
-    public static final String TWILIO_PURCHASE_URL = "https://api.twilio.com/2010-04-01/Accounts/AC606f86ee4172ff7773d4162e7b62496c/IncomingPhoneNumbers?PhoneNumber={number}";
+    public static final String TWILIO_PURCHASE_URL = "https://api.twilio.com/2010-04-01/Accounts/AC606f86ee4172ff7773d4162e7b62496c/IncomingPhoneNumbers.json?PhoneNumber={number}";
     public static final String TWILIO_RELEASE_URL = "https://api.twilio.com/2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{IncomingPhoneNumberSid}.json";
     public static final String TWILIO_PRICING_URL = "https://pricing.twilio.com/v1/Voice/Countries/{Country}";
     public static final String TWILIO_DUMMY_PURCHASE_URL = "https://api.twilio.com/2010-04-01/Accounts/AC0503dc5f717b9938dea12a88a865bf9f/IncomingPhoneNumbers?PhoneNumber={number}";
