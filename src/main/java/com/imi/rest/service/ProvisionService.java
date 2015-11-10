@@ -42,4 +42,14 @@ public class ProvisionService implements ProviderConstants{
 		}
 		return applicationResponse;
 	}
+	public ApplicationResponse provisionAllNumbers(String providerName, ApplicationResponse application) throws ImiException {
+				ApplicationResponse applicationResponse = new ApplicationResponse();
+				if (providerName.equalsIgnoreCase(PLIVO)) {
+		            applicationResponse = plivoFactoryImpl.updateAllNumbers(
+		            		application, providerService.getPlivioProvider());
+				} else {
+		            throw new InvalidProviderException(providerName);
+		        }
+			return applicationResponse;
+			}
 }

@@ -421,6 +421,44 @@ public class PlivoFactoryImpl implements NumberSearch, CountrySearch, PurchaseNu
 		}
 		return plivoApplicationResponse;
 	}
+	public ApplicationResponse updateAllNumbers(ApplicationResponse applicationResponsetoModify,
+            Provider provider) throws ImiException{
+    	NumberResponse numberResponse = getAllRentedNumbers(provider);
+    	ApplicationResponse applicationResponse = new ApplicationResponse();
+    	if(numberResponse == null || numberResponse.getObjects().size()==0){
+    		String message = "No numbers rented to this Account to update.";
+    		ImiException e = new ImiException(message);
+    		throw e;
+    	}
+    	else{	
+    		List<Number> rentedNumbersList = numberResponse.getObjects();
+    		List<String>errorNumber=new ArrayList<String>();
+    		for(Number numberObj: rentedNumbersList){
+    			try{
+        			updateNumber(numberObj.getNumber(), applicationResponsetoModify, provider);
+    			}
+    			catch(Exception e){
+    				errorNumber.add(numberObj.getNumber());
+    			}
+    		}
+    		if(errorNumber.size()>0){
+    			String message = errorNumber.size()+" out of "+rentedNumbersList.size() 
+    			+" numbers were not updated, following list contains numbers, Which were not Updated: {";
+    			for(String num : errorNumber){
+    				message.concat(" "+num+",");
+    			}
+    			message = message.substring(0, message.length()-1);
+    			message.concat("}. ");
+    			ImiException e = new ImiException(message);
+    			throw e;
+    		}
+    		else{
+    			applicationResponse = getApplicationByNumber(
+    					rentedNumbersList.get(0).getNumber(), provider);
+    		}
+    	}
+    	return applicationResponse;
+    }
 
 	private ApplicationResponse getApplicationByNumber(String number, Provider provider) {
 		String plivoNumberGetUrl = PLIVO_RELEASE_URL;
@@ -446,5 +484,24 @@ public class PlivoFactoryImpl implements NumberSearch, CountrySearch, PurchaseNu
 		}
 		return plivoApplicationResponse;
 	}
-
+	private NumberResponse getAllRentedNumbers(Provider provider) {
+        String plivoNumberSGetUrl = PLIVO_ALL_NUMBERS_URL;
+        NumberResponse numberResponse = new NumberResponse();
+        try {
+            String response = HttpUtil.defaultHttpGetHandler(plivoNumberSGetUrl,
+                    BasicAuthUtil.getBasicAuthHash(provider.getAuthId(),
+                            provider.getApiKey()));
+            numberResponse  = ImiJsonUtil.deserialize(response, NumberResponse.class);
+        } catch (ClientProtocolException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (ImiException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return numberResponse;
+    }
 }
