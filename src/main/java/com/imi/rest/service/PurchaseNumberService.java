@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.imi.rest.constants.ProviderConstants;
+import com.imi.rest.constants.ServiceConstants;
 import com.imi.rest.constants.UrlConstants;
 import com.imi.rest.core.impl.NexmoFactoryImpl;
 import com.imi.rest.core.impl.PlivoFactoryImpl;
@@ -29,20 +30,21 @@ public class PurchaseNumberService implements ProviderConstants, UrlConstants {
     TwilioFactoryImpl twilioFactoryImpl;
 
     public PurchaseResponse purchaseNumber(String number, String numberType,
-            Provider provider, Country country)
+            Provider provider, Country country,
+            ServiceConstants serviceTypeEnum)
                     throws ClientProtocolException, IOException, ImiException {
         if (provider.getName().equalsIgnoreCase(TWILIO)) {
             return twilioFactoryImpl.purchaseNumber(number, numberType,
-                    provider, country);
+                    provider, country, serviceTypeEnum);
         } else if (provider.getName().equalsIgnoreCase(PLIVO)) {
             return plivioFactoryImpl.purchaseNumber(number, numberType,
-                    provider, country);
+                    provider, country, serviceTypeEnum);
         } else if (provider.getName().equalsIgnoreCase(NEXMO)) {
             return nexmoFactoryImpl.purchaseNumber(number, numberType, provider,
-                    country);
+                    country, serviceTypeEnum);
         } else if (provider.getName().equalsIgnoreCase(TWILIO_DUMMY)) {
             return twilioFactoryImpl.purchaseNumber(number, numberType,
-                    provider, country);
+                    provider, country, serviceTypeEnum);
         } else {
             return null;
         }

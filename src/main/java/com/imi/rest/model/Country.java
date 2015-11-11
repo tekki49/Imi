@@ -11,7 +11,7 @@ public class Country implements Comparable<Country> {
     private String isoCountry;
     private String countryCode;
 
-        public String getCountry() {
+    public String getCountry() {
         return country;
     }
 

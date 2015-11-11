@@ -11,13 +11,14 @@ public interface UrlConstants {
     public static final String PLIVO_APPLICATION_UPDATE_URL = "https://api.plivo.com/v1/Account/{auth_id}/Application/{app_id}/";
 
     // Twilio Constants
-    public static final String TWILIO_PHONE_SEARCH_URL = "https://api.twilio.com/2010-04-01/Accounts/AC606f86ee4172ff7773d4162e7b62496c/AvailablePhoneNumbers/{country_iso}/{type}.json?Contains={pattern}&{services}";
+    public static final String TWILIO_PHONE_SEARCH_URL = "https://api.twilio.com/2010-04-01/Accounts/{auth_id}/AvailablePhoneNumbers/{country_iso}/{type}.json?Contains={pattern}&{services}";
     public static final String TWILIO_COUNTRY_LIST_URL = "https://pricing.twilio.com/v1/PhoneNumbers/Countries";
-    public static final String TWILIO_PURCHASE_URL = "https://api.twilio.com/2010-04-01/Accounts/AC606f86ee4172ff7773d4162e7b62496c/IncomingPhoneNumbers.json?PhoneNumber={number}";
+    public static final String TWILIO_PURCHASE_URL = "https://api.twilio.com/2010-04-01/Accounts/{auth_id}/IncomingPhoneNumbers.json?PhoneNumber={number}";
     public static final String TWILIO_RELEASE_URL = "https://api.twilio.com/2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{IncomingPhoneNumberSid}.json";
+    public static final String TWILIO_ACCOUNT_URL = "https://api.twilio.com/2010-04-01/Accounts.json";
     public static final String TWILIO_PRICING_URL = "https://pricing.twilio.com/v1/Voice/Countries/{Country}";
-    public static final String TWILIO_DUMMY_PURCHASE_URL = "https://api.twilio.com/2010-04-01/Accounts/AC0503dc5f717b9938dea12a88a865bf9f/IncomingPhoneNumbers?PhoneNumber={number}";
-    public static final String TWILIO_NUMBER_UPDATE_URL = "https://api.twilio.com/2010-04-01/Accounts/AC0503dc5f717b9938dea12a88a865bf9f/IncomingPhoneNumbers/{IncomingPhoneNumberSid}.json";
+    public static final String TWILIO_DUMMY_PURCHASE_URL = "https://api.twilio.com/2010-04-01/Accounts/{auth_id}/IncomingPhoneNumbers.json";
+    public static final String TWILIO_NUMBER_UPDATE_URL = "https://api.twilio.com/2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{IncomingPhoneNumberSid}.json";
 
     // Nexmo Constants
     public static final String NEXMO_PHONE_SEARCH_URL = "https://rest.nexmo.com/number/search/{api_key}/{api_secret}/{country_iso}?pattern={pattern}&size=100&features={features}&&search_pattern=1&&index={index}";

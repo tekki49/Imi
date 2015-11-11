@@ -48,13 +48,14 @@ public class PlivioPurchaseResponse {
     public void setStatus(String status) {
         this.status = status;
     }
-    @JsonIgnore
-	public String getApp_id() {
-		return app_id;
-	}
 
-	public void setApp_id(String app_id) {
-		this.app_id = app_id;
-	}
-    
+    @JsonIgnore
+    public String getApp_id() {
+        return app_id;
+    }
+
+    public void setApp_id(String app_id) {
+        this.app_id = app_id;
+    }
+
 }

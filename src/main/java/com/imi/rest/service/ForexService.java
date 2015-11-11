@@ -10,12 +10,12 @@ import com.imi.rest.dao.model.ForexValues;
 @Service
 @Transactional
 public class ForexService {
-	
-	@Autowired
-	ForexDao forexDao;
-	
-	public ForexValues getForexValueByName(String name){
-		return forexDao.getForexValueByName(name);
-	}
+
+    @Autowired
+    ForexDao forexDao;
+
+    public ForexValues getForexValueByName(String name) {
+        return forexDao.getForexValueByName(name);
+    }
 
 }

@@ -15,46 +15,46 @@ import javax.persistence.Table;
 @Table(name = "forex_values", catalog = "imi")
 public class ForexValues implements java.io.Serializable {
 
-	private Integer id;
-	private String name;
-	private Double value;
+    private Integer id;
+    private String name;
+    private Double value;
 
-	public ForexValues() {
-	}
+    public ForexValues() {
+    }
 
-	public ForexValues(String name, Double value) {
-		this.name = name;
-		this.value = value;
-	}
+    public ForexValues(String name, Double value) {
+        this.name = name;
+        this.value = value;
+    }
 
-	@Id
-	@GeneratedValue(strategy = IDENTITY)
+    @Id
+    @GeneratedValue(strategy = IDENTITY)
 
-	@Column(name = "id", unique = true, nullable = false)
-	public Integer getId() {
-		return this.id;
-	}
+    @Column(name = "id", unique = true, nullable = false)
+    public Integer getId() {
+        return this.id;
+    }
 
-	public void setId(Integer id) {
-		this.id = id;
-	}
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
-	@Column(name = "name", length = 45)
-	public String getName() {
-		return this.name;
-	}
+    @Column(name = "name", length = 45)
+    public String getName() {
+        return this.name;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	@Column(name = "value", precision = 22, scale = 0)
-	public Double getValue() {
-		return this.value;
-	}
+    @Column(name = "value", precision = 22, scale = 0)
+    public Double getValue() {
+        return this.value;
+    }
 
-	public void setValue(Double value) {
-		this.value = value;
-	}
+    public void setValue(Double value) {
+        this.value = value;
+    }
 
 }

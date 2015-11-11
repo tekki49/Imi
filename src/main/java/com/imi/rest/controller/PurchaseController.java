@@ -5,17 +5,19 @@ import java.io.IOException;
 import org.apache.http.client.ClientProtocolException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.imi.rest.constants.ServiceConstants;
 import com.imi.rest.dao.model.Country;
 import com.imi.rest.dao.model.Provider;
 import com.imi.rest.dao.model.Purchase;
 import com.imi.rest.exception.ImiException;
-import com.imi.rest.model.PurchaseDetails;
+import com.imi.rest.model.PurchaseRequest;
 import com.imi.rest.model.PurchaseResponse;
 import com.imi.rest.service.CountrySearchService;
 import com.imi.rest.service.ProviderService;
@@ -34,47 +36,35 @@ public class PurchaseController {
     @Autowired
     CountrySearchService countrySearchService;
 
-    /*
-     * @RequestMapping(value = "/purchase/{number}/{countryIsoCode}", method =
-     * RequestMethod.POST) public PurchaseDetails
-     * purchaseNumber(@PathVariable("number") String number,
-     * 
-     * @PathVariable("countryIsoCode") String countryIsoCode,
-     * 
-     * @RequestHeader("provider") String providerName) throws
-     * ClientProtocolException, IOException, ImiException { Provider provider =
-     * providerService.getProviderByName( providerName == null ? "" :
-     * providerName.toUpperCase()); Country country = countrySearchService
-     * .getCountryByIsoCode(countryIsoCode);
-     * purchaseNumberService.purchaseNumber(number, provider, country);
-     * PurchaseDetails purchaseDetails = new PurchaseDetails();
-     * purchaseDetails.setCountry(country.getCountry());
-     * purchaseDetails.setNumber(number); return purchaseDetails; }
-     */
-
-    @RequestMapping(value = "/purchase", method = RequestMethod.POST)
-    public PurchaseDetails purchaseNumber(@RequestParam String number,
-            @RequestParam String numberType, @RequestParam String serviceType,
-            @RequestParam String countryIso, @RequestParam String providerName)
+    @RequestMapping(value = "/purchase", method = RequestMethod.POST, consumes = "application/json")
+    public PurchaseResponse purchaseNumber(
+            @RequestBody PurchaseRequest purchaseRequest)
                     throws ClientProtocolException, IOException, ImiException {
-        Provider provider = providerService.getProviderByName(
-                providerName == null ? "" : providerName.toUpperCase());
-        Country country = countrySearchService.getCountryByIsoCode(countryIso);
+        Provider provider = providerService
+                .getProviderByName(purchaseRequest.getProvider() == null ? ""
+                        : purchaseRequest.getProvider().toUpperCase());
+        Country country = countrySearchService
+                .getCountryByIsoCode(purchaseRequest.getCountryIso());
+        ServiceConstants serviceTypeEnum = ServiceConstants
+                .evaluate(purchaseRequest.getService());
         PurchaseResponse purchaseResponse = purchaseNumberService
-                .purchaseNumber(number, numberType, provider, country);
-        PurchaseDetails purchaseDetails = new PurchaseDetails();
-        purchaseDetails.setNumber(number);
-        purchaseDetails.setNumberType(numberType);
-        purchaseDetails.setService(serviceType);
-        purchaseDetails.setCountry(country.getCountry());
-        purchaseDetails
-                .setMonthlyRentalRate(purchaseResponse.getMonthlyRentalRate());
-        purchaseDetails.setSetUpRate(purchaseResponse.getSetUpRate());
-        purchaseDetails.setSmsRate(purchaseResponse.getSmsRate());
-        purchaseDetails.setVoiceRate(purchaseResponse.getVoicePrice());
-        purchaseDetails.setProvider(providerName);
-        purchaseDetails.setRestriction(purchaseResponse.getRestrictions());
-        return purchaseDetails;
+                .purchaseNumber(purchaseRequest.getNumber(),
+                        purchaseRequest.getNumberType(), provider, country,
+                        serviceTypeEnum);
+        /*
+         * PurchaseRequest purchaseDetails = new PurchaseRequest();
+         * purchaseDetails.setNumber(number);
+         * purchaseDetails.setNumberType(numberType);
+         * purchaseDetails.setService(serviceType);
+         * purchaseDetails.setCountry(country.getCountry()); purchaseDetails
+         * .setMonthlyRentalRate(purchaseResponse.getMonthlyRentalRate());
+         * purchaseDetails.setSetUpRate(purchaseResponse.getSetUpRate());
+         * purchaseDetails.setSmsRate(purchaseResponse.getSmsRate());
+         * purchaseDetails.setVoiceRate(purchaseResponse.getVoicePrice());
+         * purchaseDetails.setProvider(providerName);
+         * purchaseDetails.setRestriction(purchaseResponse.getRestrictions());
+         */
+        return purchaseResponse;
     }
 
     @RequestMapping(value = "/purchaseByNumber", method = RequestMethod.POST)

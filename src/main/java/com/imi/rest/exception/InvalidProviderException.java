@@ -9,7 +9,7 @@ public class InvalidProviderException extends ImiException {
     }
 
     public InvalidProviderException(int providerId) {
-        super("Provider Id " + providerId + " is invliad");
+        super("Provider Id " + providerId + " is invalid.");
     }
 
 }

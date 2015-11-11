@@ -93,6 +93,7 @@ public class ApplicationResponse {
     public String getUri() {
         return uri;
     }
+
     @JsonIgnore
     public Map<String, Boolean> getCapabilities() {
         return capabilities;

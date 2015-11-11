@@ -4,7 +4,7 @@ import java.nio.charset.StandardCharsets;
 
 import javax.xml.bind.DatatypeConverter;
 
-public class BasicAuthUtil {
+public class ImiBasicAuthUtil {
 
     public static String getBasicAuthHash(String authId, String authToken) {
         String unhashedString = authId + ":" + authToken;

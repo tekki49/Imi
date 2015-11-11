@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.imi.rest.constants.ProviderConstants;
-import com.imi.rest.core.ReleaseNumber;
 import com.imi.rest.core.impl.NexmoFactoryImpl;
 import com.imi.rest.core.impl.PlivoFactoryImpl;
 import com.imi.rest.core.impl.TwilioFactoryImpl;
@@ -16,7 +15,7 @@ import com.imi.rest.exception.ImiException;
 import com.imi.rest.exception.InvalidProviderException;
 
 @Service
-public class ReleaseNumberService implements ReleaseNumber, ProviderConstants {
+public class ReleaseNumberService implements ProviderConstants {
 
     @Autowired
     TwilioFactoryImpl twilioFactoryImpl;
@@ -25,12 +24,6 @@ public class ReleaseNumberService implements ReleaseNumber, ProviderConstants {
     @Autowired
     NexmoFactoryImpl nexmoFactoryImpl;
 
-    @Override
-    public void releaseNumber(String number, Provider provider) {
-
-    }
-
-    @Override
     public void releaseNumber(String number, Provider provider,
             String countryIsoCode)
                     throws ClientProtocolException, IOException, ImiException {
@@ -43,7 +36,6 @@ public class ReleaseNumberService implements ReleaseNumber, ProviderConstants {
         } else {
             throw new InvalidProviderException(provider.getName());
         }
-
     }
 
 }

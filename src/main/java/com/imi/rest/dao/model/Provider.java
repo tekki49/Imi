@@ -19,68 +19,70 @@ import javax.persistence.Table;
 @Table(name = "provider", catalog = "imi")
 public class Provider implements java.io.Serializable {
 
-	private Integer id;
-	private String apiKey;
-	private String authId;
-	private String name;
-	private Set<Providercountry> providercountries = new HashSet<Providercountry>(0);
+    private Integer id;
+    private String apiKey;
+    private String authId;
+    private String name;
+    private Set<Providercountry> providercountries = new HashSet<Providercountry>(
+            0);
 
-	public Provider() {
-	}
+    public Provider() {
+    }
 
-	public Provider(String apiKey, String authId, String name, Set<Providercountry> providercountries) {
-		this.apiKey = apiKey;
-		this.authId = authId;
-		this.name = name;
-		this.providercountries = providercountries;
-	}
+    public Provider(String apiKey, String authId, String name,
+            Set<Providercountry> providercountries) {
+        this.apiKey = apiKey;
+        this.authId = authId;
+        this.name = name;
+        this.providercountries = providercountries;
+    }
 
-	@Id
-	@GeneratedValue(strategy = IDENTITY)
+    @Id
+    @GeneratedValue(strategy = IDENTITY)
 
-	@Column(name = "Id", unique = true, nullable = false)
-	public Integer getId() {
-		return this.id;
-	}
+    @Column(name = "Id", unique = true, nullable = false)
+    public Integer getId() {
+        return this.id;
+    }
 
-	public void setId(Integer id) {
-		this.id = id;
-	}
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
-	@Column(name = "apiKey", length = 45)
-	public String getApiKey() {
-		return this.apiKey;
-	}
+    @Column(name = "apiKey", length = 45)
+    public String getApiKey() {
+        return this.apiKey;
+    }
 
-	public void setApiKey(String apiKey) {
-		this.apiKey = apiKey;
-	}
+    public void setApiKey(String apiKey) {
+        this.apiKey = apiKey;
+    }
 
-	@Column(name = "authId", length = 45)
-	public String getAuthId() {
-		return this.authId;
-	}
+    @Column(name = "authId", length = 45)
+    public String getAuthId() {
+        return this.authId;
+    }
 
-	public void setAuthId(String authId) {
-		this.authId = authId;
-	}
+    public void setAuthId(String authId) {
+        this.authId = authId;
+    }
 
-	@Column(name = "name", length = 45)
-	public String getName() {
-		return this.name;
-	}
+    @Column(name = "name", length = 45)
+    public String getName() {
+        return this.name;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	@OneToMany(fetch = FetchType.LAZY, mappedBy = "provider")
-	public Set<Providercountry> getProvidercountries() {
-		return this.providercountries;
-	}
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "provider")
+    public Set<Providercountry> getProvidercountries() {
+        return this.providercountries;
+    }
 
-	public void setProvidercountries(Set<Providercountry> providercountries) {
-		this.providercountries = providercountries;
-	}
+    public void setProvidercountries(Set<Providercountry> providercountries) {
+        this.providercountries = providercountries;
+    }
 
 }
