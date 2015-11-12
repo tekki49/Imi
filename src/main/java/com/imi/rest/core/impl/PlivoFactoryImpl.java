@@ -373,14 +373,12 @@ public class PlivoFactoryImpl implements NumberSearch, CountrySearch,
                     restResponse.getResponseBody() == null ? ""
                             : restResponse.getResponseBody(),
                     PlivioPurchaseResponse.class);
-            if (restResponse.getResponseCode() == HttpStatus.CREATED.value()) {            	
-                if (plivoResponse.getMessage().equals("created")) {
-                    plivoApplication = getApplication(
-                    		plivoResponse.getApp_id(), provider);
-                } else {
-                    throw new ImiException(plivoResponse.getMessage());
-                }
-            }
+			if (restResponse.getResponseCode() == HttpStatus.CREATED.value()
+					&& plivoResponse.getMessage().equals("created")) {
+				plivoApplication = getApplication(plivoResponse.getApp_id(), provider);
+			} else {
+				throw new ImiException(plivoResponse.getMessage());
+			}
         } catch (ClientProtocolException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -399,19 +397,14 @@ public class PlivoFactoryImpl implements NumberSearch, CountrySearch,
         plivoApplicationUpdateUrl = plivoApplicationUpdateUrl
                 .replace("{auth_id}", provider.getAuthId())
                 .replace("{app_id}", plivoApplication.getApp_id());
-        ApplicationResponse currentPlivoApplication = getApplication(
-                plivoApplication.getApp_id(), provider);
         Map<String, String> requestBody = new HashMap<String, String>();
-        if (plivoApplication.getVoiceUrl() != null && plivoApplication
-                .getVoiceUrl() != currentPlivoApplication.getVoiceUrl()) {
+        if (plivoApplication.getVoiceUrl() != null) {
             requestBody.put("answer_url", plivoApplication.getVoiceUrl());
         }
-        if (plivoApplication.getApp_name() != null && plivoApplication
-                .getApp_name() != currentPlivoApplication.getApp_name()) {
+        if (plivoApplication.getApp_name() != null) {
             requestBody.put("app_name", plivoApplication.getApp_name());
         }
-        if (plivoApplication.getVoiceMethod() != null && plivoApplication
-                .getVoiceMethod() != currentPlivoApplication.getVoiceMethod()) {
+        if (plivoApplication.getVoiceMethod() != null) {
             requestBody.put("answer_method", plivoApplication.getVoiceMethod());
         }
         if (plivoApplication.getStatusCallback() != null) {
@@ -452,20 +445,23 @@ public class PlivoFactoryImpl implements NumberSearch, CountrySearch,
                 restResponse.getResponseBody() == null ? ""
                         : restResponse.getResponseBody(),
                 PlivioPurchaseResponse.class);
-        if (restResponse.getResponseCode() == HttpStatus.ACCEPTED.value()) {            
-            if (plivoResponse.getMessage().equals("changed")) {
+        if (restResponse.getResponseCode() == HttpStatus.ACCEPTED.value()
+        		&& plivoResponse.getMessage().equals("changed")) {            
                 plivoApplication = getApplication(
-                        currentPlivoApplication.getApp_id(), provider);
-            } else {
-            	throw new ImiException(plivoResponse.getMessage());
-            }
-        }
+                		plivoApplication.getApp_id(), provider);
+		} else {
+			throw new ImiException(plivoResponse.getMessage());
+		}        
         return plivoApplication;
     }
 
     public ApplicationResponse getApplication(String appId, Provider provider)
             throws ClientProtocolException, IOException, ImiException {
         String plivoApplicationUpdateUrl = PLIVO_APPLICATION_UPDATE_URL;
+        if(appId == null || appId.length()==0){
+        	throw new NullPointerException
+        	("value of appId was found null or empty string, Check value before sending");
+        }
         plivoApplicationUpdateUrl = plivoApplicationUpdateUrl
                 .replace("{auth_id}", provider.getAuthId())
                 .replace("{app_id}", appId);
@@ -480,7 +476,7 @@ public class PlivoFactoryImpl implements NumberSearch, CountrySearch,
                     ApplicationResponse.class);
         }
         else{
-        	// throw exception saying application with id not found
+        	throw new ImiException("Invalid app_id");
         }
         return plivoApplicationResponse;
     }
