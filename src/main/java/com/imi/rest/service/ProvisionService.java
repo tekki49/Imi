@@ -59,4 +59,41 @@ public class ProvisionService implements ProviderConstants {
         }
         return applicationResponse;
     }
+    
+    public ApplicationResponse updateApplication(String providerName,
+            ApplicationResponse application)
+                    throws ImiException, ClientProtocolException, IOException {
+        ApplicationResponse applicationResponse = new ApplicationResponse();
+        if (providerName.equalsIgnoreCase(PLIVO)) {
+            applicationResponse = plivoFactoryImpl.updateApplication(application,
+                    providerService.getPlivioProvider());
+        } else {
+            throw new InvalidProviderException(providerName);
+        }
+        return applicationResponse;
+    }
+    
+    public ApplicationResponse createApplication(String providerName,
+            ApplicationResponse application)
+                    throws ImiException, ClientProtocolException, IOException {
+        ApplicationResponse applicationResponse = new ApplicationResponse();
+        if (providerName.equalsIgnoreCase(PLIVO)) {
+            applicationResponse = plivoFactoryImpl.createApplication(application,
+                    providerService.getPlivioProvider());
+        } else {
+            throw new InvalidProviderException(providerName);
+        }
+        return applicationResponse;
+    }
+
+	public ApplicationResponse getApplication(String providerName, String app_id) throws ClientProtocolException, IOException, ImiException {
+		ApplicationResponse applicationResponse = new ApplicationResponse();
+        if (providerName.equalsIgnoreCase(PLIVO)) {
+            applicationResponse = plivoFactoryImpl.getApplication(
+            		app_id, providerService.getPlivioProvider());
+        } else {
+            throw new InvalidProviderException(providerName);
+        }
+        return applicationResponse;
+	}
 }

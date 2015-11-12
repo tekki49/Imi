@@ -11,15 +11,16 @@ import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
+import org.json.JSONObject;
 
-import com.imi.rest.exception.ImiException;
 import com.imi.rest.model.GenericRestResponse;
 
 public class ImiHttpUtil {
@@ -66,19 +67,19 @@ public class ImiHttpUtil {
     public static GenericRestResponse defaultHttpPostHandler(String url,
             Map<String, String> requestBody, String authHash,
             String contentType) throws ClientProtocolException, IOException {
-        GenericRestResponse restResponse = new GenericRestResponse();
-        HttpClient httpclient = new DefaultHttpClient();
+    	GenericRestResponse restResponse = new GenericRestResponse();
+        HttpClient httpclient = HttpClientBuilder.create().build();
         HttpPost httppost = new HttpPost(url);
         httppost.setHeader("Authorization", "Basic " + authHash);
         if (contentType != null) {
             httppost.setHeader("Content-Type", contentType);
         }
-        List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
+        JSONObject json = new JSONObject();
         for (String key : requestBody.keySet()) {
-            nameValuePairs
-                    .add(new BasicNameValuePair(key, requestBody.get(key)));
+            json.put(key,  requestBody.get(key));
         }
-        httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+        StringEntity params = new StringEntity(json.toString());
+        httppost.setEntity(params);
         HttpResponse httpResponse = httpclient.execute(httppost);
         restResponse.setResponseBody(
                 EntityUtils.toString(httpResponse.getEntity()));

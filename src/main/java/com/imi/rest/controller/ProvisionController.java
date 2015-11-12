@@ -41,4 +41,33 @@ public class ProvisionController {
                 .provisionAllNumbers(providerName, application);
         return applicationResponse;
     }
+    
+    @RequestMapping(value = "/application/update", method = RequestMethod.POST)
+    public ApplicationResponse updateApplication(
+            @RequestHeader("provider") String providerName,
+            @RequestBody ApplicationResponse application)
+                    throws ClientProtocolException, IOException, ImiException {
+        ApplicationResponse applicationResponse = provisionService
+                .updateApplication(providerName, application);
+        return applicationResponse;
+    }
+    
+    @RequestMapping(value = "/application/create", method = RequestMethod.POST)
+    public ApplicationResponse createApplication(
+            @RequestHeader("provider") String providerName,
+            @RequestBody ApplicationResponse application)
+                    throws ClientProtocolException, IOException, ImiException {
+        ApplicationResponse applicationResponse = provisionService
+                .createApplication(providerName, application);
+        return applicationResponse;
+    }
+    
+    @RequestMapping(value = "/application/get/{app_id}", method = RequestMethod.GET)
+    public ApplicationResponse getApplication(@PathVariable("app_id") String app_id,
+            @RequestHeader("provider") String providerName )
+                    throws ClientProtocolException, IOException, ImiException {
+        ApplicationResponse applicationResponse = provisionService
+                .getApplication(providerName, app_id);
+        return applicationResponse;
+    }    
 }
