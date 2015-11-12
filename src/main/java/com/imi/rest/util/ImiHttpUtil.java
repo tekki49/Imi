@@ -11,6 +11,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -21,6 +22,7 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONObject;
 
+import com.imi.rest.exception.ImiException;
 import com.imi.rest.model.GenericRestResponse;
 
 public class ImiHttpUtil {
@@ -48,7 +50,7 @@ public class ImiHttpUtil {
     public static GenericRestResponse defaultHttpGetHandler(String url)
             throws ClientProtocolException, IOException {
         GenericRestResponse restResponse = new GenericRestResponse();
-        HttpClient client = new DefaultHttpClient();
+        HttpClient client = HttpClientBuilder.create().build();
         HttpGet request = new HttpGet(url);
         HttpResponse httpResponse = client.execute(request);
         BufferedReader rd = new BufferedReader(
@@ -67,7 +69,7 @@ public class ImiHttpUtil {
     public static GenericRestResponse defaultHttpPostHandler(String url,
             Map<String, String> requestBody, String authHash,
             String contentType) throws ClientProtocolException, IOException {
-    	GenericRestResponse restResponse = new GenericRestResponse();
+        GenericRestResponse restResponse = new GenericRestResponse();
         HttpClient httpclient = HttpClientBuilder.create().build();
         HttpPost httppost = new HttpPost(url);
         httppost.setHeader("Authorization", "Basic " + authHash);
@@ -92,16 +94,11 @@ public class ImiHttpUtil {
             Map<String, String> requestBody, String authHash,
             String contentType) throws IOException {
         GenericRestResponse restResponse = new GenericRestResponse();
-        HttpClient httpclient = new DefaultHttpClient();
+        HttpClient httpclient = HttpClientBuilder.create().build();
         HttpDelete httpDelete = new HttpDelete(url);
         httpDelete.setHeader("Authorization", "Basic " + authHash);
         if (contentType != null) {
             httpDelete.setHeader("Content-Type", contentType);
-        }
-        List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
-        for (String key : requestBody.keySet()) {
-            nameValuePairs
-                    .add(new BasicNameValuePair(key, requestBody.get(key)));
         }
         HttpResponse httpResponse = httpclient.execute(httpDelete);
         restResponse.setResponseBody(

@@ -3,7 +3,7 @@ package com.imi.rest.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-@JsonIgnoreProperties(ignoreUnknown=true)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class NexmoPurchaseResponse {
 
     private String errorcode;
@@ -21,7 +21,7 @@ public class NexmoPurchaseResponse {
     public String getErrorCodeLabel() {
         return errorCodeLabel;
     }
-    
+
     @JsonProperty("error-code-label")
     public void setErrorCodeLabel(String errorCodeLabel) {
         this.errorCodeLabel = errorCodeLabel;
