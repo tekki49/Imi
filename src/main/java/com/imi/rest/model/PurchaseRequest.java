@@ -1,11 +1,17 @@
 package com.imi.rest.model;
 
+import java.io.Serializable;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class PurchaseRequest {
+public class PurchaseRequest implements Serializable {
 
-    private String number;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	private String number;
     private String numberType;
     private String service;
     private String countryIso;

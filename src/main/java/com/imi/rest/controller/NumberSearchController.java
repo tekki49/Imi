@@ -109,5 +109,26 @@ public class NumberSearchController {
         }
         return numberResponse;
     }
+    
+    @RequestMapping(value = "/PhoneNumber/{countryIsoCode}/{numberType}/{serviceType}/{nextPlivoIndex}/{nextNexmoIndex}", method = RequestMethod.GET)
+    public NumberResponse nextNumberSearchResponse(
+            @PathVariable("countryIsoCode") final String countryIsoCode,
+            @PathVariable("numberType") final String numberType,
+            @PathVariable("serviceType") final String serviceType,
+            @PathVariable("nextPlivoIndex") final String nextPlivoIndex,
+            @PathVariable("nextNexmoIndex") final String nextNexmoIndex)
+                    throws ImiException {
+        NumberResponse numberResponse = null;
+        ServiceConstants serviceTypeEnum = ServiceConstants
+                .evaluate(serviceType);
+        try {
+            numberResponse = numberSearchService.searchPhoneNumbers(
+                    serviceTypeEnum, countryIsoCode, numberType,"",
+                    nextPlivoIndex, nextNexmoIndex);
+        } catch (IOException e) {
+            LOG.error(e.getMessage());
+        }
+        return numberResponse;
+    }
 
 }
