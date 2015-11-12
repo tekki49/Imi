@@ -41,7 +41,7 @@ import com.imi.rest.model.InboundCallPrice;
 import com.imi.rest.model.Number;
 import com.imi.rest.model.NumberResponse;
 import com.imi.rest.model.PurchaseResponse;
-import com.imi.rest.model.TwilioAccountResponse;
+import com.imi.rest.model.TwilioAccount;
 import com.imi.rest.model.TwilioNumberPrice;
 import com.imi.rest.service.CountrySearchService;
 import com.imi.rest.service.ForexService;
@@ -116,7 +116,8 @@ public class TwilioFactoryImpl implements NumberSearch, CountrySearch,
                             : numberResponseFromTwilo.getObjects();
             String searchKey = countryIsoCode + "-" + type;
             if (numberTypePricing == null) {
-                setNumberTypePricingMap(twilioMonthlyPriceMap.get(searchKey));
+                setNumberTypePricingMap(
+                        twilioMonthlyPriceMap.get(searchKey.toUpperCase()));
             }
             // String voiceRate = numberTypePricing.get(type.toLowerCase());
             String voiceRate = numberTypePricing.getInboundVoicePrice();
@@ -188,7 +189,7 @@ public class TwilioFactoryImpl implements NumberSearch, CountrySearch,
                         String numberType = row[3];
                         try {
                             String twilioPricingMapKey = isoCode + "-"
-                                    + numberType;
+                                    + (numberType.replace(" ", ""));
                             TwilioNumberPrice twilioNumberPrice = new TwilioNumberPrice();
                             twilioNumberPrice.setAddressRequired(row[16]);
                             twilioNumberPrice.setBetaStatus(row[15]);
@@ -203,7 +204,8 @@ public class TwilioFactoryImpl implements NumberSearch, CountrySearch,
                             twilioNumberPrice.setSmsEnabled(row[6]);
                             twilioNumberPrice.setTrunkingEnabled(row[5]);
                             twilioNumberPrice.setVoiceEnabled(row[4]);
-                            twilioMonthlyPriceMap.put(twilioPricingMapKey,
+                            twilioMonthlyPriceMap.put(
+                                    twilioPricingMapKey.toUpperCase(),
                                     twilioNumberPrice);
                         } catch (Exception e) {
                         }
@@ -375,8 +377,7 @@ public class TwilioFactoryImpl implements NumberSearch, CountrySearch,
             ServiceConstants serviceTypeEnum)
                     throws ClientProtocolException, IOException, ImiException {
         String twilioPurchaseUrl = TWILIO_PURCHASE_URL;
-        String twilioNumber = "+" + country.getCountryCode().trim()
-                + number.trim();
+        String twilioNumber = "+" + number.trim();
         twilioPurchaseUrl = twilioPurchaseUrl.replace("{number}", twilioNumber)
                 .replace("{auth_id}", provider.getAuthId());
         Map<String, String> requestBody = new HashMap<String, String>();
@@ -386,21 +387,32 @@ public class TwilioFactoryImpl implements NumberSearch, CountrySearch,
                 ImiBasicAuthUtil.getBasicAuthHash(provider.getAuthId(),
                         provider.getApiKey()),
                 null);
+        String type = "Local";
+        if (numberType.equalsIgnoreCase(MOBILE)) {
+            type = "Mobile";
+        } else if (numberType.equalsIgnoreCase(TOLLFREE)) {
+            type = "Tollfree";
+        }
+        if (twilioMonthlyPriceMap == null) {
+            getTwilioPricing(country.getCountryIso(), provider);
+        }
         if (response.getResponseCode() == HttpStatus.CREATED.value()) {
-            String searchKey = country.getCountryIso() + "-" + numberType;
-            TwilioNumberPrice twilioPrice = (twilioMonthlyPriceMap == null
-                    ? getTwilioPricing(country.getCountryIso(), provider).get(
-                            searchKey)
-                    : twilioMonthlyPriceMap.get(searchKey));
+            String searchKey = country.getCountryIso() + "-"
+                    + type.toUpperCase();
+            TwilioNumberPrice twilioPrice = twilioMonthlyPriceMap
+                    .get(searchKey);
             PurchaseResponse purchaseResponse = new PurchaseResponse();
             purchaseResponse.setNumber(number);
             purchaseResponse.setNumberType(numberType);
             purchaseResponse.setRestrictions("");
-            purchaseResponse
-                    .setMonthlyRentalRate(twilioPrice.getMonthlyRentalRate());
+            purchaseResponse.setMonthlyRentalRate(
+                    ImiDataFormatUtils.forexConvert(forexValue,
+                            twilioPrice.getMonthlyRentalRate()));
             purchaseResponse.setSetUpRate("");
-            purchaseResponse.setSmsRate(twilioPrice.getInboundSmsPrice());
-            purchaseResponse.setVoicePrice(twilioPrice.getInboundVoicePrice());
+            purchaseResponse.setSmsRate(ImiDataFormatUtils.forexConvert(
+                    forexValue, twilioPrice.getInboundSmsPrice()));
+            purchaseResponse.setVoicePrice(ImiDataFormatUtils.forexConvert(
+                    forexValue, twilioPrice.getInboundVoicePrice()));
             purchaseResponse.setEffectiveDate("");
             purchaseResponse.setResourceManagerId(0);
             purchaseResponse.setCountryProviderId(country.getId());
@@ -419,13 +431,11 @@ public class TwilioFactoryImpl implements NumberSearch, CountrySearch,
         String accountSid = null;
         if (twilioAccountRestResponse.getResponseCode() == HttpStatus.OK
                 .value()) {
-            TwilioAccountResponse twilioAccountResponse = ImiJsonUtil
+            TwilioAccount twilioAccountResponse = ImiJsonUtil
                     .deserialize(twilioAccountRestResponse.getResponseBody(),
-                            TwilioAccountResponse.class);
-            if (twilioAccountResponse.getAccounts() != null
-                    && twilioAccountResponse.getAccounts().size() > 0) {
-                accountSid = twilioAccountResponse.getAccounts().get(0)
-                        .getSid();
+                            TwilioAccount.class);
+            if (twilioAccountResponse!= null) {
+                accountSid = twilioAccountResponse.getOwner_account_sid();
             }
         }
         // TODO: need to get IncomingPhoneNumberSid

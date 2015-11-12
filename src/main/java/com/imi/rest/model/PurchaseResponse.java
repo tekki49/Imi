@@ -17,6 +17,9 @@ public class PurchaseResponse {
     private Integer countryProviderId;
     private String status;
     private boolean addressRequired;
+    //for Twilio
+    private String numberSid;
+    private String accountSid;
 
     public PurchaseResponse() {
 
@@ -139,6 +142,22 @@ public class PurchaseResponse {
 
     public void setAddressRequired(boolean addressRequired) {
         this.addressRequired = addressRequired;
+    }
+
+    public String getNumberSid() {
+        return numberSid;
+    }
+
+    public void setNumberSid(String numberSid) {
+        this.numberSid = numberSid;
+    }
+
+    public String getAccountSid() {
+        return accountSid;
+    }
+
+    public void setAccountSid(String accountSid) {
+        this.accountSid = accountSid;
     }
 
 }

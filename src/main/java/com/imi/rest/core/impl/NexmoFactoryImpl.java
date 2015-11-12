@@ -359,6 +359,14 @@ public class NexmoFactoryImpl implements NumberSearch, CountrySearch,
                 ImiBasicAuthUtil.getBasicAuthHash(provider.getAuthId(),
                         provider.getApiKey()),
                 ContentType.APPLICATION_FORM_URLENCODED.getMimeType());
+        String type = "landline";
+        if (numberType.equalsIgnoreCase(MOBILE)) {
+            type = "mobile";
+        } else if (numberType.equalsIgnoreCase(TOLLFREE)) {
+            type = "tollfree";
+        }
+        CountryPricing countryPricing = countryPricingMap
+                .get(country.getCountryIso());
         PurchaseResponse purchaseResponse = new PurchaseResponse();
         NexmoPurchaseResponse nexmoPurchaseResponse = ImiJsonUtil.deserialize(
                 restResponse.getResponseBody(), NexmoPurchaseResponse.class);
@@ -366,6 +374,28 @@ public class NexmoFactoryImpl implements NumberSearch, CountrySearch,
             if (nexmoPurchaseResponse.getErrorcode().equals("200")
                     && nexmoPurchaseResponse.getErrorCodeLabel()
                             .equals("success")) {
+                purchaseResponse.setNumber(number);
+                purchaseResponse.setResourceManagerId(0);
+                purchaseResponse.setNumberType(type);
+                purchaseResponse.setMonthlyRentalRate(
+                        ImiDataFormatUtils.forexConvert(forexValue,
+                                countryPricing.getPricing()
+                                        .get(numberType)
+                                        .get("monthlyRateInEuros")));
+                if (numberType.equalsIgnoreCase("landline")
+                        || numberType.equalsIgnoreCase("tollfree")) {
+                    purchaseResponse.setVoicePrice(
+                            ImiDataFormatUtils.forexConvert(forexValue,
+                                    countryPricing.getPricing().get(
+                                            numberType)
+                                    .get("inboundRateInEuros")));
+                } else if (numberType.equalsIgnoreCase("mobile")) {
+                    purchaseResponse.setSmsRate(
+                            ImiDataFormatUtils.forexConvert(forexValue,
+                                    countryPricing.getPricing().get(
+                                            numberType)
+                                    .get("inboundRateInEuros")));
+                }
                 return purchaseResponse;
             }
         } else if (restResponse.getResponseCode() == HttpStatus.UNAUTHORIZED

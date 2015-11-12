@@ -443,21 +443,25 @@ public class ApplicationResponse {
     public void setTrunkSid(String trunkSid) {
         this.trunkSid = trunkSid;
     }
+
     @JsonIgnore
-	public String getApi_id() {
-		return api_id;
-	}
+    public String getApi_id() {
+        return api_id;
+    }
+
     @JsonProperty("api_id")
-	public void setApi_id(String api_id) {
-		this.api_id = api_id;
-	}
-	@JsonIgnore
-	public String getError() {
-		return error;
-	}
-	@JsonProperty("error")
-	public void setError(String error) {
-		this.error = error;
-	}
+    public void setApi_id(String api_id) {
+        this.api_id = api_id;
+    }
+
+    @JsonIgnore
+    public String getError() {
+        return error;
+    }
+
+    @JsonProperty("error")
+    public void setError(String error) {
+        this.error = error;
+    }
 
 }

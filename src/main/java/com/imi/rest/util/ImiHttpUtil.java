@@ -15,14 +15,13 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONObject;
 
-import com.imi.rest.exception.ImiException;
 import com.imi.rest.model.GenericRestResponse;
 
 public class ImiHttpUtil {
@@ -30,7 +29,7 @@ public class ImiHttpUtil {
     public static GenericRestResponse defaultHttpGetHandler(String url,
             String authHash) throws ClientProtocolException, IOException {
         GenericRestResponse restResponse = new GenericRestResponse();
-        HttpClient client = new DefaultHttpClient();
+        HttpClient client = HttpClientBuilder.create().build();
         HttpGet request = new HttpGet(url);
         request.setHeader("Authorization", "Basic " + authHash);
         HttpResponse httpResponse = client.execute(request);
@@ -78,9 +77,18 @@ public class ImiHttpUtil {
         }
         JSONObject json = new JSONObject();
         for (String key : requestBody.keySet()) {
-            json.put(key,  requestBody.get(key));
+            json.put(key, requestBody.get(key));
         }
         StringEntity params = new StringEntity(json.toString());
+        List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+        for (String key : requestBody.keySet()) {
+            nameValuePairs
+                    .add(new BasicNameValuePair(key, requestBody.get(key)));
+        }
+        if (!ContentType.APPLICATION_JSON.getMimeType()
+                .equalsIgnoreCase(contentType)) {
+            params = new UrlEncodedFormEntity(nameValuePairs);
+        }
         httppost.setEntity(params);
         HttpResponse httpResponse = httpclient.execute(httppost);
         restResponse.setResponseBody(

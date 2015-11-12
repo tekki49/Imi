@@ -21,6 +21,7 @@ public class PlivioPurchaseResponse {
     public void setApiId(String apiId) {
         this.apiId = apiId;
     }
+
     @JsonIgnore
     public String getMessage() {
         return message;
@@ -30,6 +31,7 @@ public class PlivioPurchaseResponse {
     public void setMessage(String message) {
         this.message = message;
     }
+
     @JsonProperty("error")
     public void setError(String message) {
         this.message = message;
@@ -57,6 +59,7 @@ public class PlivioPurchaseResponse {
     public String getApp_id() {
         return app_id;
     }
+
     @JsonProperty("app_id")
     public void setApp_id(String app_id) {
         this.app_id = app_id;

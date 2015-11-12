@@ -37,6 +37,7 @@ public class Number {
     private String application;
     private String sub_account;
     private String status;
+    private String error;
 
     public String getNumber() {
         return number;
@@ -335,6 +336,16 @@ public class Number {
     @JsonProperty("status")
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    @JsonIgnore
+    public String getError() {
+        return error;
+    }
+
+    @JsonProperty("error")
+    public void setError(String error) {
+        this.error = error;
     }
 
 }
