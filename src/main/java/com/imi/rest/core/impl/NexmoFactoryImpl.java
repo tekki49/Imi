@@ -32,12 +32,15 @@ import com.imi.rest.core.NumberSearch;
 import com.imi.rest.core.PurchaseNumber;
 import com.imi.rest.dao.model.Provider;
 import com.imi.rest.exception.ImiException;
+import com.imi.rest.exception.InvalidNumberException;
+import com.imi.rest.exception.InvalidProviderException;
 import com.imi.rest.model.ApplicationResponse;
 import com.imi.rest.model.BalanceResponse;
 import com.imi.rest.model.Country;
 import com.imi.rest.model.CountryPricing;
 import com.imi.rest.model.GenericRestResponse;
 import com.imi.rest.model.Meta;
+import com.imi.rest.model.NexmoPurchaseResponse;
 import com.imi.rest.model.Number;
 import com.imi.rest.model.NumberResponse;
 import com.imi.rest.model.PurchaseResponse;
@@ -241,7 +244,8 @@ public class NexmoFactoryImpl implements NumberSearch, CountrySearch,
     }
 
     public void releaseNumber(String number, Provider provider,
-            String countryIsoCode) throws ClientProtocolException, IOException {
+            String countryIsoCode)
+                    throws ClientProtocolException, IOException, ImiException {
         String nexmoReleaseUrl = NEXMO_RELEASE_URL;
         String nexmoNumber = number.trim() + countryIsoCode.trim();
         nexmoReleaseUrl = nexmoReleaseUrl
@@ -250,11 +254,21 @@ public class NexmoFactoryImpl implements NumberSearch, CountrySearch,
                         provider.getApiKey().replace("{country}", "")
                                 .replace("{msisdn}", nexmoNumber));
         // TODO handle release response
-        GenericRestResponse response = ImiHttpUtil.defaultHttpPostHandler(
+        GenericRestResponse restResponse = ImiHttpUtil.defaultHttpPostHandler(
                 nexmoReleaseUrl, new HashMap<String, String>(),
                 ImiBasicAuthUtil.getBasicAuthHash(provider.getAuthId(),
                         provider.getApiKey()),
                 ContentType.APPLICATION_FORM_URLENCODED.getMimeType());
+        if (restResponse.getResponseCode() == HttpStatus.OK.value()) {
+
+        } else if (restResponse.getResponseCode() == HttpStatus.UNAUTHORIZED
+                .value()) {
+            throw new InvalidProviderException(provider.getName());
+
+        } else if (restResponse.getResponseCode() == HttpStatus.METHOD_FAILURE
+                .value()) {
+            throw new InvalidNumberException(number, provider.getName());
+        }
     }
 
     public void getNexmoPricing(String fileName) throws IOException {
@@ -345,8 +359,29 @@ public class NexmoFactoryImpl implements NumberSearch, CountrySearch,
                 ImiBasicAuthUtil.getBasicAuthHash(provider.getAuthId(),
                         provider.getApiKey()),
                 ContentType.APPLICATION_FORM_URLENCODED.getMimeType());
-        // TODO need to map response accordingly
-        return null;
+        PurchaseResponse purchaseResponse = new PurchaseResponse();
+        NexmoPurchaseResponse nexmoPurchaseResponse = ImiJsonUtil.deserialize(
+                restResponse.getResponseBody(), NexmoPurchaseResponse.class);
+        if (restResponse.getResponseCode() == HttpStatus.OK.value()) {
+            if (nexmoPurchaseResponse.getErrorcode().equals("200")
+                    && nexmoPurchaseResponse.getErrorCodeLabel()
+                            .equals("success")) {
+                return purchaseResponse;
+            }
+        } else if (restResponse.getResponseCode() == HttpStatus.UNAUTHORIZED
+                .value()) {
+            throw new InvalidProviderException(provider.getName());
+
+        } else if (restResponse.getResponseCode() == HttpStatus.METHOD_FAILURE
+                .value()) {
+            if (nexmoPurchaseResponse.getErrorcode().equals("420")
+                    && nexmoPurchaseResponse.getErrorCodeLabel()
+                            .equals("method failed")) {
+                throw new InvalidNumberException(number, provider.getName());
+            }
+        }
+        throw new ImiException("Some Error occured while purchasing the number "
+                + number + " please try again");
     }
 
     public ApplicationResponse updateNumber(String number,
@@ -370,9 +405,10 @@ public class NexmoFactoryImpl implements NumberSearch, CountrySearch,
                 ContentType.APPLICATION_JSON.getMimeType());
         ApplicationResponse applicationResponse = new ApplicationResponse();
         if (restResponse.getResponseCode() == HttpStatus.OK.value()) {
-            JSONObject nexmoResponse = XML
-                    .toJSONObject(restResponse.getResponseBody());
-            if (nexmoResponse.get("status").equals("200")) {
+            NexmoPurchaseResponse nexmoResponse = ImiJsonUtil.deserialize(
+                    restResponse.getResponseBody(),
+                    NexmoPurchaseResponse.class);
+            if (nexmoResponse.getErrorcode().equals("200")) {
                 applicationResponse.setMoHttpUrl(application.getMoHttpUrl());
                 applicationResponse.setPhone_number(number);
                 applicationResponse
@@ -383,12 +419,11 @@ public class NexmoFactoryImpl implements NumberSearch, CountrySearch,
                         application.getVoiceCallbackValue());
                 applicationResponse
                         .setStatusCallback(application.getStatusCallback());
-            } else if (nexmoResponse.get("status").equals("420")) {
+            } else if (nexmoResponse.getErrorcode().equals("420")) {
                 String message = "Number was not updated successfully, "
                         + "Some Parameters to update Number were wrong "
                         + "Please Check Whether appropriate values are being sent";
-                ImiException e = new ImiException(message);
-                throw e;
+                throw new ImiException(message);
             }
         }
         return applicationResponse;
