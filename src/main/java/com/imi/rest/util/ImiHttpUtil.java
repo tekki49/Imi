@@ -3,16 +3,19 @@ package com.imi.rest.util;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
+import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpDelete;
+import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
@@ -118,12 +121,9 @@ public class ImiHttpUtil {
             Map<String, String> requestBody, String authHash,
             String contentType) throws IOException {
         GenericRestResponse restResponse = new GenericRestResponse();
-        HttpClient httpclient = HttpClientBuilder.create().build();
-        HttpDelete httpDelete = new HttpDelete(url);
+        HttpDeleteWithBody httpDelete = new HttpDeleteWithBody(url);
         httpDelete.setHeader("Authorization", "Basic " + authHash);
-        if (contentType != null) {
-            httpDelete.setHeader("Content-Type", contentType);
-        }
+        HttpClient httpclient = HttpClientBuilder.create().build();
         JSONObject json = new JSONObject();
         for (String key : requestBody.keySet()) {
             json.put(key, requestBody.get(key));
@@ -138,12 +138,39 @@ public class ImiHttpUtil {
                 .equalsIgnoreCase(contentType)) {
             params = new UrlEncodedFormEntity(nameValuePairs);
         }
+        httpDelete.setEntity(params);
         HttpResponse httpResponse = httpclient.execute(httpDelete);
-        restResponse.setResponseBody(
-                EntityUtils.toString(httpResponse.getEntity()));
+        if(httpResponse.getEntity()!=null)
+        {
+            restResponse.setResponseBody(
+                    EntityUtils.toString(httpResponse.getEntity()));
+        }
         restResponse
                 .setResponseCode(httpResponse.getStatusLine().getStatusCode());
         return restResponse;
     }
 
+}
+
+@NotThreadSafe
+class HttpDeleteWithBody extends HttpEntityEnclosingRequestBase {
+    public static final String METHOD_NAME = "DELETE";
+
+    public String getMethod() {
+        return METHOD_NAME;
+    }
+
+    public HttpDeleteWithBody(final String uri) {
+        super();
+        setURI(URI.create(uri));
+    }
+
+    public HttpDeleteWithBody(final URI uri) {
+        super();
+        setURI(uri);
+    }
+
+    public HttpDeleteWithBody() {
+        super();
+    }
 }
