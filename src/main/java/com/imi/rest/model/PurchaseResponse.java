@@ -17,7 +17,7 @@ public class PurchaseResponse {
     private Integer countryProviderId;
     private String status;
     private boolean addressRequired;
-    //for Twilio
+    // for Twilio
     private String numberSid;
     private String accountSid;
 

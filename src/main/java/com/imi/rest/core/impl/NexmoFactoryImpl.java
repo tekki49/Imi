@@ -15,8 +15,6 @@ import org.apache.http.entity.ContentType;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Row;
-import org.json.JSONObject;
-import org.json.XML;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -96,111 +94,118 @@ public class NexmoFactoryImpl implements NumberSearch, CountrySearch,
             List<Number> numberSearchList, int index,
             NumberResponse numberResponse, String previousNexmoIndex)
                     throws ClientProtocolException, IOException, ImiException {
+        // if(numberSearchList.size()>THRESHOLD)return;
         String nexmoPhoneSearchUrl = NEXMO_PHONE_SEARCH_URL;
         nexmoPhoneSearchUrl = nexmoPhoneSearchUrl
                 .replace("{country_iso}", countryIsoCode)
                 .replace("{api_key}", provider.getAuthId())
                 .replace("{api_secret}", provider.getApiKey())
-                .replace("{pattern}", pattern)
-                .replace("{features}", serviceTypeEnum.toString().toUpperCase())
-                .replace("{index}", "" + index);
+                .replace("{pattern}", pattern).replace("{features}",
+                        serviceTypeEnum.toString().toUpperCase());
         GenericRestResponse restReponse = null;
-        try {
-            restReponse = ImiHttpUtil
-                    .defaultHttpGetHandler(nexmoPhoneSearchUrl);
-        } catch (Exception e) {
-        }
-        if (restReponse != null
-                && restReponse.getResponseCode() == HttpStatus.OK.value()) {
-            NumberResponse nexmoNumberResponse = ImiJsonUtil.deserialize(
-                    restReponse.getResponseBody() == null ? ""
-                            : restReponse.getResponseBody(),
-                    NumberResponse.class);
-            if (nexmoNumberResponse == null)
-                return;
-            List<Number> nexmoNumberList = nexmoNumberResponse == null
-                    ? new ArrayList<Number>()
-                    : nexmoNumberResponse.getObjects() == null
-                            ? new ArrayList<Number>()
-                            : nexmoNumberResponse.getObjects();
-            if (countryPricingMap == null) {
-                getNexmoPricing(NEXMO_PRICING_FILE_PATH);
+        boolean recursive = true;
+        while (recursive) {
+            String url = nexmoPhoneSearchUrl.replace("{index}", "" + index);
+            try {
+                restReponse = ImiHttpUtil.defaultHttpGetHandler(url);
+            } catch (Exception e) {
             }
-            if (forexValue == null) {
-                forexValue = forexService.getForexValueByName("USD_GBP")
-                        .getValue();
-            }
-            List<String> expectedFeatures = new ArrayList<String>();
-            if (serviceTypeEnum.equals(ServiceConstants.VOICE)) {
-                expectedFeatures
-                        .add(ServiceConstants.VOICE.toString().toUpperCase());
-            } else if (serviceTypeEnum.equals(ServiceConstants.SMS)) {
-                expectedFeatures
-                        .add(ServiceConstants.SMS.toString().toUpperCase());
-            } else if (serviceTypeEnum.equals(ServiceConstants.BOTH)) {
-                expectedFeatures
-                        .add(ServiceConstants.SMS.toString().toUpperCase());
-                expectedFeatures
-                        .add(ServiceConstants.VOICE.toString().toUpperCase());
-            }
-            if (expectedFeatures.size() > 1) {
-                return;
-            }
-            for (Number nexmoNumber : nexmoNumberList) {
-                if (nexmoNumber != null) {
-                    boolean isValidNumber = true;
-                    if (nexmoNumber.getFeatures() == null) {
-                        isValidNumber = false;
-                    }
-                    for (String feature : nexmoNumber.getFeatures()) {
-                        if (!expectedFeatures.contains(feature))
+            if (restReponse != null
+                    && restReponse.getResponseCode() == HttpStatus.OK.value()) {
+                NumberResponse nexmoNumberResponse = ImiJsonUtil.deserialize(
+                        restReponse.getResponseBody() == null ? ""
+                                : restReponse.getResponseBody(),
+                        NumberResponse.class);
+                if (nexmoNumberResponse == null)
+                    return;
+                List<Number> nexmoNumberList = nexmoNumberResponse == null
+                        ? new ArrayList<Number>()
+                        : nexmoNumberResponse.getObjects() == null
+                                ? new ArrayList<Number>()
+                                : nexmoNumberResponse.getObjects();
+                if (countryPricingMap == null) {
+                    getNexmoPricing(NEXMO_PRICING_FILE_PATH);
+                }
+                if (forexValue == null) {
+                    forexValue = forexService.getForexValueByName("USD_GBP")
+                            .getValue();
+                }
+                List<String> expectedFeatures = new ArrayList<String>();
+                if (serviceTypeEnum.equals(ServiceConstants.VOICE)) {
+                    expectedFeatures.add(
+                            ServiceConstants.VOICE.toString().toUpperCase());
+                } else if (serviceTypeEnum.equals(ServiceConstants.SMS)) {
+                    expectedFeatures
+                            .add(ServiceConstants.SMS.toString().toUpperCase());
+                } else if (serviceTypeEnum.equals(ServiceConstants.BOTH)) {
+                    expectedFeatures
+                            .add(ServiceConstants.SMS.toString().toUpperCase());
+                    expectedFeatures.add(
+                            ServiceConstants.VOICE.toString().toUpperCase());
+                }
+                if (expectedFeatures.size() > 1) {
+                    return;
+                }
+                for (Number nexmoNumber : nexmoNumberList) {
+                    if (nexmoNumber != null) {
+                        boolean isValidNumber = true;
+                        if (nexmoNumber.getFeatures() == null) {
                             isValidNumber = false;
-                    }
-                    if (isValidNumber) {
-                        setServiceType(nexmoNumber);
-                        CountryPricing countryPricing = countryPricingMap
-                                .get(nexmoNumber.getCountry().toUpperCase());
-                        nexmoNumber.setType(numberType);
-                        nexmoNumber.setPriceUnit("EUR");
-                        nexmoNumber.setMonthlyRentalRate(
-                                ImiDataFormatUtils.forexConvert(forexValue,
-                                        countryPricing.getPricing()
-                                                .get(numberType)
-                                                .get("monthlyRateInEuros")));
-                        if (numberType.equalsIgnoreCase("landline")
-                                || numberType.equalsIgnoreCase("tollfree")) {
-                            nexmoNumber.setVoiceRate(
-                                    ImiDataFormatUtils.forexConvert(forexValue,
-                                            countryPricing.getPricing().get(
-                                                    numberType)
-                                            .get("inboundRateInEuros")));
-                        } else if (numberType.equalsIgnoreCase("mobile")) {
-                            nexmoNumber.setSmsRate(
-                                    ImiDataFormatUtils.forexConvert(forexValue,
-                                            countryPricing.getPricing().get(
-                                                    numberType)
-                                            .get("inboundRateInEuros")));
                         }
-                        nexmoNumber.setCountry(countryPricing.getCountry());
-                        nexmoNumber.setProvider(NEXMO);
-                        numberSearchList.add(nexmoNumber);
+                        for (String feature : nexmoNumber.getFeatures()) {
+                            if (!expectedFeatures.contains(feature))
+                                isValidNumber = false;
+                        }
+                        if (isValidNumber) {
+                            setServiceType(nexmoNumber);
+                            CountryPricing countryPricing = countryPricingMap
+                                    .get(nexmoNumber.getCountry()
+                                            .toUpperCase());
+                            nexmoNumber.setType(numberType);
+                            nexmoNumber.setPriceUnit("EUR");
+                            nexmoNumber.setMonthlyRentalRate(
+                                    ImiDataFormatUtils.forexConvert(forexValue,
+                                            countryPricing.getPricing().get(
+                                                    numberType)
+                                            .get("monthlyRateInEuros")));
+                            if (numberType.equalsIgnoreCase("landline")
+                                    || numberType
+                                            .equalsIgnoreCase("tollfree")) {
+                                nexmoNumber.setVoiceRate(ImiDataFormatUtils
+                                        .forexConvert(forexValue,
+                                                countryPricing.getPricing().get(
+                                                        numberType)
+                                                .get("inboundRateInEuros")));
+                            } else if (numberType.equalsIgnoreCase("mobile")) {
+                                nexmoNumber.setSmsRate(ImiDataFormatUtils
+                                        .forexConvert(forexValue,
+                                                countryPricing.getPricing().get(
+                                                        numberType)
+                                                .get("inboundRateInEuros")));
+                            }
+                            nexmoNumber.setCountry(countryPricing.getCountry());
+                            nexmoNumber.setProvider(NEXMO);
+                            numberSearchList.add(nexmoNumber);
+                        }
                     }
                 }
-            }
-            if (nexmoNumberResponse.getCount() - index * 100 > 0) {
-                if (numberSearchList.size() < THRESHOLD) {
-                    searchPhoneNumbers(provider, serviceTypeEnum,
-                            countryIsoCode, numberType, pattern,
-                            numberSearchList, (index + 1), nexmoNumberResponse,
-                            previousNexmoIndex);
+                if (nexmoNumberResponse.getCount() - index * 100 > 0) {
+                    if (numberSearchList.size() < THRESHOLD) {
+                        index++;
+                    } else {
+                        Meta meta = numberResponse.getMeta() == null
+                                ? new Meta() : numberResponse.getMeta();
+                        String nextNexmoIndex = "" + (index + 1);
+                        meta.setPreviousNexmoIndex(previousNexmoIndex);
+                        meta.setNextNexmoIndex(nextNexmoIndex);
+                        numberResponse.setMeta(meta);
+                        recursive = false;
+                    }
                 } else {
-                    Meta meta = numberResponse.getMeta() == null ? new Meta()
-                            : numberResponse.getMeta();
-                    String nextNexmoIndex = "" + (index + 1);
-                    meta.setPreviousNexmoIndex(previousNexmoIndex);
-                    meta.setNextNexmoIndex(nextNexmoIndex);
-                    numberResponse.setMeta(meta);
+                    recursive = false;
                 }
+            } else {
+                recursive = false;
             }
         }
     }
@@ -247,20 +252,18 @@ public class NexmoFactoryImpl implements NumberSearch, CountrySearch,
             String countryIsoCode)
                     throws ClientProtocolException, IOException, ImiException {
         String nexmoReleaseUrl = NEXMO_RELEASE_URL;
-        String nexmoNumber = number.trim() + countryIsoCode.trim();
+        String nexmoNumber = number.trim();
         nexmoReleaseUrl = nexmoReleaseUrl
                 .replace("{api_key}", provider.getAuthId())
-                .replace("{api_secret}",
-                        provider.getApiKey().replace("{country}", "")
-                                .replace("{msisdn}", nexmoNumber));
-        // TODO handle release response
+                .replace("{api_secret}", provider.getApiKey())
+                .replace("{country}", countryIsoCode)
+                .replace("{msisdn}", nexmoNumber);
         GenericRestResponse restResponse = ImiHttpUtil.defaultHttpPostHandler(
                 nexmoReleaseUrl, new HashMap<String, String>(),
                 ImiBasicAuthUtil.getBasicAuthHash(provider.getAuthId(),
                         provider.getApiKey()),
                 ContentType.APPLICATION_FORM_URLENCODED.getMimeType());
         if (restResponse.getResponseCode() == HttpStatus.OK.value()) {
-
         } else if (restResponse.getResponseCode() == HttpStatus.UNAUTHORIZED
                 .value()) {
             throw new InvalidProviderException(provider.getName());
@@ -268,6 +271,10 @@ public class NexmoFactoryImpl implements NumberSearch, CountrySearch,
         } else if (restResponse.getResponseCode() == HttpStatus.METHOD_FAILURE
                 .value()) {
             throw new InvalidNumberException(number, provider.getName());
+        } else {
+            throw new ImiException(
+                    "An unknown error occured. Please check back after wards. Response from nexmo "
+                            + restResponse.getResponseBody());
         }
     }
 
@@ -277,7 +284,7 @@ public class NexmoFactoryImpl implements NumberSearch, CountrySearch,
         HSSFSheet voicePriceSheet = workbook.getSheetAt(3);
         countryPricingMap = new HashMap<String, CountryPricing>();
         // voice pricing
-        for (int i = 1; i < voicePriceSheet.getLastRowNum(); i++) {
+        for (int i = 1; i < voicePriceSheet.getLastRowNum() + 1; i++) {
             CountryPricing countryPricing = new CountryPricing();
             Row row = voicePriceSheet.getRow(i);
             countryPricing
@@ -299,16 +306,16 @@ public class NexmoFactoryImpl implements NumberSearch, CountrySearch,
         }
         // sms pricing
         HSSFSheet smsPriceSheet = workbook.getSheetAt(2);
-        for (int i = 1; i < smsPriceSheet.getLastRowNum(); i++) {
+        for (int i = 1; i < smsPriceSheet.getLastRowNum() + 1; i++) {
             Row row = smsPriceSheet.getRow(i);
-            CountryPricing countryPricing = countryPricingMap
-                    .get(row.getCell(0).toString().split(" - ")[0]);
+            String countryIso = row.getCell(0).toString().split(" - ")[0]
+                    .trim();
+            CountryPricing countryPricing = countryPricingMap.get(countryIso);
             if (countryPricing == null) {
                 countryPricing = new CountryPricing();
                 countryPricing
                         .setCountry(row.getCell(0).toString().split(" - ")[1]);
-                countryPricing.setCountryIsoCode(
-                        row.getCell(0).toString().split(" - ")[0]);
+                countryPricing.setCountryIsoCode(countryIso);
             }
             Map<String, String> priceMap = new HashMap<String, String>();
             Map<String, Map<String, String>> pricing = countryPricing
@@ -317,6 +324,9 @@ public class NexmoFactoryImpl implements NumberSearch, CountrySearch,
             priceMap.put("inboundRateInEuros", row.getCell(2).toString());
             pricing.put("mobile", priceMap);
             countryPricing.setPricing(pricing);
+            if (countryIso.equalsIgnoreCase("US")) {
+            }
+            countryPricingMap.put(countryIso, countryPricing);
         }
         in.close();
         workbook.close();
@@ -377,31 +387,30 @@ public class NexmoFactoryImpl implements NumberSearch, CountrySearch,
                 purchaseResponse.setNumber(number);
                 purchaseResponse.setResourceManagerId(0);
                 purchaseResponse.setNumberType(type);
-                purchaseResponse.setMonthlyRentalRate(
-                        ImiDataFormatUtils.forexConvert(forexValue,
-                                countryPricing.getPricing()
-                                        .get(numberType)
-                                        .get("monthlyRateInEuros")));
+                purchaseResponse.setMonthlyRentalRate(ImiDataFormatUtils
+                        .forexConvert(forexValue, countryPricing.getPricing()
+                                .get(numberType).get("monthlyRateInEuros")));
                 if (numberType.equalsIgnoreCase("landline")
                         || numberType.equalsIgnoreCase("tollfree")) {
-                    purchaseResponse.setVoicePrice(
-                            ImiDataFormatUtils.forexConvert(forexValue,
-                                    countryPricing.getPricing().get(
-                                            numberType)
-                                    .get("inboundRateInEuros")));
+                    purchaseResponse
+                            .setVoicePrice(
+                                    ImiDataFormatUtils.forexConvert(forexValue,
+                                            countryPricing.getPricing().get(
+                                                    numberType)
+                                            .get("inboundRateInEuros")));
                 } else if (numberType.equalsIgnoreCase("mobile")) {
-                    purchaseResponse.setSmsRate(
-                            ImiDataFormatUtils.forexConvert(forexValue,
-                                    countryPricing.getPricing().get(
-                                            numberType)
-                                    .get("inboundRateInEuros")));
+                    purchaseResponse
+                            .setSmsRate(
+                                    ImiDataFormatUtils.forexConvert(forexValue,
+                                            countryPricing.getPricing().get(
+                                                    numberType)
+                                            .get("inboundRateInEuros")));
                 }
                 return purchaseResponse;
             }
         } else if (restResponse.getResponseCode() == HttpStatus.UNAUTHORIZED
                 .value()) {
             throw new InvalidProviderException(provider.getName());
-
         } else if (restResponse.getResponseCode() == HttpStatus.METHOD_FAILURE
                 .value()) {
             if (nexmoPurchaseResponse.getErrorcode().equals("420")
@@ -418,8 +427,12 @@ public class NexmoFactoryImpl implements NumberSearch, CountrySearch,
             String countryIsoCode, ApplicationResponse application,
             Provider provider)
                     throws ImiException, ClientProtocolException, IOException {
-        String nexmoAccountUpdateUrl = NEXMO_ACCOUNT_UPDATE_URL;
-        String nexmoNumber = number.trim() + countryIsoCode.trim();
+        if (countryIsoCode.equals("")) {
+            throw new ImiException(
+                    "CountryIsoCode is required for provisioning Nexmo number. Please use url /number/update/{countryIsoCode}/{number} ");
+        }
+        String nexmoAccountUpdateUrl = NEXMO_NUMBER_UPDATE_URL;
+        String nexmoNumber = number.trim();
         nexmoAccountUpdateUrl = nexmoAccountUpdateUrl
                 .replace("{country}", countryIsoCode)
                 .replace("{api_key}", provider.getAuthId())
@@ -427,34 +440,30 @@ public class NexmoFactoryImpl implements NumberSearch, CountrySearch,
                 .replace("{msisdn}", nexmoNumber);
         nexmoAccountUpdateUrl = getUpdatedUrl(nexmoAccountUpdateUrl,
                 application);
-        Map<String, String> requestBody = new HashMap<String, String>();
         GenericRestResponse restResponse = ImiHttpUtil.defaultHttpPostHandler(
-                nexmoAccountUpdateUrl, requestBody,
-                ImiBasicAuthUtil.getBasicAuthHash(provider.getAuthId(),
-                        provider.getApiKey()),
-                ContentType.APPLICATION_JSON.getMimeType());
+                nexmoAccountUpdateUrl,
+                ContentType.APPLICATION_FORM_URLENCODED.getMimeType());
         ApplicationResponse applicationResponse = new ApplicationResponse();
         if (restResponse.getResponseCode() == HttpStatus.OK.value()) {
-            NexmoPurchaseResponse nexmoResponse = ImiJsonUtil.deserialize(
-                    restResponse.getResponseBody(),
-                    NexmoPurchaseResponse.class);
-            if (nexmoResponse.getErrorcode().equals("200")) {
-                applicationResponse.setMoHttpUrl(application.getMoHttpUrl());
-                applicationResponse.setPhone_number(number);
-                applicationResponse
-                        .setMoSmppSysType(application.getMoSmppSysType());
-                applicationResponse.setVoiceCallbackType(
-                        application.getVoiceCallbackType());
-                applicationResponse.setVoiceCallbackValue(
-                        application.getVoiceCallbackValue());
-                applicationResponse
-                        .setStatusCallback(application.getStatusCallback());
-            } else if (nexmoResponse.getErrorcode().equals("420")) {
-                String message = "Number was not updated successfully, "
-                        + "Some Parameters to update Number were wrong "
-                        + "Please Check Whether appropriate values are being sent";
-                throw new ImiException(message);
-            }
+            applicationResponse.setMoHttpUrl(application.getMoHttpUrl());
+            applicationResponse.setPhone_number(number);
+            applicationResponse
+                    .setMoSmppSysType(application.getMoSmppSysType());
+            applicationResponse
+                    .setVoiceCallbackType(application.getVoiceCallbackType());
+            applicationResponse
+                    .setVoiceCallbackValue(application.getVoiceCallbackValue());
+            applicationResponse
+                    .setStatusCallback(application.getStatusCallback());
+        } else if (restResponse.getResponseCode() == HttpStatus.METHOD_FAILURE
+                .value()) {
+            String message = "Number was not updated successfully, "
+                    + "Some Parameters to update Number were wrong "
+                    + "Please Check Whether appropriate values are being sent";
+            throw new ImiException(message);
+        } else if (restResponse.getResponseCode() == HttpStatus.UNAUTHORIZED
+                .value()) {
+            throw new InvalidProviderException(provider.getName());
         }
         return applicationResponse;
     }
@@ -463,27 +472,27 @@ public class NexmoFactoryImpl implements NumberSearch, CountrySearch,
             ApplicationResponse modifyapplication) {
         String toAppend = "?";
         if (modifyapplication.getMoHttpUrl() != null) {
-            toAppend.concat(
+            toAppend = toAppend.concat(
                     "moHttpUrl=" + modifyapplication.getMoHttpUrl() + "&");
         }
         if (modifyapplication.getMoSmppSysType() != null) {
-            toAppend.concat("moSmppSysType="
+            toAppend = toAppend.concat("moSmppSysType="
                     + modifyapplication.getMoSmppSysType() + "&");
         }
         if (modifyapplication.getVoiceCallbackType() != null) {
-            toAppend.concat("voiceCallbackType="
+            toAppend = toAppend.concat("voiceCallbackType="
                     + modifyapplication.getVoiceCallbackType() + "&");
         }
         if (modifyapplication.getVoiceCallbackValue() != null) {
-            toAppend.concat("voiceCallbackValue="
+            toAppend = toAppend.concat("voiceCallbackValue="
                     + modifyapplication.getVoiceCallbackValue() + "&");
         }
         if (modifyapplication.getStatusCallback() != null) {
-            toAppend.concat("voiceStatusCallback="
+            toAppend = toAppend.concat("voiceStatusCallback="
                     + modifyapplication.getStatusCallback() + "&");
         }
         toAppend = toAppend.substring(0, toAppend.length() - 1);
-        url.concat(toAppend);
+        url = url.concat(toAppend);
         return url;
     }
 

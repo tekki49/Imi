@@ -98,6 +98,22 @@ public class ImiHttpUtil {
         return restResponse;
     }
 
+    public static GenericRestResponse defaultHttpPostHandler(String url,
+            String contentType) throws ClientProtocolException, IOException {
+        GenericRestResponse restResponse = new GenericRestResponse();
+        HttpClient httpclient = HttpClientBuilder.create().build();
+        HttpPost httppost = new HttpPost(url);
+        if (contentType != null) {
+            httppost.setHeader("Content-Type", contentType);
+        }
+        HttpResponse httpResponse = httpclient.execute(httppost);
+        restResponse.setResponseBody(
+                EntityUtils.toString(httpResponse.getEntity()));
+        restResponse
+                .setResponseCode(httpResponse.getStatusLine().getStatusCode());
+        return restResponse;
+    }
+
     public static GenericRestResponse defaultHttpDeleteHandler(String url,
             Map<String, String> requestBody, String authHash,
             String contentType) throws IOException {
@@ -107,6 +123,20 @@ public class ImiHttpUtil {
         httpDelete.setHeader("Authorization", "Basic " + authHash);
         if (contentType != null) {
             httpDelete.setHeader("Content-Type", contentType);
+        }
+        JSONObject json = new JSONObject();
+        for (String key : requestBody.keySet()) {
+            json.put(key, requestBody.get(key));
+        }
+        StringEntity params = new StringEntity(json.toString());
+        List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+        for (String key : requestBody.keySet()) {
+            nameValuePairs
+                    .add(new BasicNameValuePair(key, requestBody.get(key)));
+        }
+        if (!ContentType.APPLICATION_JSON.getMimeType()
+                .equalsIgnoreCase(contentType)) {
+            params = new UrlEncodedFormEntity(nameValuePairs);
         }
         HttpResponse httpResponse = httpclient.execute(httpDelete);
         restResponse.setResponseBody(

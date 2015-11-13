@@ -219,9 +219,14 @@ public class PlivoFactoryImpl implements NumberSearch, CountrySearch,
     public void releaseNumber(String number, Provider provider,
             String countryIsoCode)
                     throws ClientProtocolException, IOException, ImiException {
+        Number numberDetails = getNumberDetails(number, provider);
+        if (numberDetails == null) {
+            throw new ImiException("Number requested for release " + number
+                    + " is not present in your " + provider.getName()
+                    + " account. ");
+        }
         String plivioReleaseurl = PLIVO_RELEASE_URL;
-        String plivioNumber = number.trim() + countryIsoCode.trim();
-        plivioReleaseurl = plivioReleaseurl.replace("{number}", plivioNumber)
+        plivioReleaseurl = plivioReleaseurl.replace("{number}", number)
                 .replace("{auth_id}", provider.getAuthId());
         GenericRestResponse response = ImiHttpUtil.defaultHttpDeleteHandler(
                 plivioReleaseurl, new HashMap<String, String>(),
@@ -401,6 +406,7 @@ public class PlivoFactoryImpl implements NumberSearch, CountrySearch,
         } catch (IOException e) {
             e.printStackTrace();
         }
+        ;
         return plivoApplicationResponse;
     }
 
@@ -485,7 +491,7 @@ public class PlivoFactoryImpl implements NumberSearch, CountrySearch,
         plivoApplicationUpdateUrl = plivoApplicationUpdateUrl
                 .replace("{auth_id}", provider.getAuthId())
                 .replace("{app_id}", appId);
-        ApplicationResponse plivoApplicationResponse = new ApplicationResponse();
+        ApplicationResponse plivoApplicationResponse = null;
         GenericRestResponse restResponse = ImiHttpUtil.defaultHttpGetHandler(
                 plivoApplicationUpdateUrl, ImiBasicAuthUtil.getBasicAuthHash(
                         provider.getAuthId(), provider.getApiKey()));
@@ -494,53 +500,47 @@ public class PlivoFactoryImpl implements NumberSearch, CountrySearch,
                     restResponse.getResponseBody() == null ? ""
                             : restResponse.getResponseBody(),
                     ApplicationResponse.class);
-        } else {
-            // throw exception saying application with id not found
         }
         return plivoApplicationResponse;
     }
 
     public ApplicationResponse updateNumber(String number,
-            ApplicationResponse applicationResponsetoModify,
-            Provider provider) {
+            ApplicationResponse applicationResponsetoModify, Provider provider)
+                    throws ClientProtocolException, IOException, ImiException {
         String plivoNumberUpdateUrl = PLIVO_RELEASE_URL;
         plivoNumberUpdateUrl = plivoNumberUpdateUrl.replace("{number}", number)
                 .replace("{auth_id}", provider.getAuthId());
         PlivioPurchaseResponse plivioPurchaseResponse = new PlivioPurchaseResponse();
-        ApplicationResponse plivoApplicationResponse = new ApplicationResponse();
-        try {
-            plivoApplicationResponse = getApplicationByNumber(number, provider);
-            if (plivoApplicationResponse != null) {
-                plivoApplicationResponse = updateApplication(
-                        applicationResponsetoModify, provider);
-            } else {
-                plivoApplicationResponse = createApplication(
-                        applicationResponsetoModify, provider);
+        ApplicationResponse plivoApplicationResponse = getApplicationByNumber(
+                number, provider);
+        if (plivoApplicationResponse != null) {
+            applicationResponsetoModify
+                    .setApi_id(plivoApplicationResponse.getApi_id());
+            applicationResponsetoModify
+                    .setApp_id(plivoApplicationResponse.getApp_id());
+            plivoApplicationResponse = updateApplication(
+                    applicationResponsetoModify, provider);
+        } else {
+            plivoApplicationResponse = createApplication(
+                    applicationResponsetoModify, provider);
+        }
+        Map<String, String> requestBody = new HashMap<>();
+        requestBody.put("app_id", plivoApplicationResponse.getApp_id());
+        GenericRestResponse restResponse = ImiHttpUtil.defaultHttpPostHandler(
+                plivoNumberUpdateUrl, requestBody,
+                ImiBasicAuthUtil.getBasicAuthHash(provider.getAuthId(),
+                        provider.getApiKey()),
+                ContentType.APPLICATION_JSON.getMimeType());
+        if (restResponse.getResponseCode() == HttpStatus.ACCEPTED.value()) {
+            plivioPurchaseResponse = ImiJsonUtil.deserialize(
+                    restResponse.getResponseBody() == null ? ""
+                            : restResponse.getResponseBody(),
+                    PlivioPurchaseResponse.class);
+            if (!plivioPurchaseResponse.getMessage().equals("changed")) {
+                String message = "application created successfully, but not assigned to the upadted number";
+                ImiException e = new ImiException(message);
+                throw e;
             }
-            Map<String, String> requestBody = new HashMap<>();
-            requestBody.put("app_id", plivoApplicationResponse.getApp_id());
-            GenericRestResponse restResponse = ImiHttpUtil
-                    .defaultHttpPostHandler(plivoNumberUpdateUrl, requestBody,
-                            ImiBasicAuthUtil.getBasicAuthHash(
-                                    provider.getAuthId(), provider.getApiKey()),
-                            ContentType.APPLICATION_JSON.getMimeType());
-            if (restResponse.getResponseCode() == HttpStatus.ACCEPTED.value()) {
-                plivioPurchaseResponse = ImiJsonUtil.deserialize(
-                        restResponse.getResponseBody() == null ? ""
-                                : restResponse.getResponseBody(),
-                        PlivioPurchaseResponse.class);
-                if (!plivioPurchaseResponse.getMessage().equals("changed")) {
-                    String message = "application created successfully, but not assigned to the upadted number";
-                    ImiException e = new ImiException(message);
-                    throw e;
-                }
-            }
-        } catch (ClientProtocolException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ImiException e1) {
-            e1.printStackTrace();
         }
         return plivoApplicationResponse;
     }
@@ -590,7 +590,7 @@ public class PlivoFactoryImpl implements NumberSearch, CountrySearch,
         String plivoNumberGetUrl = PLIVO_RELEASE_URL;
         plivoNumberGetUrl = plivoNumberGetUrl.replace("{number}", number)
                 .replace("{auth_id}", provider.getAuthId());
-        ApplicationResponse plivoApplicationResponse = new ApplicationResponse();
+        ApplicationResponse plivoApplicationResponse = null;
         GenericRestResponse response = ImiHttpUtil.defaultHttpGetHandler(
                 plivoNumberGetUrl, ImiBasicAuthUtil.getBasicAuthHash(
                         provider.getAuthId(), provider.getApiKey()));
@@ -601,7 +601,7 @@ public class PlivoFactoryImpl implements NumberSearch, CountrySearch,
                     .substring(
                             numberObj.getApplication()
                                     .lastIndexOf("Application/") + 12,
-                            numberObj.getApplication().length() - 2)
+                            numberObj.getApplication().length() - 1)
                     .trim();
             if (app_id.length() > 0) {
                 plivoApplicationResponse = getApplication(app_id, provider);

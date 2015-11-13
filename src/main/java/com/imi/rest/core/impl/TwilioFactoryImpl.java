@@ -41,7 +41,6 @@ import com.imi.rest.model.InboundCallPrice;
 import com.imi.rest.model.Number;
 import com.imi.rest.model.NumberResponse;
 import com.imi.rest.model.PurchaseResponse;
-import com.imi.rest.model.TwilioAccount;
 import com.imi.rest.model.TwilioNumberPrice;
 import com.imi.rest.service.CountrySearchService;
 import com.imi.rest.service.ForexService;
@@ -325,7 +324,6 @@ public class TwilioFactoryImpl implements NumberSearch, CountrySearch,
                     countryResponse
                             .addCountries(countryResponse2.getCountries());
                 }
-
             }
             countrySet = countryResponse.getCountries();
         }
@@ -423,25 +421,18 @@ public class TwilioFactoryImpl implements NumberSearch, CountrySearch,
     }
 
     public void releaseNumber(String number, Provider provider,
-            String countryIsoCode) throws IOException, InvalidNumberException {
-        GenericRestResponse twilioAccountRestResponse = ImiHttpUtil
-                .defaultHttpGetHandler(TWILIO_ACCOUNT_URL,
-                        ImiBasicAuthUtil.getBasicAuthHash(provider.getAuthId(),
-                                provider.getApiKey()));
-        String accountSid = null;
-        if (twilioAccountRestResponse.getResponseCode() == HttpStatus.OK
-                .value()) {
-            TwilioAccount twilioAccountResponse = ImiJsonUtil
-                    .deserialize(twilioAccountRestResponse.getResponseBody(),
-                            TwilioAccount.class);
-            if (twilioAccountResponse!= null) {
-                accountSid = twilioAccountResponse.getOwner_account_sid();
-            }
+            String countryIsoCode) throws IOException, ImiException {
+        ApplicationResponse incomingPhoneNumber = getIncomingPhoneNumber(number,
+                provider);
+        if (incomingPhoneNumber == null) {
+            throw new ImiException(
+                    "Number requested " + number + " does not belong to your "
+                            + provider.getName() + "Account");
         }
-        // TODO: need to get IncomingPhoneNumberSid
-        String incomingPhoneNumberSid = number;
+        String incomingPhoneNumberSid = incomingPhoneNumber.getSid();
         String twilioReleaseurl = TWILIO_RELEASE_URL;
-        twilioReleaseurl = twilioReleaseurl.replace("{AccountSid}", accountSid)
+        twilioReleaseurl = twilioReleaseurl
+                .replace("{auth_id}", provider.getAuthId())
                 .replace("{IncomingPhoneNumberSid}", incomingPhoneNumberSid);
         GenericRestResponse response = ImiHttpUtil.defaultHttpDeleteHandler(
                 twilioReleaseurl, new HashMap<String, String>(),
@@ -475,8 +466,15 @@ public class TwilioFactoryImpl implements NumberSearch, CountrySearch,
         String twilioNumberUpdateUrl = TWILIO_NUMBER_UPDATE_URL;
         ApplicationResponse incomingPhoneNumber = getIncomingPhoneNumber(number,
                 provider);
-        twilioNumberUpdateUrl = twilioNumberUpdateUrl.replace(
-                "{IncomingPhoneNumberSid}", incomingPhoneNumber.getSid());
+        if (incomingPhoneNumber == null) {
+            throw new ImiException(
+                    "Number requested " + number + " does not belong to your "
+                            + provider.getName() + "Account");
+        }
+        twilioNumberUpdateUrl = twilioNumberUpdateUrl
+                .replace("{IncomingPhoneNumberSid}",
+                        incomingPhoneNumber.getSid())
+                .replace("{auth_id}", provider.getAuthId());
         twilioNumberUpdateUrl = getUpdatedUrl(twilioNumberUpdateUrl,
                 applicationResponsetoModify);
         ApplicationResponse applicationResponse = new ApplicationResponse();
@@ -485,28 +483,24 @@ public class TwilioFactoryImpl implements NumberSearch, CountrySearch,
                 ImiBasicAuthUtil.getBasicAuthHash(provider.getAuthId(),
                         provider.getApiKey()),
                 null);
-        // TODO check the rest response code and serialize only on success
-        // condition
-        applicationResponse = ImiJsonUtil.deserialize(
-                response.getResponseBody(), ApplicationResponse.class);
+        if (response.getResponseCode() == HttpStatus.OK.value()) {
+            applicationResponse = ImiJsonUtil.deserialize(
+                    response.getResponseBody(), ApplicationResponse.class);
+        } else {
+            throw new ImiException(
+                    "Some Error occured while updating the number. Please check back again. Response from Twilio is "
+                            + response.getResponseBody());
+        }
         return applicationResponse;
     }
 
-    /***
-     * 
-     * @param number
-     * @param provider
-     * @return
-     * @throws ImiException
-     * @throws IOException
-     * @throws ClientProtocolException
-     */
     private ApplicationResponse getIncomingPhoneNumber(String number,
             Provider provider)
                     throws ClientProtocolException, IOException, ImiException {
         String twilioNumberGetUrl = TWILIO_PURCHASE_URL;
-        twilioNumberGetUrl = twilioNumberGetUrl.replace("{number}", number);
-        ApplicationResponse applicationResponse = new ApplicationResponse();
+        twilioNumberGetUrl = twilioNumberGetUrl.replace("{number}", number)
+                .replace("{auth_id}", provider.getAuthId());
+        ApplicationResponse applicationResponse = null;
         GenericRestResponse response = ImiHttpUtil.defaultHttpGetHandler(
                 twilioNumberGetUrl, ImiBasicAuthUtil.getBasicAuthHash(
                         provider.getAuthId(), provider.getApiKey()));
@@ -514,7 +508,10 @@ public class TwilioFactoryImpl implements NumberSearch, CountrySearch,
             ApplicationResponseList incomingPhoneNumbers = ImiJsonUtil
                     .deserialize(response.getResponseBody(),
                             ApplicationResponseList.class);
-            applicationResponse = incomingPhoneNumbers.getObjects().get(0);
+            applicationResponse = incomingPhoneNumbers.getObjects() == null
+                    ? null
+                    : incomingPhoneNumbers.getObjects().size() == 1
+                            ? incomingPhoneNumbers.getObjects().get(0) : null;
         }
         return applicationResponse;
     }
@@ -523,35 +520,35 @@ public class TwilioFactoryImpl implements NumberSearch, CountrySearch,
             ApplicationResponse modifyapplication) {
         String toAppend = "?";
         if (modifyapplication.getFriendlyName() != null) {
-            toAppend.concat("FriendlyName="
+            toAppend = toAppend.concat("FriendlyName="
                     + modifyapplication.getFriendlyName() + "&");
         }
         if (modifyapplication.getApiVersion() != null) {
-            toAppend.concat(
+            toAppend = toAppend.concat(
                     "ApiVersion=" + modifyapplication.getApiVersion() + "&");
         }
         if (modifyapplication.getVoiceUrl() != null) {
-            toAppend.concat(
+            toAppend = toAppend.concat(
                     "VoiceUrl=" + modifyapplication.getVoiceUrl() + "&");
         }
         if (modifyapplication.getVoiceMethod() != null) {
-            toAppend.concat(
+            toAppend = toAppend.concat(
                     "VoiceMethod=" + modifyapplication.getVoiceMethod() + "&");
         }
         if (modifyapplication.getVoiceFallback() != null) {
-            toAppend.concat("VoiceFallbackUrl="
+            toAppend = toAppend.concat("VoiceFallbackUrl="
                     + modifyapplication.getVoiceFallback() + "&");
         }
         if (modifyapplication.getVoiceFallbackMethod() != null) {
-            toAppend.concat("VoiceFallbackMethod="
+            toAppend = toAppend.concat("VoiceFallbackMethod="
                     + modifyapplication.getVoiceFallbackMethod() + "&");
         }
         if (modifyapplication.getStatusCallback() != null) {
-            toAppend.concat("StatusCallback="
+            toAppend = toAppend.concat("StatusCallback="
                     + modifyapplication.getStatusCallback() + "&");
         }
         if (modifyapplication.getStatusCallbackMethod() != null) {
-            toAppend.concat("StatusCallbackMethod="
+            toAppend = toAppend.concat("StatusCallbackMethod="
                     + modifyapplication.getStatusCallbackMethod() + "&");
         }
         if (modifyapplication.getVoiceCallerIdLookup() != null) {
@@ -559,34 +556,35 @@ public class TwilioFactoryImpl implements NumberSearch, CountrySearch,
                     + modifyapplication.getVoiceCallerIdLookup() + "&");
         }
         if (modifyapplication.getVoiceApplicationSid() != null) {
-            toAppend.concat("VoiceApplicationSid="
+            toAppend = toAppend.concat("VoiceApplicationSid="
                     + modifyapplication.getVoiceApplicationSid() + "&");
         }
         if (modifyapplication.getTrunkSid() != null) {
-            toAppend.concat(
+            toAppend = toAppend.concat(
                     "TrunkSid=" + modifyapplication.getTrunkSid() + "&");
         }
         if (modifyapplication.getSmsUrl() != null) {
-            toAppend.concat("SmsUrl=" + modifyapplication.getSmsUrl() + "&");
+            toAppend = toAppend
+                    .concat("SmsUrl=" + modifyapplication.getSmsUrl() + "&");
         }
         if (modifyapplication.getSmsFallbackUrl() != null) {
-            toAppend.concat("SmsFallbackUrl="
+            toAppend = toAppend.concat("SmsFallbackUrl="
                     + modifyapplication.getSmsFallbackUrl() + "&");
         }
         if (modifyapplication.getSmsFallbackMethod() != null) {
-            toAppend.concat("SmsFallbackMethod="
+            toAppend = toAppend.concat("SmsFallbackMethod="
                     + modifyapplication.getSmsFallbackMethod() + "&");
         }
         if (modifyapplication.getSmsApplicationSid() != null) {
-            toAppend.concat("SmsApplicationSid="
+            toAppend = toAppend.concat("SmsApplicationSid="
                     + modifyapplication.getSmsApplicationSid() + "&");
         }
         if (modifyapplication.getAccountSid() != null) {
-            toAppend.concat(
+            toAppend = toAppend.concat(
                     "AccountSid=" + modifyapplication.getAccountSid() + "&");
         }
-        toAppend = toAppend.substring(0, toAppend.length() - 1);
-        url.concat(toAppend);
+        toAppend = toAppend = toAppend.substring(0, toAppend.length() - 1);
+        url = url.concat(toAppend);
         return url;
     }
 

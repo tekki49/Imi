@@ -292,6 +292,7 @@ public class ApplicationResponse {
         return app_id;
     }
 
+    @JsonProperty("app_id")
     public void setApp_id(String app_id) {
         this.app_id = app_id;
     }
@@ -300,6 +301,7 @@ public class ApplicationResponse {
         return app_name;
     }
 
+    @JsonProperty("app_name")
     public void setApp_name(String app_name) {
         this.app_name = app_name;
     }
@@ -308,6 +310,7 @@ public class ApplicationResponse {
         return default_app;
     }
 
+    @JsonProperty("default_app")
     public void setDefault_app(Boolean default_app) {
         this.default_app = default_app;
     }
@@ -316,6 +319,7 @@ public class ApplicationResponse {
         return enabled;
     }
 
+    @JsonProperty("enabled")
     public void setEnabled(Boolean enabled) {
         this.enabled = enabled;
     }
@@ -324,6 +328,7 @@ public class ApplicationResponse {
         return voiceMethod;
     }
 
+    @JsonProperty("voiceMethod")
     public void setVoiceMethod(String voiceMethod) {
         this.voiceMethod = voiceMethod;
     }
@@ -332,6 +337,7 @@ public class ApplicationResponse {
         return voiceUrl;
     }
 
+    @JsonProperty("voiceUrl")
     public void setVoiceUrl(String voiceUrl) {
         this.voiceUrl = voiceUrl;
     }
@@ -340,6 +346,7 @@ public class ApplicationResponse {
         return voiceFallback;
     }
 
+    @JsonProperty("voiceFallback")
     public void setVoiceFallback(String voiceFallback) {
         this.voiceFallback = voiceFallback;
     }
@@ -348,6 +355,7 @@ public class ApplicationResponse {
         return voiceFallbackMethod;
     }
 
+    @JsonProperty("voiceFallbackMethod")
     public void setVoiceFallbackMethod(String voiceFallbackMethod) {
         this.voiceFallbackMethod = voiceFallbackMethod;
     }
@@ -356,6 +364,7 @@ public class ApplicationResponse {
         return statusCallbackMethod;
     }
 
+    @JsonProperty("statusCallbackMethod")
     public void setStatusCallbackMethod(String statusCallbackMethod) {
         this.statusCallbackMethod = statusCallbackMethod;
     }
@@ -364,6 +373,7 @@ public class ApplicationResponse {
         return statusCallback;
     }
 
+    @JsonProperty("statusCallback")
     public void setStatusCallback(String statusCallback) {
         this.statusCallback = statusCallback;
     }
@@ -372,6 +382,7 @@ public class ApplicationResponse {
         return smsMethod;
     }
 
+    @JsonProperty("smsMethod")
     public void setSmsMethod(String smsMethod) {
         this.smsMethod = smsMethod;
     }
@@ -380,6 +391,7 @@ public class ApplicationResponse {
         return smsUrl;
     }
 
+    @JsonProperty("smsUrl")
     public void setSmsUrl(String smsUrl) {
         this.smsUrl = smsUrl;
     }
@@ -388,6 +400,7 @@ public class ApplicationResponse {
         return public_uri;
     }
 
+    @JsonProperty("public_uri")
     public void setPublic_uri(Boolean public_uri) {
         this.public_uri = public_uri;
     }
@@ -396,6 +409,7 @@ public class ApplicationResponse {
         return resource_uri;
     }
 
+    @JsonProperty("resource_uri")
     public void setResource_uri(String resource_uri) {
         this.resource_uri = resource_uri;
     }
@@ -404,6 +418,7 @@ public class ApplicationResponse {
         return sip_uri;
     }
 
+    @JsonProperty("sip_uri")
     public void setSip_uri(String sip_uri) {
         this.sip_uri = sip_uri;
     }
@@ -412,6 +427,7 @@ public class ApplicationResponse {
         return sub_account;
     }
 
+    @JsonProperty("sub_account")
     public void setSub_account(String sub_account) {
         this.sub_account = sub_account;
     }
@@ -420,6 +436,7 @@ public class ApplicationResponse {
         return default_number_app;
     }
 
+    @JsonProperty("default_number_app")
     public void setDefault_number_app(Boolean default_number_app) {
         this.default_number_app = default_number_app;
     }
@@ -428,6 +445,7 @@ public class ApplicationResponse {
         return default_endpoint_app;
     }
 
+    @JsonProperty("default_endpoint_app")
     public void setDefault_endpoint_app(Boolean default_endpoint_app) {
         this.default_endpoint_app = default_endpoint_app;
     }
@@ -440,6 +458,7 @@ public class ApplicationResponse {
         return trunkSid;
     }
 
+    @JsonProperty("trunkSid")
     public void setTrunkSid(String trunkSid) {
         this.trunkSid = trunkSid;
     }

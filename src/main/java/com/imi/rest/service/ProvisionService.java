@@ -39,7 +39,7 @@ public class ProvisionService implements ProviderConstants {
                     application, providerService.getTwilioProvider());
         } else if (providerName.equalsIgnoreCase(NEXMO)) {
             applicationResponse = nexmoFactoryImpl.updateNumber(number,
-                    countryIsoCode, applicationResponse,
+                    countryIsoCode, application,
                     providerService.getNexmoProvider());
         } else {
             throw new InvalidProviderException(providerName);

@@ -21,6 +21,20 @@ public class ProvisionController {
     @Autowired
     ProvisionService provisionService;
 
+    // Required in case of nexmo
+    @RequestMapping(value = "/number/update/{countryIsoCode}/{number}", method = RequestMethod.POST)
+    public ApplicationResponse provisionNumber(
+            @PathVariable("countryIsoCode") String countryIsoCode,
+            @PathVariable("number") String number,
+            @RequestHeader("provider") String providerName,
+            @RequestBody ApplicationResponse application)
+                    throws ClientProtocolException, IOException, ImiException {
+        ApplicationResponse applicationResponse = provisionService
+                .provisionNumber(number, countryIsoCode, providerName,
+                        application);
+        return applicationResponse;
+    }
+
     @RequestMapping(value = "/number/update/{number}", method = RequestMethod.POST)
     public ApplicationResponse provisionNumber(
             @PathVariable("number") String number,
