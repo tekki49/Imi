@@ -583,7 +583,7 @@ public class TwilioFactoryImpl implements NumberSearch, CountrySearch,
             toAppend = toAppend.concat(
                     "AccountSid=" + modifyapplication.getAccountSid() + "&");
         }
-        toAppend = toAppend = toAppend.substring(0, toAppend.length() - 1);
+        toAppend =  toAppend.substring(0, toAppend.length() - 1);
         url = url.concat(toAppend);
         return url;
     }
