@@ -26,16 +26,16 @@ public class ClientController {
 
     @RequestMapping(value = "/client", method = RequestMethod.POST, consumes = "application/json")
     public String updateAdressToProvider(
-            @RequestBody ClientRequest clientRequest,
+            @RequestBody Customer clientRequest,
             @RequestHeader("provider") String provider)
                     throws ClientProtocolException, ImiException, IOException {
-        addressService.updateClientAddressToProvider(clientRequest.getClient(),
+        addressService.updateClientAddressToProvider(clientRequest,
                 provider);
-        addressService.updateAddress(clientRequest.getClient());
+        addressService.updateAddress(clientRequest);
         return ImiJsonUtil.getJSONString("status", "Client Registered");
     }
 
-    @RequestMapping(value = "/client/getAll/{clientId}/{country}")
+    @RequestMapping(value = "/client/getAll/{clientId}/{country}", method = RequestMethod.GET)
     public List<Customer> clientListResponse(
             @RequestHeader("provider") String provider,
             @PathVariable("clientId") final String clientId,
@@ -45,12 +45,13 @@ public class ClientController {
     }
 
     @RequestMapping(value = "/client/save/{clientId}/{country}", method = RequestMethod.POST, consumes = "application/json")
-    public List<Customer> updateAdressToImi(
+    public String updateAdressToImi(
             @RequestHeader(value = "provider", required = false) String provider,
-            @RequestBody ClientRequest clientRequest,
+            @RequestBody Customer clientRequest,
             @PathVariable("clientId") final String clientId,
             @PathVariable("country") final String country)
                     throws ClientProtocolException, ImiException, IOException {
-        return addressService.getAddressList(clientId, country);
+        addressService.updateAddress(clientRequest);
+        return ImiJsonUtil.getJSONString("status", "Client Registered");
     }
 }

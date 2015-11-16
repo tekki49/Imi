@@ -16,7 +16,6 @@ import com.imi.rest.dao.model.Country;
 import com.imi.rest.dao.model.UserAddressMgmt;
 import com.imi.rest.exception.ImiException;
 import com.imi.rest.model.Customer;
-import com.imi.rest.model.UserAddressMgnt;
 
 @Repository
 @Transactional
@@ -56,7 +55,7 @@ public class AddressDao {
         throw new ImiException("Unable to fetch country data from data base");
     }
     
-    public void createNewAddress(UserAddressMgnt addressMgnt)
+    public void createNewAddress(UserAddressMgmt addressMgnt)
     {
         getSession().saveOrUpdate(addressMgnt);
     }

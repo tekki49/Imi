@@ -11,10 +11,10 @@ import com.imi.rest.constants.ProviderConstants;
 import com.imi.rest.core.impl.TwilioFactoryImpl;
 import com.imi.rest.dao.AddressDao;
 import com.imi.rest.dao.model.Provider;
+import com.imi.rest.dao.model.UserAddressMgmt;
 import com.imi.rest.exception.ImiException;
 import com.imi.rest.model.Address;
 import com.imi.rest.model.Customer;
-import com.imi.rest.model.UserAddressMgnt;
 
 @Service
 public class AddressService implements ProviderConstants {
@@ -50,17 +50,17 @@ public class AddressService implements ProviderConstants {
 
     public void updateAddress(Customer customer)
     {
-        UserAddressMgnt userAddressMgnt=null;
+        UserAddressMgmt userAddressMgnt=null;
         if(customer.getAddress_id()==null)
         {
-            userAddressMgnt=new UserAddressMgnt();
+            userAddressMgnt=new UserAddressMgmt();
         }
-        userAddressMgnt.setBlockName(customer.getStreet());
-        userAddressMgnt.setBusinessName(customer.getCustomer());
+        userAddressMgnt.setAddress(customer.getStreet());
+        userAddressMgnt.setCompanyName(customer.getCustomer());
         userAddressMgnt.setCity(customer.getCity());
         userAddressMgnt.setCountry(customer.getCountry());
         userAddressMgnt.setState(customer.getState());
-        userAddressMgnt.setZipCode(customer.getPostalcode());
+        userAddressMgnt.setPostalCode(Integer.parseInt(customer.getPostalcode()));
         addressDao.createNewAddress(userAddressMgnt);
     }
     
