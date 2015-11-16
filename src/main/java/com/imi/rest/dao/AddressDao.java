@@ -32,8 +32,8 @@ public class AddressDao {
     public List<com.imi.rest.model.Customer> getAddressList(String userId,
             String country) throws ImiException {
         Criteria criteria = getSession().createCriteria(UserAddressMgmt.class);
-        Integer id = Integer.parseInt(userId);
-        criteria.add(Restrictions.eq("userId", id));
+        Long id = Long.valueOf(userId);
+        criteria.add(Restrictions.idEq(id));
         criteria.add(Restrictions.eq("country", country));
         List<UserAddressMgmt> addressDbList = criteria.list();
         if (addressDbList != null) {
