@@ -24,14 +24,15 @@ public class ClientController {
     @Autowired
     private AddressService addressService;
 
-    @RequestMapping(value = "/client", method = RequestMethod.POST, consumes = "application/json")
+    @RequestMapping(value = "/client/{clientId}", method = RequestMethod.POST, consumes = "application/json")
     public String updateAdressToProvider(
             @RequestBody Customer clientRequest,
+            @PathVariable("clientId")String clientId,
             @RequestHeader("provider") String provider)
                     throws ClientProtocolException, ImiException, IOException {
         addressService.updateClientAddressToProvider(clientRequest,
                 provider);
-        addressService.updateAddress(clientRequest);
+        addressService.updateAddress(clientRequest,clientId);
         return ImiJsonUtil.getJSONString("status", "Client Registered");
     }
 
@@ -51,7 +52,16 @@ public class ClientController {
             @PathVariable("clientId") final String clientId,
             @PathVariable("country") final String country)
                     throws ClientProtocolException, ImiException, IOException {
-        addressService.updateAddress(clientRequest);
-        return ImiJsonUtil.getJSONString("status", "Client Registered");
+        addressService.updateAddress(clientRequest,clientId);
+        return ImiJsonUtil.getJSONString("status", "Client Address Details Updated Successfully");
+    }
+    
+    @RequestMapping(value = "/client/delete/{clientId}/{addressId}", method = RequestMethod.DELETE)
+    public String clientListResponse(
+            @PathVariable("clientId") final String clientId,
+            @PathVariable("addressId") final String addressId)
+                    throws ClientProtocolException, ImiException, IOException {
+        addressService.deleteAddressFromImi(clientId, addressId);
+        return ImiJsonUtil.getJSONString("status", "Client Address Details Deleted Successfully");
     }
 }

@@ -12,7 +12,6 @@ import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import com.imi.rest.dao.model.Country;
 import com.imi.rest.dao.model.UserAddressMgmt;
 import com.imi.rest.exception.ImiException;
 import com.imi.rest.model.Customer;
@@ -29,11 +28,11 @@ public class AddressDao {
     }
 
     @SuppressWarnings("unchecked")
-    public List<com.imi.rest.model.Customer> getAddressList(String userId,
+    public List<com.imi.rest.model.Customer> getAddressList(String userIdString,
             String country) throws ImiException {
         Criteria criteria = getSession().createCriteria(UserAddressMgmt.class);
-        Long id = Long.valueOf(userId);
-        criteria.add(Restrictions.idEq(id));
+        Integer userId = Integer.parseInt(userIdString);
+        criteria.add(Restrictions.eq("userId",userId));
         criteria.add(Restrictions.eq("country", country));
         List<UserAddressMgmt> addressDbList = criteria.list();
         if (addressDbList != null) {
@@ -60,4 +59,20 @@ public class AddressDao {
         getSession().saveOrUpdate(addressMgnt);
     }
 
+    
+    public UserAddressMgmt getAddressById(String addressId)
+    {
+        UserAddressMgmt userAddressMgmt=null;
+        Criteria criteria = getSession().createCriteria(UserAddressMgmt.class);
+        Long id = Long.valueOf(addressId);
+        criteria.add(Restrictions.idEq(id));
+        List<UserAddressMgmt>userAddressList=criteria.list();
+        if(userAddressList!=null&& userAddressList.size()>0)
+            userAddressMgmt=userAddressList.get(0);
+        return userAddressMgmt;
+    }
+
+    public void deleteAddress(UserAddressMgmt userAddressMgmt) {
+        getSession().delete(userAddressMgmt);
+    }
 }
