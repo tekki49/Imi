@@ -30,20 +30,25 @@ import com.imi.rest.core.NumberSearch;
 import com.imi.rest.core.PurchaseNumber;
 import com.imi.rest.dao.model.Country;
 import com.imi.rest.dao.model.Provider;
+import com.imi.rest.dao.model.ResourceMaster;
 import com.imi.rest.exception.ImiException;
 import com.imi.rest.exception.InvalidNumberException;
+import com.imi.rest.model.Address;
 import com.imi.rest.model.ApplicationResponse;
 import com.imi.rest.model.ApplicationResponseList;
 import com.imi.rest.model.CountryPricing;
 import com.imi.rest.model.CountryResponse;
+import com.imi.rest.model.Customer;
 import com.imi.rest.model.GenericRestResponse;
 import com.imi.rest.model.InboundCallPrice;
 import com.imi.rest.model.Number;
 import com.imi.rest.model.NumberResponse;
 import com.imi.rest.model.PurchaseResponse;
+import com.imi.rest.model.TwilioAddressResponse;
 import com.imi.rest.model.TwilioNumberPrice;
 import com.imi.rest.service.CountrySearchService;
 import com.imi.rest.service.ForexService;
+import com.imi.rest.service.ResourceService;
 import com.imi.rest.util.ImiBasicAuthUtil;
 import com.imi.rest.util.ImiDataFormatUtils;
 import com.imi.rest.util.ImiHttpUtil;
@@ -64,6 +69,9 @@ public class TwilioFactoryImpl implements NumberSearch, CountrySearch,
 
     @Autowired
     ForexService forexService;
+
+    @Autowired
+    ResourceService resourceService;
 
     @Override
     public void searchPhoneNumbers(Provider provider,
@@ -101,8 +109,8 @@ public class TwilioFactoryImpl implements NumberSearch, CountrySearch,
                     "");
         }
         twilioNumberSearchResponse = ImiHttpUtil.defaultHttpGetHandler(
-                twilioPhoneSearchUrl, ImiBasicAuthUtil.getBasicAuthHash(
-                        provider.getAuthId(), provider.getApiKey()));
+                twilioPhoneSearchUrl,
+                ImiBasicAuthUtil.getBasicAuthHash(provider));
         if (twilioNumberSearchResponse.getResponseCode() == HttpStatus.OK
                 .value()) {
             NumberResponse numberResponseFromTwilo = ImiJsonUtil.deserialize(
@@ -153,8 +161,7 @@ public class TwilioFactoryImpl implements NumberSearch, CountrySearch,
         pricingUrl = pricingUrl.replace("{Country}", countryIsoCode);
         GenericRestResponse twilioPriceResponse;
         twilioPriceResponse = ImiHttpUtil.defaultHttpGetHandler(pricingUrl,
-                ImiBasicAuthUtil.getBasicAuthHash(provider.getAuthId(),
-                        provider.getApiKey()));
+                ImiBasicAuthUtil.getBasicAuthHash(provider));
         CountryPricing countryPricing = null;
         if (twilioPriceResponse.getResponseCode() == HttpStatus.OK.value()) {
             countryPricing = ImiJsonUtil.deserialize(
@@ -296,8 +303,7 @@ public class TwilioFactoryImpl implements NumberSearch, CountrySearch,
             Provider provider) throws JsonParseException, JsonMappingException,
                     IOException, ImiException {
         String url = TWILIO_COUNTRY_LIST_URL;
-        String authHash = ImiBasicAuthUtil
-                .getBasicAuthHash(provider.getAuthId(), provider.getApiKey());
+        String authHash = ImiBasicAuthUtil.getBasicAuthHash(provider);
         GenericRestResponse restResponse;
         Set<com.imi.rest.model.Country> countrySet = new HashSet<com.imi.rest.model.Country>();
         restResponse = ImiHttpUtil.defaultHttpGetHandler(url, authHash);
@@ -375,16 +381,14 @@ public class TwilioFactoryImpl implements NumberSearch, CountrySearch,
             ServiceConstants serviceTypeEnum)
                     throws ClientProtocolException, IOException, ImiException {
         String twilioPurchaseUrl = TWILIO_PURCHASE_URL;
-        String twilioNumber = "+" + number.trim();
+        String twilioNumber = "+" + (number.trim().replace("+", ""));
         twilioPurchaseUrl = twilioPurchaseUrl.replace("{number}", twilioNumber)
                 .replace("{auth_id}", provider.getAuthId());
         Map<String, String> requestBody = new HashMap<String, String>();
         requestBody.put("PhoneNumber", twilioNumber);
         GenericRestResponse response = ImiHttpUtil.defaultHttpPostHandler(
                 twilioPurchaseUrl, requestBody,
-                ImiBasicAuthUtil.getBasicAuthHash(provider.getAuthId(),
-                        provider.getApiKey()),
-                null);
+                ImiBasicAuthUtil.getBasicAuthHash(provider), null);
         String type = "Local";
         if (numberType.equalsIgnoreCase(MOBILE)) {
             type = "Mobile";
@@ -395,14 +399,26 @@ public class TwilioFactoryImpl implements NumberSearch, CountrySearch,
             getTwilioPricing(country.getCountryIso(), provider);
         }
         if (response.getResponseCode() == HttpStatus.CREATED.value()) {
+            ApplicationResponse numberDetails = ImiJsonUtil.deserialize(
+                    response.getResponseBody(), ApplicationResponse.class);
+
             String searchKey = country.getCountryIso() + "-"
                     + type.toUpperCase();
             TwilioNumberPrice twilioPrice = twilioMonthlyPriceMap
                     .get(searchKey);
             PurchaseResponse purchaseResponse = new PurchaseResponse();
+            if (numberDetails.getAddress_requirements()
+                    .equalsIgnoreCase("none")) {
+                purchaseResponse.setAddressRequired(false);
+            } else {
+                purchaseResponse.setAddressRequired(true);
+            }
+            ResourceMaster resourceMaster = resourceService
+                    .updateResource(number, serviceTypeEnum);
+            resourceService.updateResourceAllocation(resourceMaster);
+            resourceService.updateChannelAssetsAllocation(resourceMaster);
             purchaseResponse.setNumber(number);
             purchaseResponse.setNumberType(numberType);
-            purchaseResponse.setRestrictions("");
             purchaseResponse.setMonthlyRentalRate(
                     ImiDataFormatUtils.forexConvert(forexValue,
                             twilioPrice.getMonthlyRentalRate()));
@@ -411,9 +427,13 @@ public class TwilioFactoryImpl implements NumberSearch, CountrySearch,
                     forexValue, twilioPrice.getInboundSmsPrice()));
             purchaseResponse.setVoicePrice(ImiDataFormatUtils.forexConvert(
                     forexValue, twilioPrice.getInboundVoicePrice()));
-            purchaseResponse.setEffectiveDate("");
-            purchaseResponse.setResourceManagerId(0);
-            purchaseResponse.setCountryProviderId(country.getId());
+            purchaseResponse
+                    .setEffectiveDate(ImiDataFormatUtils.getCurrentTimeStamp());
+            resourceService.updatePurchase(purchaseResponse, numberType,
+                    ImiDataFormatUtils.getAddressRestrictions(
+                            purchaseResponse.isAddressRequired(),
+                            numberDetails.getAddress_requirements()),
+                    resourceMaster);
             return purchaseResponse;
         } else {
             throw new InvalidNumberException(number, provider.getName());
@@ -436,9 +456,7 @@ public class TwilioFactoryImpl implements NumberSearch, CountrySearch,
                 .replace("{IncomingPhoneNumberSid}", incomingPhoneNumberSid);
         GenericRestResponse response = ImiHttpUtil.defaultHttpDeleteHandler(
                 twilioReleaseurl, new HashMap<String, String>(),
-                ImiBasicAuthUtil.getBasicAuthHash(provider.getAuthId(),
-                        provider.getApiKey()),
-                null);
+                ImiBasicAuthUtil.getBasicAuthHash(provider), null);
         if (response.getResponseCode() != HttpStatus.NO_CONTENT.value()) {
             throw new InvalidNumberException(number, provider.getName());
         }
@@ -480,9 +498,7 @@ public class TwilioFactoryImpl implements NumberSearch, CountrySearch,
         ApplicationResponse applicationResponse = new ApplicationResponse();
         GenericRestResponse response = ImiHttpUtil.defaultHttpPostHandler(
                 twilioNumberUpdateUrl, new HashMap<String, String>(),
-                ImiBasicAuthUtil.getBasicAuthHash(provider.getAuthId(),
-                        provider.getApiKey()),
-                null);
+                ImiBasicAuthUtil.getBasicAuthHash(provider), null);
         if (response.getResponseCode() == HttpStatus.OK.value()) {
             applicationResponse = ImiJsonUtil.deserialize(
                     response.getResponseBody(), ApplicationResponse.class);
@@ -502,8 +518,8 @@ public class TwilioFactoryImpl implements NumberSearch, CountrySearch,
                 .replace("{auth_id}", provider.getAuthId());
         ApplicationResponse applicationResponse = null;
         GenericRestResponse response = ImiHttpUtil.defaultHttpGetHandler(
-                twilioNumberGetUrl, ImiBasicAuthUtil.getBasicAuthHash(
-                        provider.getAuthId(), provider.getApiKey()));
+                twilioNumberGetUrl,
+                ImiBasicAuthUtil.getBasicAuthHash(provider));
         if (response.getResponseCode() == HttpStatus.OK.value()) {
             ApplicationResponseList incomingPhoneNumbers = ImiJsonUtil
                     .deserialize(response.getResponseBody(),
@@ -583,9 +599,80 @@ public class TwilioFactoryImpl implements NumberSearch, CountrySearch,
             toAppend = toAppend.concat(
                     "AccountSid=" + modifyapplication.getAccountSid() + "&");
         }
-        toAppend =  toAppend.substring(0, toAppend.length() - 1);
+        toAppend = toAppend.substring(0, toAppend.length() - 1);
         url = url.concat(toAppend);
         return url;
+    }
+
+    public Address getAddressOfCustomer(String customerName, Provider provider)
+            throws ClientProtocolException, IOException {
+        String addressGetUrl = TWILIO_ADDRESS_URL;
+        customerName = customerName.trim().replaceAll(" +", "+");
+        addressGetUrl = addressGetUrl.replace("{auth_id}", provider.getAuthId())
+                .concat("?CustomerName=" + customerName);
+        GenericRestResponse restResponse = ImiHttpUtil.defaultHttpGetHandler(
+                addressGetUrl, ImiBasicAuthUtil.getBasicAuthHash(provider));
+        Address address = null;
+        if (restResponse.getResponseCode() == HttpStatus.OK.value()) {
+            TwilioAddressResponse addressResponse = ImiJsonUtil.deserialize(
+                    restResponse.getResponseBody(),
+                    TwilioAddressResponse.class);
+            if (addressResponse == null
+                    || addressResponse.getAddresses() == null
+                    || addressResponse.getAddresses().size() == 0) {
+                address = null;
+            } else {
+                address = addressResponse.getAddresses().get(0);
+            }
+        }
+        return address;
+    }
+
+    public Address createNewAddressOfCustomer(Customer customer,
+            Provider provider)
+                    throws ClientProtocolException, IOException, ImiException {
+        Address address = getAddressOfCustomer(customer.getCustomer(),
+                provider);
+        String customerName = customer.getCustomer().trim().replaceAll(" +",
+                "+");
+        String addressPostUrl = TWILIO_ADDRESS_URL;
+        addressPostUrl = addressPostUrl.replace("{auth_id}",
+                provider.getAuthId());
+        Map<String, String> requestBody = new HashMap<String, String>();
+        if (address == null) {
+            requestBody.put("IsoCountry", customer.getCountryIso());
+            requestBody.put("CustomerName", customer.getCustomer());
+        } else {
+            addressPostUrl = TWILIO_ADDRESS_BY_SID_URL
+                    .replace("{auth_id}", provider.getAuthId())
+                    .replace("{AddressSid}", address.getSid());
+        }
+        if (customer.getCity() != null) {
+            requestBody.put("City", customer.getCity());
+        }
+        if (customer.getPostalcode() != null) {
+            requestBody.put("PostalCode", customer.getPostalcode());
+        }
+        if (customer.getState() != null) {
+            requestBody.put("Region", customer.getState());
+        }
+        if (customer.getStreet() != null) {
+            requestBody.put("Street", customer.getStreet());
+        }
+        GenericRestResponse restResponse = ImiHttpUtil.defaultHttpPostHandler(
+                addressPostUrl, requestBody,
+                ImiBasicAuthUtil.getBasicAuthHash(provider), null);
+        if (restResponse.getResponseCode() == HttpStatus.OK.value()
+                || restResponse.getResponseCode() == HttpStatus.CREATED
+                        .value()) {
+            address = ImiJsonUtil.deserialize(restResponse.getResponseBody(),
+                    Address.class);
+        } else {
+            throw new ImiException(
+                    "Exception while updating the customer address. Error response from Twilio "
+                            + restResponse.getResponseBody());
+        }
+        return address;
     }
 
 }

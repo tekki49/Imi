@@ -1,5 +1,8 @@
 package com.imi.rest.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Customer {
 
     private String customer;
@@ -7,6 +10,7 @@ public class Customer {
     private String city;
     private String street;
     private String postalcode;
+    private String countryIso;
 
     public String getCustomer() {
         return customer;
@@ -46,6 +50,14 @@ public class Customer {
 
     public void setPostalcode(String postalcode) {
         this.postalcode = postalcode;
+    }
+
+    public String getCountryIso() {
+        return countryIso;
+    }
+
+    public void setCountryIso(String countryIso) {
+        this.countryIso = countryIso;
     }
 
 }

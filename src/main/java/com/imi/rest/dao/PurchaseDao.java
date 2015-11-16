@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Repository;
 
 import com.imi.rest.dao.model.Purchase;
+import com.imi.rest.dao.model.ResourceMaster;
 
 @Configuration
 @Repository
@@ -37,5 +38,9 @@ public class PurchaseDao {
         criteria.add(Restrictions.eq("number", number));
         List<Purchase> purchaseList = criteria.list();
         return purchaseList.get(0);
+    }
+    
+    public void createNewPurchase(Purchase purchase) {
+        getSession().saveOrUpdate(purchase);
     }
 }

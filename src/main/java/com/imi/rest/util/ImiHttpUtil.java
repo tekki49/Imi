@@ -140,8 +140,7 @@ public class ImiHttpUtil {
         }
         httpDelete.setEntity(params);
         HttpResponse httpResponse = httpclient.execute(httpDelete);
-        if(httpResponse.getEntity()!=null)
-        {
+        if (httpResponse.getEntity() != null) {
             restResponse.setResponseBody(
                     EntityUtils.toString(httpResponse.getEntity()));
         }

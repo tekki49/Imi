@@ -51,19 +51,6 @@ public class PurchaseController {
                 .purchaseNumber(purchaseRequest.getNumber(),
                         purchaseRequest.getNumberType(), provider, country,
                         serviceTypeEnum);
-        /*
-         * PurchaseRequest purchaseDetails = new PurchaseRequest();
-         * purchaseDetails.setNumber(number);
-         * purchaseDetails.setNumberType(numberType);
-         * purchaseDetails.setService(serviceType);
-         * purchaseDetails.setCountry(country.getCountry()); purchaseDetails
-         * .setMonthlyRentalRate(purchaseResponse.getMonthlyRentalRate());
-         * purchaseDetails.setSetUpRate(purchaseResponse.getSetUpRate());
-         * purchaseDetails.setSmsRate(purchaseResponse.getSmsRate());
-         * purchaseDetails.setVoiceRate(purchaseResponse.getVoicePrice());
-         * purchaseDetails.setProvider(providerName);
-         * purchaseDetails.setRestriction(purchaseResponse.getRestrictions());
-         */
         return purchaseResponse;
     }
 

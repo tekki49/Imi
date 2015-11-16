@@ -93,8 +93,8 @@ public class NumberSearchController {
             @PathVariable("countryIsoCode") final String countryIsoCode,
             @PathVariable("numberType") final String numberType,
             @PathVariable("serviceType") final String serviceType,
-            @PathVariable("nextPlivoIndex") final String nextPlivoIndex,
             @PathVariable("pattern") final String pattern,
+            @PathVariable("nextPlivoIndex") final String nextPlivoIndex,
             @PathVariable("nextNexmoIndex") final String nextNexmoIndex)
                     throws ImiException {
         NumberResponse numberResponse = null;

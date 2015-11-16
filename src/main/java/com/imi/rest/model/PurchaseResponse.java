@@ -3,49 +3,34 @@ package com.imi.rest.model;
 import com.imi.rest.dao.model.Purchase;
 
 public class PurchaseResponse {
-
-    private Integer id;
     private String number;
     private String numberType;
-    private String restrictions;
+    private String provider;
+    private String countryIso;
+    private String services;
+    private boolean addressRequired;
     private String monthlyRentalRate;
     private String setUpRate;
     private String smsRate;
     private String voicePrice;
     private String effectiveDate;
-    private Integer resourceManagerId;
-    private Integer countryProviderId;
     private String status;
-    private boolean addressRequired;
-    // for Twilio
-    private String numberSid;
-    private String accountSid;
 
     public PurchaseResponse() {
-
     }
 
     public PurchaseResponse(Purchase purchase) {
-        this.id = purchase.getId();
-        this.number = purchase.getNumber().toString();
-        this.numberType = purchase.getNumberType();
-        this.restrictions = purchase.getRestrictions();
+        this.number = "" + purchase.getNumber();
+        this.provider = purchase.getProvidercountry() == null ? null
+                : purchase.getProvidercountry().getProvider().getName();
+        this.countryIso = purchase.getProvidercountry().getCountry()
+                .getCountryIso();
         this.monthlyRentalRate = purchase.getMonthlyRentalRate();
         this.setUpRate = purchase.getSetUpRate();
         this.smsRate = purchase.getSmsRate();
         this.voicePrice = purchase.getVoicePrice();
-        this.effectiveDate = purchase.getEffectiveDate();
-        this.resourceManagerId = purchase.getResouceManagerId();
-        this.countryProviderId = purchase.getProvidercountry().getId();
-
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
+        // TODO status
+        // this.status=purchase.getStatus();
     }
 
     public String getNumber() {
@@ -62,14 +47,6 @@ public class PurchaseResponse {
 
     public void setNumberType(String numberType) {
         this.numberType = numberType;
-    }
-
-    public String getRestrictions() {
-        return restrictions;
-    }
-
-    public void setRestrictions(String restrictions) {
-        this.restrictions = restrictions;
     }
 
     public String getMonthlyRentalRate() {
@@ -112,22 +89,6 @@ public class PurchaseResponse {
         this.effectiveDate = effectiveDate;
     }
 
-    public Integer getResourceManagerId() {
-        return resourceManagerId;
-    }
-
-    public void setResourceManagerId(Integer resourceManagerId) {
-        this.resourceManagerId = resourceManagerId;
-    }
-
-    public Integer getCountryProviderId() {
-        return countryProviderId;
-    }
-
-    public void setCountryProviderId(Integer countryProviderId) {
-        this.countryProviderId = countryProviderId;
-    }
-
     public String getStatus() {
         return status;
     }
@@ -144,20 +105,28 @@ public class PurchaseResponse {
         this.addressRequired = addressRequired;
     }
 
-    public String getNumberSid() {
-        return numberSid;
+    public String getServices() {
+        return services;
     }
 
-    public void setNumberSid(String numberSid) {
-        this.numberSid = numberSid;
+    public void setServices(String services) {
+        this.services = services;
     }
 
-    public String getAccountSid() {
-        return accountSid;
+    public String getProvider() {
+        return provider;
     }
 
-    public void setAccountSid(String accountSid) {
-        this.accountSid = accountSid;
+    public void setProvider(String provider) {
+        this.provider = provider;
+    }
+
+    public String getCountryIso() {
+        return countryIso;
+    }
+
+    public void setCountryIso(String countryIso) {
+        this.countryIso = countryIso;
     }
 
 }

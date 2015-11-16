@@ -13,7 +13,6 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.imi.rest.exception.ImiException;
 import com.imi.rest.model.Country;
 import com.imi.rest.model.CountryResponse;
-import com.imi.rest.model.MetaForCountries;
 import com.imi.rest.service.CountrySearchService;
 
 @RestController
@@ -27,7 +26,6 @@ public class CountryController {
             JsonMappingException, IOException, ImiException {
         CountryResponse countryResponse = new CountryResponse();
         Set<Country> countrySet = countrySearchService.getCountryListFromDB();
-        countryResponse.setMeta(new MetaForCountries());
         countryResponse.addCountries(countrySet);
         return countryResponse;
     }

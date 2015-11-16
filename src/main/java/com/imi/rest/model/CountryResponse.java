@@ -53,6 +53,7 @@ public class CountryResponse {
         this.country = country;
     }
 
+    @JsonIgnore
     public MetaForCountries getMeta() {
         return meta;
     }

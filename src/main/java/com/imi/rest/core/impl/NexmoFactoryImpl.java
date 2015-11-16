@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.transaction.Transactional;
+
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.entity.ContentType;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
@@ -29,6 +31,7 @@ import com.imi.rest.core.CountrySearch;
 import com.imi.rest.core.NumberSearch;
 import com.imi.rest.core.PurchaseNumber;
 import com.imi.rest.dao.model.Provider;
+import com.imi.rest.dao.model.ResourceMaster;
 import com.imi.rest.exception.ImiException;
 import com.imi.rest.exception.InvalidNumberException;
 import com.imi.rest.exception.InvalidProviderException;
@@ -43,6 +46,7 @@ import com.imi.rest.model.Number;
 import com.imi.rest.model.NumberResponse;
 import com.imi.rest.model.PurchaseResponse;
 import com.imi.rest.service.ForexService;
+import com.imi.rest.service.ResourceService;
 import com.imi.rest.util.ImiBasicAuthUtil;
 import com.imi.rest.util.ImiDataFormatUtils;
 import com.imi.rest.util.ImiHttpUtil;
@@ -59,6 +63,9 @@ public class NexmoFactoryImpl implements NumberSearch, CountrySearch,
 
     @Autowired
     ForexService forexService;
+
+    @Autowired
+    ResourceService resourceService;
 
     @Override
     public void searchPhoneNumbers(Provider provider,
@@ -142,9 +149,6 @@ public class NexmoFactoryImpl implements NumberSearch, CountrySearch,
                             .add(ServiceConstants.SMS.toString().toUpperCase());
                     expectedFeatures.add(
                             ServiceConstants.VOICE.toString().toUpperCase());
-                }
-                if (expectedFeatures.size() > 1) {
-                    return;
                 }
                 for (Number nexmoNumber : nexmoNumberList) {
                     if (nexmoNumber != null) {
@@ -260,8 +264,7 @@ public class NexmoFactoryImpl implements NumberSearch, CountrySearch,
                 .replace("{msisdn}", nexmoNumber);
         GenericRestResponse restResponse = ImiHttpUtil.defaultHttpPostHandler(
                 nexmoReleaseUrl, new HashMap<String, String>(),
-                ImiBasicAuthUtil.getBasicAuthHash(provider.getAuthId(),
-                        provider.getApiKey()),
+                ImiBasicAuthUtil.getBasicAuthHash(provider),
                 ContentType.APPLICATION_FORM_URLENCODED.getMimeType());
         if (restResponse.getResponseCode() == HttpStatus.OK.value()) {
         } else if (restResponse.getResponseCode() == HttpStatus.UNAUTHORIZED
@@ -340,8 +343,8 @@ public class NexmoFactoryImpl implements NumberSearch, CountrySearch,
                 .replace("{api_secret}", provider.getApiKey());
         BalanceResponse balanceResponse = new BalanceResponse();
         GenericRestResponse restResponse = ImiHttpUtil.defaultHttpGetHandler(
-                nexoAccountBalanceurl, ImiBasicAuthUtil.getBasicAuthHash(
-                        provider.getAuthId(), provider.getApiKey()));
+                nexoAccountBalanceurl,
+                ImiBasicAuthUtil.getBasicAuthHash(provider));
         if (restResponse.getResponseCode() == HttpStatus.OK.value()) {
             balanceResponse = ImiJsonUtil.deserialize(
                     restResponse.getResponseBody(), BalanceResponse.class);
@@ -366,14 +369,17 @@ public class NexmoFactoryImpl implements NumberSearch, CountrySearch,
                 .replace("{msisdn}", "" + number);
         GenericRestResponse restResponse = ImiHttpUtil.defaultHttpPostHandler(
                 nexmoPurchaseUrl, new HashMap<String, String>(),
-                ImiBasicAuthUtil.getBasicAuthHash(provider.getAuthId(),
-                        provider.getApiKey()),
+                ImiBasicAuthUtil.getBasicAuthHash(provider),
                 ContentType.APPLICATION_FORM_URLENCODED.getMimeType());
         String type = "landline";
         if (numberType.equalsIgnoreCase(MOBILE)) {
             type = "mobile";
         } else if (numberType.equalsIgnoreCase(TOLLFREE)) {
             type = "tollfree";
+        }
+        if(countryPricingMap==null)
+        {
+            getNexmoPricing(NEXMO_PRICING_FILE_PATH);
         }
         CountryPricing countryPricing = countryPricingMap
                 .get(country.getCountryIso());
@@ -385,27 +391,35 @@ public class NexmoFactoryImpl implements NumberSearch, CountrySearch,
                     && nexmoPurchaseResponse.getErrorCodeLabel()
                             .equals("success")) {
                 purchaseResponse.setNumber(number);
-                purchaseResponse.setResourceManagerId(0);
                 purchaseResponse.setNumberType(type);
                 purchaseResponse.setMonthlyRentalRate(ImiDataFormatUtils
                         .forexConvert(forexValue, countryPricing.getPricing()
-                                .get(numberType).get("monthlyRateInEuros")));
+                                .get(type).get("monthlyRateInEuros")));
                 if (numberType.equalsIgnoreCase("landline")
                         || numberType.equalsIgnoreCase("tollfree")) {
                     purchaseResponse
                             .setVoicePrice(
                                     ImiDataFormatUtils.forexConvert(forexValue,
                                             countryPricing.getPricing().get(
-                                                    numberType)
+                                                    type)
                                             .get("inboundRateInEuros")));
                 } else if (numberType.equalsIgnoreCase("mobile")) {
                     purchaseResponse
                             .setSmsRate(
                                     ImiDataFormatUtils.forexConvert(forexValue,
                                             countryPricing.getPricing().get(
-                                                    numberType)
+                                                    type)
                                             .get("inboundRateInEuros")));
                 }
+                purchaseResponse.setAddressRequired(false);
+                ResourceMaster resourceMaster = resourceService
+                        .updateResource(number, serviceTypeEnum);
+                resourceService.updateResourceAllocation(resourceMaster);
+                resourceService.updateChannelAssetsAllocation(resourceMaster);
+                resourceService.updatePurchase(purchaseResponse, numberType,
+                        ImiDataFormatUtils.getAddressRestrictions(
+                                purchaseResponse.isAddressRequired(), null),
+                        resourceMaster);
                 return purchaseResponse;
             }
         } else if (restResponse.getResponseCode() == HttpStatus.UNAUTHORIZED

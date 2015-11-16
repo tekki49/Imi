@@ -47,6 +47,7 @@ public class ApplicationResponse {
     private Map<String, Boolean> capabilities;
     private String api_id;
     private String error;
+    private String address_requirements;
 
     public String getSmsFallbackUrl() {
         return smsFallbackUrl;
@@ -481,6 +482,60 @@ public class ApplicationResponse {
     @JsonProperty("error")
     public void setError(String error) {
         this.error = error;
+    }
+
+    @JsonIgnore
+    public String getAddress_requirements() {
+        return address_requirements;
+    }
+
+    @JsonProperty("address_requirements")
+    public void setAddress_requirements(String address_requirements) {
+        this.address_requirements = address_requirements;
+    }
+
+    public void setSmsFallbackUrl(String smsFallbackUrl) {
+        this.smsFallbackUrl = smsFallbackUrl;
+    }
+
+    public void setSmsFallbackMethod(String smsFallbackMethod) {
+        this.smsFallbackMethod = smsFallbackMethod;
+    }
+
+    public void setSmsApplicationSid(String smsApplicationSid) {
+        this.smsApplicationSid = smsApplicationSid;
+    }
+
+    public void setDateCreated(String dateCreated) {
+        this.dateCreated = dateCreated;
+    }
+
+    public void setDateUpdated(String dateUpdated) {
+        this.dateUpdated = dateUpdated;
+    }
+
+    public void setVoiceCallerIdLookup(String voiceCallerIdLookup) {
+        this.voiceCallerIdLookup = voiceCallerIdLookup;
+    }
+
+    public void setVoiceApplicationSid(String voiceApplicationSid) {
+        this.voiceApplicationSid = voiceApplicationSid;
+    }
+
+    public void setAccountSid(String accountSid) {
+        this.accountSid = accountSid;
+    }
+
+    public void setFriendlyName(String friendlyName) {
+        this.friendlyName = friendlyName;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public void setApiVersion(String apiVersion) {
+        this.apiVersion = apiVersion;
     }
 
 }
