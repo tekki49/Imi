@@ -1,6 +1,8 @@
 package com.imi.rest.service;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.Comparator;
 
 import org.apache.http.client.ClientProtocolException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +16,7 @@ import com.imi.rest.core.impl.TwilioFactoryImpl;
 import com.imi.rest.dao.model.Provider;
 import com.imi.rest.exception.ImiException;
 import com.imi.rest.exception.InvalidProviderException;
+import com.imi.rest.model.Number;
 import com.imi.rest.model.NumberResponse;
 
 @Service
@@ -90,6 +93,27 @@ public class NumberSearchService implements ProviderConstants {
         nexmoFactoryImpl.searchPhoneNumbers(providerService.getNexmoProvider(),
                 serviceTypeEnum, countryIsoCode, numberType, pattern,
                 nextNexmoIndex, numberResponse);
+        if (numberResponse != null && numberResponse.getObjects() != null){
+        	Collections.sort(numberResponse.getObjects(), new Comparator<Number>() {
+    			@Override
+    			public int compare(Number n1, Number n2) {
+    				if ( n1.getMonthlyRentalRate() == null  && n2.getMonthlyRentalRate() == null){
+    					return 0;
+    				}else if(n1.getMonthlyRentalRate() == null){
+    					return 1;
+    				}else if(n2.getMonthlyRentalRate() == null){
+    					return 2;
+    				}else{
+    					float f1 = Float.parseFloat(n1.getMonthlyRentalRate());
+        				float f2 = Float.parseFloat(n2.getMonthlyRentalRate());
+        				int result = Float.compare(f1, f2);
+        				return result;
+    				}
+    				
+    			}
+    		});
+        }
+        
         return numberResponse;
     }
 
