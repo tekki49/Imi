@@ -60,12 +60,11 @@ public class AddressDao {
     }
 
     
-    public UserAddressMgmt getAddressById(String addressId)
+    public UserAddressMgmt getAddressById(Long addressId)
     {
         UserAddressMgmt userAddressMgmt=null;
         Criteria criteria = getSession().createCriteria(UserAddressMgmt.class);
-        Long id = Long.valueOf(addressId);
-        criteria.add(Restrictions.idEq(id));
+        criteria.add(Restrictions.idEq(addressId));
         List<UserAddressMgmt>userAddressList=criteria.list();
         if(userAddressList!=null&& userAddressList.size()>0)
             userAddressMgmt=userAddressList.get(0);

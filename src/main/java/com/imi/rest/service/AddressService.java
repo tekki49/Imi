@@ -49,9 +49,14 @@ public class AddressService implements ProviderConstants {
         }
     }
 
-    public void updateAddress(Customer customer,String clientId) {
+    public void updateAddress(Customer customer, String clientId) {
         UserAddressMgmt userAddressMgnt = null;
         if (customer.getAddress_id() == null) {
+            userAddressMgnt = new UserAddressMgmt();
+        } else {
+            userAddressMgnt = getUserAddressById(customer.getAddress_id());
+        }
+        if (userAddressMgnt == null) {
             userAddressMgnt = new UserAddressMgmt();
         }
         userAddressMgnt.setAddress(customer.getStreet());
@@ -65,15 +70,19 @@ public class AddressService implements ProviderConstants {
         addressDao.createNewAddress(userAddressMgnt);
     }
 
+    private UserAddressMgmt getUserAddressById(Long address_id) {
+        return addressDao.getAddressById(address_id);
+    }
+
     public List<Customer> getAddressList(String userId, String country)
             throws ImiException {
         return addressDao.getAddressList(userId,
                 country == null ? null : country.toUpperCase());
     }
 
-    public void deleteAddressFromImi(String clientId,
-            String addressId) {
-        UserAddressMgmt userAddressMgmt=addressDao.getAddressById(addressId);
+    public void deleteAddressFromImi(String clientId, String addressId) {
+        Long id = Long.valueOf(addressId);
+        UserAddressMgmt userAddressMgmt = addressDao.getAddressById(id);
         addressDao.deleteAddress(userAddressMgmt);
     }
 
