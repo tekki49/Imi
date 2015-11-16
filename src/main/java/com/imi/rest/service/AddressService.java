@@ -1,6 +1,7 @@
 package com.imi.rest.service;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.apache.http.client.ClientProtocolException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,10 +9,12 @@ import org.springframework.stereotype.Service;
 
 import com.imi.rest.constants.ProviderConstants;
 import com.imi.rest.core.impl.TwilioFactoryImpl;
+import com.imi.rest.dao.AddressDao;
 import com.imi.rest.dao.model.Provider;
 import com.imi.rest.exception.ImiException;
 import com.imi.rest.model.Address;
 import com.imi.rest.model.Customer;
+import com.imi.rest.model.UserAddressMgnt;
 
 @Service
 public class AddressService implements ProviderConstants {
@@ -21,6 +24,9 @@ public class AddressService implements ProviderConstants {
 
     @Autowired
     private ProviderService providerService;
+    
+    @Autowired
+    private AddressDao daoAddress;
 
     public Address getAddressByCustomerName(String customerName,
             String providerName)
@@ -39,5 +45,9 @@ public class AddressService implements ProviderConstants {
         Provider provider = providerService.getProviderByName(providerName);
         twilioFactoryImpl.createNewAddressOfCustomer(customer, provider);
     }
+
+	public List<UserAddressMgnt> getAddressList(String userId, String country) throws ImiException {
+		return daoAddress.getAddressList(userId, country);
+	}
 
 }
