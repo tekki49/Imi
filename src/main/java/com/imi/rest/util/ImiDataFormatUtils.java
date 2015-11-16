@@ -1,6 +1,5 @@
 package com.imi.rest.util;
 
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -50,11 +49,16 @@ public class ImiDataFormatUtils {
         }
         return null;
     }
-    
-    public static Date getmaxDate()
-    {
+
+    public static Date getmaxDate() {
         Calendar date = new GregorianCalendar(9999, 11, 31, 0, 0);
         return date.getTime();
+    }
+
+    public static String getmaxDateString() {
+        Calendar date = new GregorianCalendar(9999, 11, 31, 0, 0);
+        return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS")
+                .format(date.getTime());
     }
 
     public static String getAddressRestrictions(boolean addressRequired,

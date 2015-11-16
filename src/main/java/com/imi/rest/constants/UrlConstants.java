@@ -15,6 +15,7 @@ public interface UrlConstants {
     public static final String TWILIO_COUNTRY_LIST_URL = "https://pricing.twilio.com/v1/PhoneNumbers/Countries";
     public static final String TWILIO_ALL_NUMBER_PURCHASED_URL = "https://api.twilio.com/2010-04-01/Accounts/{auth_id}/IncomingPhoneNumbers.json";
     public static final String TWILIO_PURCHASE_URL = "https://api.twilio.com/2010-04-01/Accounts/{auth_id}/IncomingPhoneNumbers.json?PhoneNumber={number}";
+    public static final String TWILIO_PURCHASED_NUMBER_URL = "https://api.twilio.com/2010-04-01/Accounts/{auth_id}/IncomingPhoneNumbers.json";
     public static final String TWILIO_RELEASE_URL = "https://api.twilio.com/2010-04-01/Accounts/{auth_id}/IncomingPhoneNumbers/{IncomingPhoneNumberSid}.json";
     public static final String TWILIO_ACCOUNT_URL = "https://api.twilio.com/2010-04-01/Accounts.json";
     public static final String TWILIO_PRICING_URL = "https://pricing.twilio.com/v1/Voice/Countries/{Country}";
@@ -29,5 +30,6 @@ public interface UrlConstants {
     public static final String NEXMO_RELEASE_URL = "https://rest.nexmo.com/number/cancel/{api_key}/{api_secret}/{country}/{msisdn}";
     public static final String NEXMO_ACCOUNT_BALANCE_URL = "https://rest.nexmo.com/account/get-balance/{api_key}/{api_secret}";
     public static final String NEXMO_NUMBER_UPDATE_URL = "https://rest.nexmo.com/number/update/{api_key}/{api_secret}/{country}/{msisdn}";
+    public static final String NEXMO_PURCHASED_NUMBER_URL = "https://rest.nexmo.com/account/numbers/{api_key}/{api_secret}";
 
 }

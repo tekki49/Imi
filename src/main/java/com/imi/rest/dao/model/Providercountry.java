@@ -53,7 +53,7 @@ public class Providercountry implements java.io.Serializable {
         this.id = id;
     }
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "countryId")
     public Country getCountry() {
         return this.country;
@@ -63,7 +63,7 @@ public class Providercountry implements java.io.Serializable {
         this.country = country;
     }
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "providerId")
     public Provider getProvider() {
         return this.provider;

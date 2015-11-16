@@ -93,27 +93,31 @@ public class NumberSearchService implements ProviderConstants {
         nexmoFactoryImpl.searchPhoneNumbers(providerService.getNexmoProvider(),
                 serviceTypeEnum, countryIsoCode, numberType, pattern,
                 nextNexmoIndex, numberResponse);
-        if (numberResponse != null && numberResponse.getObjects() != null){
-        	Collections.sort(numberResponse.getObjects(), new Comparator<Number>() {
-    			@Override
-    			public int compare(Number n1, Number n2) {
-    				if ( n1.getMonthlyRentalRate() == null  && n2.getMonthlyRentalRate() == null){
-    					return 0;
-    				}else if(n1.getMonthlyRentalRate() == null){
-    					return 1;
-    				}else if(n2.getMonthlyRentalRate() == null){
-    					return 2;
-    				}else{
-    					float f1 = Float.parseFloat(n1.getMonthlyRentalRate());
-        				float f2 = Float.parseFloat(n2.getMonthlyRentalRate());
-        				int result = Float.compare(f1, f2);
-        				return result;
-    				}
-    				
-    			}
-    		});
+        if (numberResponse != null && numberResponse.getObjects() != null) {
+            Collections.sort(numberResponse.getObjects(),
+                    new Comparator<Number>() {
+                        @Override
+                        public int compare(Number n1, Number n2) {
+                            if (n1.getMonthlyRentalRate() == null
+                                    && n2.getMonthlyRentalRate() == null) {
+                                return 0;
+                            } else if (n1.getMonthlyRentalRate() == null) {
+                                return 1;
+                            } else if (n2.getMonthlyRentalRate() == null) {
+                                return 2;
+                            } else {
+                                float f1 = Float
+                                        .parseFloat(n1.getMonthlyRentalRate());
+                                float f2 = Float
+                                        .parseFloat(n2.getMonthlyRentalRate());
+                                int result = Float.compare(f1, f2);
+                                return result;
+                            }
+
+                        }
+                    });
         }
-        
+
         return numberResponse;
     }
 

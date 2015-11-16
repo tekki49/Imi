@@ -28,8 +28,10 @@ import com.imi.rest.constants.UrlConstants;
 import com.imi.rest.core.CountrySearch;
 import com.imi.rest.core.NumberSearch;
 import com.imi.rest.core.PurchaseNumber;
+import com.imi.rest.dao.CountryDao;
 import com.imi.rest.dao.model.Country;
 import com.imi.rest.dao.model.Provider;
+import com.imi.rest.dao.model.Purchase;
 import com.imi.rest.dao.model.ResourceMaster;
 import com.imi.rest.exception.ImiException;
 import com.imi.rest.exception.InvalidNumberException;
@@ -72,6 +74,9 @@ public class TwilioFactoryImpl implements NumberSearch, CountrySearch,
 
     @Autowired
     ResourceService resourceService;
+
+    @Autowired
+    CountryDao countryDao;
 
     @Override
     public void searchPhoneNumbers(Provider provider,
@@ -337,8 +342,12 @@ public class TwilioFactoryImpl implements NumberSearch, CountrySearch,
     }
 
     @Override
-    public Set<com.imi.rest.model.Country> importCountries()
-            throws JsonParseException, JsonMappingException, IOException {
+    public Set<com.imi.rest.model.Country> importCountries(
+            Map<String, Map<String, String>> providerCapabilities)
+                    throws JsonParseException, JsonMappingException,
+                    IOException {
+        Map<String, String> twilioCapabilties = providerCapabilities
+                .get(TWILIO);
         Set<com.imi.rest.model.Country> countrySet = new TreeSet<com.imi.rest.model.Country>();
         String line = "";
         String splitBy = ",";
@@ -356,6 +365,12 @@ public class TwilioFactoryImpl implements NumberSearch, CountrySearch,
                     country.setIsoCountry(row[0]);
                     country.setCountryCode(row[2]);
                     countrySet.add(country);
+                    String capabilities = row[3].replace(" ", "");
+                    if (twilioCapabilties.get(country.getCountry()) != null) {
+                        capabilities += (","
+                                + twilioCapabilties.get(country.getCountry()));
+                    }
+                    twilioCapabilties.put(country.getCountry(), capabilities);
                 }
                 counter++;
             }
@@ -401,7 +416,6 @@ public class TwilioFactoryImpl implements NumberSearch, CountrySearch,
         if (response.getResponseCode() == HttpStatus.CREATED.value()) {
             ApplicationResponse numberDetails = ImiJsonUtil.deserialize(
                     response.getResponseBody(), ApplicationResponse.class);
-
             String searchKey = country.getCountryIso() + "-"
                     + type.toUpperCase();
             TwilioNumberPrice twilioPrice = twilioMonthlyPriceMap
@@ -429,11 +443,13 @@ public class TwilioFactoryImpl implements NumberSearch, CountrySearch,
                     forexValue, twilioPrice.getInboundVoicePrice()));
             purchaseResponse
                     .setEffectiveDate(ImiDataFormatUtils.getCurrentTimeStamp());
-            resourceService.updatePurchase(purchaseResponse, numberType,
+            Purchase purchase = resourceService.updatePurchase(purchaseResponse,
+                    numberType,
                     ImiDataFormatUtils.getAddressRestrictions(
                             purchaseResponse.isAddressRequired(),
                             numberDetails.getAddress_requirements()),
                     resourceMaster);
+            resourceService.updatePurchasehistory(purchase);
             return purchaseResponse;
         } else {
             throw new InvalidNumberException(number, provider.getName());
@@ -502,6 +518,7 @@ public class TwilioFactoryImpl implements NumberSearch, CountrySearch,
         if (response.getResponseCode() == HttpStatus.OK.value()) {
             applicationResponse = ImiJsonUtil.deserialize(
                     response.getResponseBody(), ApplicationResponse.class);
+            resourceService.provisionData(applicationResponse);
         } else {
             throw new ImiException(
                     "Some Error occured while updating the number. Please check back again. Response from Twilio is "
@@ -513,21 +530,29 @@ public class TwilioFactoryImpl implements NumberSearch, CountrySearch,
     private ApplicationResponse getIncomingPhoneNumber(String number,
             Provider provider)
                     throws ClientProtocolException, IOException, ImiException {
-        String twilioNumberGetUrl = TWILIO_PURCHASE_URL;
-        twilioNumberGetUrl = twilioNumberGetUrl.replace("{number}", number)
-                .replace("{auth_id}", provider.getAuthId());
+        number = number.replace("+", "");
+        number = "+".concat(number);
+        String twilioNumberGetUrl = TWILIO_PURCHASED_NUMBER_URL;
+        twilioNumberGetUrl = twilioNumberGetUrl.replace("{auth_id}",
+                provider.getAuthId());
         ApplicationResponse applicationResponse = null;
-        GenericRestResponse response = ImiHttpUtil.defaultHttpGetHandler(
+        GenericRestResponse restResponse = ImiHttpUtil.defaultHttpGetHandler(
                 twilioNumberGetUrl,
                 ImiBasicAuthUtil.getBasicAuthHash(provider));
-        if (response.getResponseCode() == HttpStatus.OK.value()) {
+        if (restResponse.getResponseCode() == HttpStatus.OK.value()) {
             ApplicationResponseList incomingPhoneNumbers = ImiJsonUtil
-                    .deserialize(response.getResponseBody(),
+                    .deserialize(restResponse.getResponseBody(),
                             ApplicationResponseList.class);
-            applicationResponse = incomingPhoneNumbers.getObjects() == null
-                    ? null
-                    : incomingPhoneNumbers.getObjects().size() == 1
-                            ? incomingPhoneNumbers.getObjects().get(0) : null;
+            if (incomingPhoneNumbers != null
+                    && incomingPhoneNumbers.getObjects().size() > 0) {
+                loop: for (ApplicationResponse response : incomingPhoneNumbers
+                        .getObjects()) {
+                    if (response.getPhoneNumber().equalsIgnoreCase(number)) {
+                        applicationResponse = response;
+                        break loop;
+                    }
+                }
+            }
         }
         return applicationResponse;
     }
@@ -633,12 +658,17 @@ public class TwilioFactoryImpl implements NumberSearch, CountrySearch,
                     throws ClientProtocolException, IOException, ImiException {
         Address address = getAddressOfCustomer(customer.getCustomer(),
                 provider);
-        String customerName = customer.getCustomer().trim().replaceAll(" +",
-                "+");
         String addressPostUrl = TWILIO_ADDRESS_URL;
         addressPostUrl = addressPostUrl.replace("{auth_id}",
                 provider.getAuthId());
         Map<String, String> requestBody = new HashMap<String, String>();
+        if (customer.getCountryIso() == null) {
+            com.imi.rest.dao.model.Country country = countryDao
+                    .getCountryByName(customer.getCountry());
+            if (country != null) {
+                customer.setCountryIso(country.getCountryIso());
+            }
+        }
         if (address == null) {
             requestBody.put("IsoCountry", customer.getCountryIso());
             requestBody.put("CustomerName", customer.getCustomer());

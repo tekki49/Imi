@@ -1,6 +1,7 @@
 package com.imi.rest.dao;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -14,6 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.imi.rest.dao.model.Country;
+import com.imi.rest.dao.model.Provider;
+import com.imi.rest.dao.model.Providercountry;
 import com.imi.rest.exception.ImiException;
 
 @Repository
@@ -95,4 +98,42 @@ public class CountryDao {
         getSession().saveOrUpdate(country);
 
     }
+
+    private void createNewProviderCountry(Providercountry providerCountry) {
+        getSession().saveOrUpdate(providerCountry);
+    }
+
+    public Providercountry getProviderCountryByCountryAndProvider(
+            Country country, Provider provider) {
+        Providercountry providercountry = null;
+        Criteria criteria = getSession().createCriteria(Providercountry.class);
+        if (provider != null && country != null) {
+            criteria.add(Restrictions.eq("provider.id", provider.getId()));
+            criteria.add(Restrictions.eq("country.id", country.getId()));
+            List<Providercountry> providercountryList = criteria.list();
+            if (providercountryList != null && providercountryList.size() > 0)
+                providercountry = providercountryList.get(0);
+        }
+        return providercountry;
+    }
+
+    public void batchUpdate(Map<String, String> map, Provider provider) {
+        for (String countryName : map.keySet()) {
+            Country country = getCountryByName(countryName);
+            if (country == null) {
+                country = new Country();
+                country.setCountry(countryName);
+                createNewCountry(country);
+            }
+            Providercountry providerCountry = getProviderCountryByCountryAndProvider(
+                    country, provider);
+            if (providerCountry == null)
+                providerCountry = new Providercountry();
+            providerCountry.setCountry(country);
+            providerCountry.setProvider(provider);
+            providerCountry.setServices(map.get(countryName));
+            createNewProviderCountry(providerCountry);
+        }
+    }
+
 }

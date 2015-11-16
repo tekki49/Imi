@@ -1,7 +1,6 @@
 package com.imi.rest.controller;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.http.client.ClientProtocolException;
@@ -15,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.imi.rest.exception.ImiException;
 import com.imi.rest.model.ClientRequest;
-import com.imi.rest.model.UserAddressMgnt;
+import com.imi.rest.model.Customer;
 import com.imi.rest.service.AddressService;
 import com.imi.rest.util.ImiJsonUtil;
 
@@ -26,20 +25,32 @@ public class ClientController {
     private AddressService addressService;
 
     @RequestMapping(value = "/client", method = RequestMethod.POST, consumes = "application/json")
-    public String clientListResponse(@RequestBody ClientRequest clientRequest,
+    public String updateAdressToProvider(
+            @RequestBody ClientRequest clientRequest,
             @RequestHeader("provider") String provider)
                     throws ClientProtocolException, ImiException, IOException {
-        addressService.updateClientAddress(clientRequest.getClient(), provider);
+        addressService.updateClientAddressToProvider(clientRequest.getClient(),
+                provider);
+        addressService.updateAddress(clientRequest.getClient());
         return ImiJsonUtil.getJSONString("status", "Client Registered");
     }
-    
-    @RequestMapping(value = "/client/{userId}/{country}", method = RequestMethod.GET)
-    public List<UserAddressMgnt> addressListResponse(
-    		@PathVariable("userId") final String userId,
-    		@PathVariable("country") final String country)
+
+    @RequestMapping(value = "/client/getAll/{clientId}/{country}")
+    public List<Customer> clientListResponse(
+            @RequestHeader("provider") String provider,
+            @PathVariable("clientId") final String clientId,
+            @PathVariable("country") final String country)
                     throws ClientProtocolException, ImiException, IOException {
-    	List<UserAddressMgnt> addressList = new ArrayList<UserAddressMgnt>();
-    	addressList = addressService.getAddressList(userId, country);
-    	return addressList;
+        return addressService.getAddressList(clientId, country);
+    }
+
+    @RequestMapping(value = "/client/save/{clientId}/{country}", method = RequestMethod.POST, consumes = "application/json")
+    public List<Customer> updateAdressToImi(
+            @RequestHeader(value = "provider", required = false) String provider,
+            @RequestBody ClientRequest clientRequest,
+            @PathVariable("clientId") final String clientId,
+            @PathVariable("country") final String country)
+                    throws ClientProtocolException, ImiException, IOException {
+        return addressService.getAddressList(clientId, country);
     }
 }

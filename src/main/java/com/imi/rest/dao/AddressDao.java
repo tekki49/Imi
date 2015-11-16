@@ -15,42 +15,50 @@ import org.springframework.stereotype.Repository;
 import com.imi.rest.dao.model.Country;
 import com.imi.rest.dao.model.UserAddressMgmt;
 import com.imi.rest.exception.ImiException;
+import com.imi.rest.model.Customer;
 import com.imi.rest.model.UserAddressMgnt;
 
 @Repository
 @Transactional
 public class AddressDao {
 
-	@Autowired
+    @Autowired
     private SessionFactory sessionFactory;
 
     protected Session getSession() {
         return sessionFactory.getCurrentSession();
     }
-    
-    
+
     @SuppressWarnings("unchecked")
-    public List<com.imi.rest.model.UserAddressMgnt> getAddressList(String userId, String country) throws ImiException {
+    public List<com.imi.rest.model.Customer> getAddressList(String userId,
+            String country) throws ImiException {
         Criteria criteria = getSession().createCriteria(UserAddressMgmt.class);
         Integer id = Integer.parseInt(userId);
         criteria.add(Restrictions.eq("userId", id));
         criteria.add(Restrictions.eq("country", country));
         List<UserAddressMgmt> addressDbList = criteria.list();
         if (addressDbList != null) {
-            List<com.imi.rest.model.UserAddressMgnt> addressList = new ArrayList<com.imi.rest.model.UserAddressMgnt>();
+            List<Customer> customerList = new ArrayList<Customer>();
             for (UserAddressMgmt daoAddress : addressDbList) {
-                UserAddressMgnt userAddressMgntModel = new com.imi.rest.model.UserAddressMgnt();
-                userAddressMgntModel.setAddressId(String.valueOf(daoAddress.getId()));
-                userAddressMgntModel.setBusinessName(daoAddress.getCompanyName());
-                userAddressMgntModel.setBlockName(daoAddress.getAddress());
-                userAddressMgntModel.setCity(daoAddress.getCity());
-                userAddressMgntModel.setState(daoAddress.getState());
-                userAddressMgntModel.setCountry(daoAddress.getCountry());
-                userAddressMgntModel.setZipCode(String.valueOf(daoAddress.getPostalCode()) );
-                addressList.add(userAddressMgntModel);
+                Customer customer = new Customer();
+                customer.setAddress_id(daoAddress.getId());
+                customer.setCustomer(daoAddress.getCompanyName());
+                customer.setStreet(daoAddress.getAddress());
+                customer.setCity(daoAddress.getCity());
+                customer.setState(daoAddress.getState());
+                customer.setCountry(daoAddress.getCountry());
+                customer.setPostalcode(
+                        String.valueOf(daoAddress.getPostalCode()));
+                customerList.add(customer);
             }
-            return addressList;
+            return customerList;
         }
         throw new ImiException("Unable to fetch country data from data base");
     }
+    
+    public void createNewAddress(UserAddressMgnt addressMgnt)
+    {
+        getSession().saveOrUpdate(addressMgnt);
+    }
+
 }

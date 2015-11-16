@@ -24,9 +24,9 @@ public class AddressService implements ProviderConstants {
 
     @Autowired
     private ProviderService providerService;
-    
+
     @Autowired
-    private AddressDao daoAddress;
+    private AddressDao addressDao;
 
     public Address getAddressByCustomerName(String customerName,
             String providerName)
@@ -40,14 +40,33 @@ public class AddressService implements ProviderConstants {
         return address;
     }
 
-    public void updateClientAddress(Customer customer, String providerName)
+    public void updateClientAddressToProvider(Customer customer, String providerName)
             throws ImiException, ClientProtocolException, IOException {
         Provider provider = providerService.getProviderByName(providerName);
-        twilioFactoryImpl.createNewAddressOfCustomer(customer, provider);
+        if (providerName.equalsIgnoreCase(TWILIO)) {
+            twilioFactoryImpl.createNewAddressOfCustomer(customer, provider);
+        }
     }
 
-	public List<UserAddressMgnt> getAddressList(String userId, String country) throws ImiException {
-		return daoAddress.getAddressList(userId, country);
-	}
+    public void updateAddress(Customer customer)
+    {
+        UserAddressMgnt userAddressMgnt=null;
+        if(customer.getAddress_id()==null)
+        {
+            userAddressMgnt=new UserAddressMgnt();
+        }
+        userAddressMgnt.setBlockName(customer.getStreet());
+        userAddressMgnt.setBusinessName(customer.getCustomer());
+        userAddressMgnt.setCity(customer.getCity());
+        userAddressMgnt.setCountry(customer.getCountry());
+        userAddressMgnt.setState(customer.getState());
+        userAddressMgnt.setZipCode(customer.getPostalcode());
+        addressDao.createNewAddress(userAddressMgnt);
+    }
+    
+    public List<Customer> getAddressList(String userId, String country)
+            throws ImiException {
+        return addressDao.getAddressList(userId, country);
+    }
 
 }

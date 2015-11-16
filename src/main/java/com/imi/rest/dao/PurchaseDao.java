@@ -33,13 +33,13 @@ public class PurchaseDao {
     }
 
     @SuppressWarnings("unchecked")
-    public Purchase getByNumber(Integer number) {
+    public Purchase getPurchaseByNumber(Integer number) {
         Criteria criteria = getSession().createCriteria(Purchase.class);
         criteria.add(Restrictions.eq("number", number));
         List<Purchase> purchaseList = criteria.list();
         return purchaseList.get(0);
     }
-    
+
     public void createNewPurchase(Purchase purchase) {
         getSession().saveOrUpdate(purchase);
     }

@@ -11,6 +11,8 @@ public class Customer {
     private String street;
     private String postalcode;
     private String countryIso;
+    private String country;
+    private Long address_id;
 
     public String getCustomer() {
         return customer;
@@ -58,6 +60,22 @@ public class Customer {
 
     public void setCountryIso(String countryIso) {
         this.countryIso = countryIso;
+    }
+
+    public String getCountry() {
+        return country;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
+    }
+
+    public Long getAddress_id() {
+        return address_id;
+    }
+
+    public void setAddress_id(Long address_id) {
+        this.address_id = address_id;
     }
 
 }

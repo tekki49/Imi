@@ -9,13 +9,22 @@ import org.springframework.stereotype.Service;
 
 import com.imi.rest.constants.ServiceConstants;
 import com.imi.rest.dao.ChannelAssetsAllocationDao;
+import com.imi.rest.dao.CountryDao;
+import com.imi.rest.dao.ProvisioningDao;
 import com.imi.rest.dao.PurchaseDao;
+import com.imi.rest.dao.PurchaseHistoryDao;
 import com.imi.rest.dao.ResourceAllocationDao;
 import com.imi.rest.dao.ResourceMasterDao;
 import com.imi.rest.dao.model.ChannelAssetsAllocation;
+import com.imi.rest.dao.model.Country;
+import com.imi.rest.dao.model.Provider;
+import com.imi.rest.dao.model.Providercountry;
+import com.imi.rest.dao.model.Provisioning;
 import com.imi.rest.dao.model.Purchase;
+import com.imi.rest.dao.model.Purchasehistory;
 import com.imi.rest.dao.model.ResourceAllocation;
 import com.imi.rest.dao.model.ResourceMaster;
+import com.imi.rest.model.ApplicationResponse;
 import com.imi.rest.model.PurchaseResponse;
 import com.imi.rest.util.ImiDataFormatUtils;
 
@@ -34,6 +43,18 @@ public class ResourceService {
 
     @Autowired
     PurchaseDao purchaseDao;
+
+    @Autowired
+    ProviderService providerService;
+
+    @Autowired
+    CountryDao countryDao;
+
+    @Autowired
+    ProvisioningDao provisioningDao;
+
+    @Autowired
+    PurchaseHistoryDao purchaseHistoryDao;
 
     public ResourceMaster updateResource(String number,
             ServiceConstants serviceTypeEnum) {
@@ -93,22 +114,83 @@ public class ResourceService {
         }
     }
 
-    public void updatePurchase(PurchaseResponse purchaseResponse,
+    public Purchase updatePurchase(PurchaseResponse purchaseResponse,
             String numberType, String restrictions,
             ResourceMaster resourceMaster) {
+        Purchase purchase = new Purchase();
         try {
-            Purchase purchase = new Purchase();
             purchase.setMonthlyRentalRate(
                     purchaseResponse.getMonthlyRentalRate());
+            Provider provider = providerService
+                    .getProviderByName(purchaseResponse.getProvider());
+            Country country = countryDao
+                    .getCountryByIso(purchaseResponse.getCountryIso());
+            Providercountry providercountry = countryDao
+                    .getProviderCountryByCountryAndProvider(country, provider);
             purchase.setNumberType(numberType);
+            int number = Integer
+                    .parseInt(purchaseResponse.getNumber().replace("+", ""));
+            purchase.setNumber(number);
             purchase.setResouceManagerId(resourceMaster.getResourceId());
             purchase.setEffectiveDate(ImiDataFormatUtils.getCurrentTimeStamp());
             purchase.setRestrictions(restrictions);
             purchase.setSetUpRate(purchaseResponse.getSetUpRate());
             purchase.setSmsRate(purchaseResponse.getSmsRate());
             purchase.setVoicePrice(purchaseResponse.getVoicePrice());
-            // purchase.setProvidercountry(providercountry);
+            purchase.setProvidercountry(providercountry);
             purchaseDao.createNewPurchase(purchase);
+        } catch (Exception e) {
+        }
+        return purchase;
+    }
+
+    public Purchasehistory updatePurchasehistory(Purchase purchase) {
+        Purchasehistory purchasehistory = new Purchasehistory();
+        try {
+            purchasehistory.setEndDate(ImiDataFormatUtils.getmaxDateString());
+            purchasehistory
+                    .setMonthlyRentalRate(purchase.getMonthlyRentalRate());
+            purchasehistory.setNumber(purchase.getNumber());
+            purchasehistory.setNumberType(purchase.getNumberType());
+            purchasehistory.setProvidercountry(purchase.getProvidercountry());
+            purchasehistory
+                    .setResourceManagerId(purchase.getResouceManagerId());
+            purchasehistory.setRestrictions(purchase.getRestrictions());
+            purchasehistory.setSetUpRate(purchase.getSetUpRate());
+            purchasehistory.setSmsPrice(purchase.getSmsRate());
+            purchasehistory.setStartDate(purchase.getEffectiveDate());
+            purchasehistory.setVoicePrice(purchase.getVoicePrice());
+            purchaseHistoryDao.createNewPurchaseHistory(purchasehistory);
+        } catch (Exception e) {
+        }
+        return purchasehistory;
+    }
+
+    public ResourceMaster getResourceMasterByNumber(String number) {
+        return resourceMasterDao.getResourceByNumber(number);
+    }
+
+    public void provisionData(ApplicationResponse applicationResponse) {
+        try {
+            Provisioning provisioning = new Provisioning();
+            provisioning.setSmsFallbackMethod(
+                    applicationResponse.getSmsFallbackMethod());
+            provisioning
+                    .setSmsFallbackUrl(applicationResponse.getSmsFallbackUrl());
+            provisioning.setSmsMethod(applicationResponse.getSmsMethod());
+            provisioning.setSmsStatusCallback(
+                    applicationResponse.getSmsStatusCallback());
+            provisioning.setSmsUrl(applicationResponse.getSmsUrl());
+            provisioning
+                    .setStatusCallBack(applicationResponse.getStatusCallback());
+            provisioning.setStatusCallbackMethod(
+                    applicationResponse.getStatusCallbackMethod());
+            provisioning.setVoiceFallbackMethod(
+                    applicationResponse.getVoiceFallbackMethod());
+            provisioning.setVoiceFallbackUrl(
+                    applicationResponse.getVoiceFallback());
+            provisioning.setVoiceUrl(applicationResponse.getVoiceUrl());
+            provisioningDao.updateProvisioning(provisioning);
         } catch (Exception e) {
         }
     }

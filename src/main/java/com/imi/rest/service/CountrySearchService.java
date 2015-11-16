@@ -1,6 +1,8 @@
 package com.imi.rest.service;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -39,16 +41,6 @@ public class CountrySearchService implements ProviderConstants {
     private static final Logger LOG = Logger
             .getLogger(CountrySearchService.class);
 
-    public Set<Country> getCountryListWithISO() throws JsonParseException,
-            JsonMappingException, IOException, ImiException {
-        CountryResponse countryResponse = new CountryResponse();
-        countryResponse.addCountries(twilioFactoryImpl
-                .importCountriesByUrl(providerService.getTwilioProvider()));
-        countryResponse.addCountries(nexmoFactoryImpl.importCountries());
-        countryResponse.addCountries(plivioFactoryImpl.importCountries());
-        return countryResponse.getCountries();
-    }
-
     public com.imi.rest.dao.model.Country getCountryById(Integer id) {
         return countryDao.getCountryById(id);
     }
@@ -68,12 +60,25 @@ public class CountrySearchService implements ProviderConstants {
 
     public void countryBatchImport() throws JsonParseException,
             JsonMappingException, IOException, ImiException {
+        Map<String, Map<String, String>> providerCapabilities = new HashMap<String, Map<String, String>>();
         CountryResponse countryResponse = new CountryResponse();
-        countryResponse.addCountries(twilioFactoryImpl.importCountries());
-        countryResponse.addCountries(nexmoFactoryImpl.importCountries());
-        countryResponse.addCountries(plivioFactoryImpl.importCountries());
+        providerCapabilities.put(TWILIO, new HashMap<String, String>());
+        providerCapabilities.put(NEXMO, new HashMap<String, String>());
+        providerCapabilities.put(PLIVO, new HashMap<String, String>());
+        countryResponse.addCountries(
+                twilioFactoryImpl.importCountries(providerCapabilities));
+        countryResponse.addCountries(
+                nexmoFactoryImpl.importCountries(providerCapabilities));
+        countryResponse.addCountries(
+                plivioFactoryImpl.importCountries(providerCapabilities));
         Set<Country> countryModelSet = countryResponse.getCountries();
         countryDao.batchUpdate(countryModelSet);
+        countryDao.batchUpdate(providerCapabilities.get(TWILIO),
+                providerService.getTwilioProvider());
+        countryDao.batchUpdate(providerCapabilities.get(NEXMO),
+                providerService.getNexmoProvider());
+        countryDao.batchUpdate(providerCapabilities.get(PLIVO),
+                providerService.getPlivioProvider());
     }
 
 }

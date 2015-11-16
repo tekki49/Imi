@@ -15,6 +15,6 @@ public class PurchaseService {
     PurchaseDao purchaseDao;
 
     public Purchase getPurchaseByNumber(Integer number) {
-        return purchaseDao.getByNumber(number);
+        return purchaseDao.getPurchaseByNumber(number);
     }
 }

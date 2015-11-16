@@ -37,4 +37,15 @@ public class ResourceMasterDao {
         }
         return null;
     }
+
+    public ResourceMaster getResourceByNumber(String serviceCode) {
+        Criteria criteria = getSession().createCriteria(ResourceMaster.class);
+        criteria.add(Restrictions.eq("serviceCode", serviceCode));
+        List<ResourceMaster> resourceList = criteria.list();
+        if (resourceList != null && resourceList.size() > 0) {
+            return resourceList.get(0);
+        }
+        return null;
+    }
+
 }

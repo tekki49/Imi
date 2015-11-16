@@ -66,7 +66,7 @@ public class Purchasehistory implements java.io.Serializable {
         this.id = id;
     }
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "CountryProviderId")
     public Providercountry getProvidercountry() {
         return this.providercountry;
@@ -76,7 +76,7 @@ public class Purchasehistory implements java.io.Serializable {
         this.providercountry = providercountry;
     }
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "provisioningId")
     public Provisioning getProvisioning() {
         return this.provisioning;

@@ -10,8 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.transaction.Transactional;
-
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.entity.ContentType;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
@@ -31,6 +29,7 @@ import com.imi.rest.core.CountrySearch;
 import com.imi.rest.core.NumberSearch;
 import com.imi.rest.core.PurchaseNumber;
 import com.imi.rest.dao.model.Provider;
+import com.imi.rest.dao.model.Purchase;
 import com.imi.rest.dao.model.ResourceMaster;
 import com.imi.rest.exception.ImiException;
 import com.imi.rest.exception.InvalidNumberException;
@@ -59,7 +58,7 @@ public class NexmoFactoryImpl implements NumberSearch, CountrySearch,
     private static final String NEXMO_PRICING_FILE_PATH = "/nexmo_pricing.xls";
     private Double forexValue;
     private static Map<String, CountryPricing> countryPricingMap;
-    private final static int THRESHOLD = 20;
+    private final static int THRESHOLD = 90;
 
     @Autowired
     ForexService forexService;
@@ -232,13 +231,51 @@ public class NexmoFactoryImpl implements NumberSearch, CountrySearch,
     }
 
     @Override
-    public Set<Country> importCountries() throws FileNotFoundException,
-            JsonParseException, JsonMappingException, IOException {
+    public Set<Country> importCountries(
+            Map<String, Map<String, String>> providerCapabilities)
+                    throws FileNotFoundException, JsonParseException,
+                    JsonMappingException, IOException {
+        Map<String, String> nexmoCapabilties = providerCapabilities.get(NEXMO);
+
         Set<Country> countrySet = new HashSet<Country>();
         InputStream in = getClass()
                 .getResourceAsStream(NEXMO_PRICING_FILE_PATH);
         HSSFWorkbook workbook = new HSSFWorkbook(in);
-        HSSFSheet sheet = workbook.getSheetAt(0);
+
+        HSSFSheet sheet = workbook.getSheetAt(3);
+        for (int i = 1; i < sheet.getLastRowNum(); i++) {
+            Row row = sheet.getRow(i);
+            String countryName = row.getCell(0).toString().split(" - ")[1];
+            String capabilities = "";
+            if (row.getCell(1).toString() != null
+                    && !row.getCell(1).toString().trim().equals("")) {
+                capabilities += "Voice";
+            }
+            if (row.getCell(3).toString() != null
+                    && !row.getCell(3).toString().trim().equals("")) {
+                capabilities += ",Tollfree";
+            }
+            if (nexmoCapabilties.get(countryName) != null) {
+                capabilities += ("," + nexmoCapabilties.get(countryName));
+            }
+            nexmoCapabilties.put(countryName, capabilities);
+        }
+        sheet = workbook.getSheetAt(2);
+        for (int i = 1; i < sheet.getLastRowNum(); i++) {
+            Row row = sheet.getRow(i);
+            String countryName = row.getCell(0).toString().split(" - ")[1];
+            String capabilities = "";
+            if (row.getCell(1).toString() != null
+                    && !row.getCell(1).toString().trim().equals("")) {
+                capabilities += "Mobile";
+            }
+            if (nexmoCapabilties.get(countryName) != null) {
+                capabilities += ("," + nexmoCapabilties.get(countryName));
+            }
+            nexmoCapabilties.put(countryName, capabilities);
+        }
+
+        sheet = workbook.getSheetAt(0);
         for (int i = 1; i < sheet.getLastRowNum(); i++) {
             Country country = new Country();
             Row row = sheet.getRow(i);
@@ -257,6 +294,12 @@ public class NexmoFactoryImpl implements NumberSearch, CountrySearch,
                     throws ClientProtocolException, IOException, ImiException {
         String nexmoReleaseUrl = NEXMO_RELEASE_URL;
         String nexmoNumber = number.trim();
+        Number numberDetails = getPurchaseNumberDetails(number, provider);
+        if (numberDetails == null) {
+            throw new ImiException(
+                    "Number requested " + number + " does not belong to your "
+                            + provider.getName() + "Account");
+        }
         nexmoReleaseUrl = nexmoReleaseUrl
                 .replace("{api_key}", provider.getAuthId())
                 .replace("{api_secret}", provider.getApiKey())
@@ -377,8 +420,7 @@ public class NexmoFactoryImpl implements NumberSearch, CountrySearch,
         } else if (numberType.equalsIgnoreCase(TOLLFREE)) {
             type = "tollfree";
         }
-        if(countryPricingMap==null)
-        {
+        if (countryPricingMap == null) {
             getNexmoPricing(NEXMO_PRICING_FILE_PATH);
         }
         CountryPricing countryPricing = countryPricingMap
@@ -416,10 +458,12 @@ public class NexmoFactoryImpl implements NumberSearch, CountrySearch,
                         .updateResource(number, serviceTypeEnum);
                 resourceService.updateResourceAllocation(resourceMaster);
                 resourceService.updateChannelAssetsAllocation(resourceMaster);
-                resourceService.updatePurchase(purchaseResponse, numberType,
+                Purchase purchase = resourceService.updatePurchase(
+                        purchaseResponse, numberType,
                         ImiDataFormatUtils.getAddressRestrictions(
                                 purchaseResponse.isAddressRequired(), null),
                         resourceMaster);
+                resourceService.updatePurchasehistory(purchase);
                 return purchaseResponse;
             }
         } else if (restResponse.getResponseCode() == HttpStatus.UNAUTHORIZED
@@ -437,10 +481,41 @@ public class NexmoFactoryImpl implements NumberSearch, CountrySearch,
                 + number + " please try again");
     }
 
+    public Number getPurchaseNumberDetails(String number, Provider provider)
+            throws ClientProtocolException, IOException {
+        String nexmoPurchasedNumberUrl = NEXMO_PURCHASED_NUMBER_URL;
+        nexmoPurchasedNumberUrl = nexmoPurchasedNumberUrl
+                .replace("{auth_id}", provider.getAuthId())
+                .replace("{api_secret}", provider.getApiKey());
+        Number numberDetails = null;
+        GenericRestResponse restResponse = ImiHttpUtil
+                .defaultHttpGetHandler(nexmoPurchasedNumberUrl);
+        if (restResponse.getResponseCode() == HttpStatus.OK.value()) {
+            NumberResponse nexmoNumberResponse = ImiJsonUtil.deserialize(
+                    restResponse.getResponseBody() == null ? ""
+                            : restResponse.getResponseBody(),
+                    NumberResponse.class);
+            loop: for (Number purchasedNumber : nexmoNumberResponse
+                    .getObjects()) {
+                if (purchasedNumber.getNumber().equalsIgnoreCase(number)) {
+                    numberDetails = purchasedNumber;
+                    break loop;
+                }
+            }
+        }
+        return numberDetails;
+    }
+
     public ApplicationResponse updateNumber(String number,
             String countryIsoCode, ApplicationResponse application,
             Provider provider)
                     throws ImiException, ClientProtocolException, IOException {
+        Number numberDetails = getPurchaseNumberDetails(number, provider);
+        if (numberDetails == null) {
+            throw new ImiException(
+                    "Number requested " + number + " does not belong to your "
+                            + provider.getName() + "Account");
+        }
         if (countryIsoCode.equals("")) {
             throw new ImiException(
                     "CountryIsoCode is required for provisioning Nexmo number. Please use url /number/update/{countryIsoCode}/{number} ");
@@ -469,6 +544,7 @@ public class NexmoFactoryImpl implements NumberSearch, CountrySearch,
                     .setVoiceCallbackValue(application.getVoiceCallbackValue());
             applicationResponse
                     .setStatusCallback(application.getStatusCallback());
+            resourceService.provisionData(applicationResponse);
         } else if (restResponse.getResponseCode() == HttpStatus.METHOD_FAILURE
                 .value()) {
             String message = "Number was not updated successfully, "

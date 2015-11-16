@@ -48,6 +48,7 @@ public class ApplicationResponse {
     private String api_id;
     private String error;
     private String address_requirements;
+    private String smsStatusCallback;
 
     public String getSmsFallbackUrl() {
         return smsFallbackUrl;
@@ -536,6 +537,14 @@ public class ApplicationResponse {
 
     public void setApiVersion(String apiVersion) {
         this.apiVersion = apiVersion;
+    }
+
+    public String getSmsStatusCallback() {
+        return smsStatusCallback;
+    }
+
+    public void setSmsStatusCallback(String smsStatusCallback) {
+        this.smsStatusCallback = smsStatusCallback;
     }
 
 }
