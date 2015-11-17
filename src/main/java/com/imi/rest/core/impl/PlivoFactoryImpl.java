@@ -289,14 +289,16 @@ public class PlivoFactoryImpl implements NumberSearch, CountrySearch,
     public void releaseNumber(String number, Provider provider,
             String countryIsoCode)
                     throws ClientProtocolException, IOException, ImiException {
-        Number numberDetails = getNumberDetails(number, provider);
+        String plivoNumber = (number.trim().replace("+", ""));
+        Number numberDetails = getNumberDetails(plivoNumber, provider);
+
         if (numberDetails == null) {
             throw new ImiException("Number requested for release " + number
                     + " is not present in your " + provider.getName()
                     + " account. ");
         }
         String plivioReleaseurl = PLIVO_RELEASE_URL;
-        plivioReleaseurl = plivioReleaseurl.replace("{number}", number)
+        plivioReleaseurl = plivioReleaseurl.replace("{number}", plivoNumber)
                 .replace("{auth_id}", provider.getAuthId());
         GenericRestResponse response = ImiHttpUtil.defaultHttpDeleteHandler(
                 plivioReleaseurl, new HashMap<String, String>(),
@@ -335,10 +337,11 @@ public class PlivoFactoryImpl implements NumberSearch, CountrySearch,
             Provider provider, com.imi.rest.dao.model.Country country,
             ServiceConstants serviceTypeEnum)
                     throws ClientProtocolException, IOException, ImiException {
+        String plivoNumber = (number.trim().replace("+", ""));
         PurchaseResponse purchaseResponse = new PurchaseResponse();
         String plivoPurchaseUrl = PLIVO_PURCHASE_URL
                 .replace("{auth_id}", provider.getAuthId())
-                .replace("{number}", number);
+                .replace("{number}", plivoNumber);
         GenericRestResponse response = ImiHttpUtil.defaultHttpPostHandler(
                 plivoPurchaseUrl, new HashMap<String, String>(),
                 ImiBasicAuthUtil.getBasicAuthHash(provider),
@@ -357,12 +360,12 @@ public class PlivoFactoryImpl implements NumberSearch, CountrySearch,
             if (plivoPurchaseResponse.getStatus().equalsIgnoreCase("Success")) {
                 purchaseResponse.setStatus("Success");
             }
-            Number numberDetails = getNumberDetails(number, provider);
+            Number numberDetails = getNumberDetails(plivoNumber, provider);
             ResourceMaster resourceMaster = resourceService
-                    .updateResource(number, serviceTypeEnum);
+                    .updateResource(plivoNumber, serviceTypeEnum);
             resourceService.updateResourceAllocation(resourceMaster);
             resourceService.updateChannelAssetsAllocation(resourceMaster);
-            purchaseResponse.setNumber(number);
+            purchaseResponse.setNumber(plivoNumber);
             purchaseResponse.setNumberType(numberType);
             if (numberDetails != null) {
                 purchaseResponse.setMonthlyRentalRate(
@@ -385,7 +388,7 @@ public class PlivoFactoryImpl implements NumberSearch, CountrySearch,
         } else {
             if (plivoPurchaseResponse.getError() != null) {
                 throw new ImiException("error occured for number provided."
-                        + number + " Error :"
+                        + plivoNumber + " Error :"
                         + plivoPurchaseResponse.getError());
             }
         }
@@ -583,11 +586,13 @@ public class PlivoFactoryImpl implements NumberSearch, CountrySearch,
             ApplicationResponse applicationResponsetoModify, Provider provider)
                     throws ClientProtocolException, IOException, ImiException {
         String plivoNumberUpdateUrl = PLIVO_RELEASE_URL;
-        plivoNumberUpdateUrl = plivoNumberUpdateUrl.replace("{number}", number)
+        String plivoNumber = (number.trim().replace("+", ""));
+        plivoNumberUpdateUrl = plivoNumberUpdateUrl
+                .replace("{number}", plivoNumber)
                 .replace("{auth_id}", provider.getAuthId());
         PlivoPurchaseResponse plivioPurchaseResponse = new PlivoPurchaseResponse();
         ApplicationResponse plivoApplicationResponse = getApplicationByNumber(
-                number, provider);
+                plivoNumber, provider);
         if (plivoApplicationResponse != null) {
             applicationResponsetoModify
                     .setApi_id(plivoApplicationResponse.getApi_id());

@@ -52,11 +52,10 @@ public class Customer {
     }
 
     @JsonProperty("zipCode")
-    public void setZipCode(String zipCode)
-    {
-        this.postalcode=zipCode;
+    public void setZipCode(String zipCode) {
+        this.postalcode = zipCode;
     }
-    
+
     public void setPostalcode(String postalcode) {
         this.postalcode = postalcode;
     }
@@ -72,6 +71,7 @@ public class Customer {
     public String getCountry() {
         return country;
     }
+
     public void setCountry(String country) {
         this.country = country;
     }
@@ -84,7 +84,7 @@ public class Customer {
     public void setAddressId(Long address_id) {
         this.address_id = address_id;
     }
-    
+
     public void setAddress_id(Long address_id) {
         this.address_id = address_id;
     }

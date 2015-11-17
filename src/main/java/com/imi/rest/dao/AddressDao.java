@@ -32,7 +32,7 @@ public class AddressDao {
             String country) throws ImiException {
         Criteria criteria = getSession().createCriteria(UserAddressMgmt.class);
         Integer userId = Integer.parseInt(userIdString);
-        criteria.add(Restrictions.eq("userId",userId));
+        criteria.add(Restrictions.eq("userId", userId));
         criteria.add(Restrictions.eq("country", country));
         List<UserAddressMgmt> addressDbList = criteria.list();
         if (addressDbList != null) {
@@ -53,21 +53,18 @@ public class AddressDao {
         }
         throw new ImiException("Unable to fetch country data from data base");
     }
-    
-    public void createNewAddress(UserAddressMgmt addressMgnt)
-    {
+
+    public void createNewAddress(UserAddressMgmt addressMgnt) {
         getSession().saveOrUpdate(addressMgnt);
     }
 
-    
-    public UserAddressMgmt getAddressById(Long addressId)
-    {
-        UserAddressMgmt userAddressMgmt=null;
+    public UserAddressMgmt getAddressById(Long addressId) {
+        UserAddressMgmt userAddressMgmt = null;
         Criteria criteria = getSession().createCriteria(UserAddressMgmt.class);
         criteria.add(Restrictions.idEq(addressId));
-        List<UserAddressMgmt>userAddressList=criteria.list();
-        if(userAddressList!=null&& userAddressList.size()>0)
-            userAddressMgmt=userAddressList.get(0);
+        List<UserAddressMgmt> userAddressList = criteria.list();
+        if (userAddressList != null && userAddressList.size() > 0)
+            userAddressMgmt = userAddressList.get(0);
         return userAddressMgmt;
     }
 

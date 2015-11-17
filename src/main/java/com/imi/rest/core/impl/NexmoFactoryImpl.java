@@ -88,6 +88,9 @@ public class NexmoFactoryImpl implements NumberSearch, CountrySearch,
             meta.setPreviousNexmoIndex("FIRST");
             numberResponse.setMeta(meta);
         }
+        if (countryPricingMap == null) {
+            getNexmoPricing(NEXMO_PRICING_FILE_PATH);
+        }
         searchPhoneNumbers(provider, serviceTypeEnum, countryIsoCode, type,
                 pattern, numberSearchList, index, numberResponse, "FIRST");
         List<Number> numberList = numberResponse.getObjects() == null
@@ -293,8 +296,8 @@ public class NexmoFactoryImpl implements NumberSearch, CountrySearch,
             String countryIsoCode)
                     throws ClientProtocolException, IOException, ImiException {
         String nexmoReleaseUrl = NEXMO_RELEASE_URL;
-        String nexmoNumber = number.trim();
-        Number numberDetails = getPurchaseNumberDetails(number, provider);
+        String nexmoNumber = (number.trim().replace("+", ""));
+        Number numberDetails = getPurchaseNumberDetails(nexmoNumber, provider);
         if (numberDetails == null) {
             throw new ImiException(
                     "Number requested " + number + " does not belong to your "
@@ -405,11 +408,12 @@ public class NexmoFactoryImpl implements NumberSearch, CountrySearch,
             ServiceConstants serviceTypeEnum)
                     throws ClientProtocolException, IOException, ImiException {
         String nexmoPurchaseUrl = NEXMO_PURCHASE_URL;
+        String nexmoNumber = (number.trim().replace("+", ""));
         nexmoPurchaseUrl = nexmoPurchaseUrl
                 .replace("{api_key}", provider.getAuthId())
                 .replace("{api_secret}", provider.getApiKey())
                 .replace("{country}", country.getCountryIso())
-                .replace("{msisdn}", "" + number);
+                .replace("{msisdn}", "" + nexmoNumber);
         GenericRestResponse restResponse = ImiHttpUtil.defaultHttpPostHandler(
                 nexmoPurchaseUrl, new HashMap<String, String>(),
                 ImiBasicAuthUtil.getBasicAuthHash(provider),
@@ -432,7 +436,7 @@ public class NexmoFactoryImpl implements NumberSearch, CountrySearch,
             if (nexmoPurchaseResponse.getErrorcode().equals("200")
                     && nexmoPurchaseResponse.getErrorCodeLabel()
                             .equals("success")) {
-                purchaseResponse.setNumber(number);
+                purchaseResponse.setNumber(nexmoNumber);
                 purchaseResponse.setNumberType(type);
                 purchaseResponse.setMonthlyRentalRate(ImiDataFormatUtils
                         .forexConvert(forexValue, countryPricing.getPricing()
@@ -455,7 +459,7 @@ public class NexmoFactoryImpl implements NumberSearch, CountrySearch,
                 }
                 purchaseResponse.setAddressRequired(false);
                 ResourceMaster resourceMaster = resourceService
-                        .updateResource(number, serviceTypeEnum);
+                        .updateResource(nexmoNumber, serviceTypeEnum);
                 resourceService.updateResourceAllocation(resourceMaster);
                 resourceService.updateChannelAssetsAllocation(resourceMaster);
                 Purchase purchase = resourceService.updatePurchase(
@@ -474,11 +478,12 @@ public class NexmoFactoryImpl implements NumberSearch, CountrySearch,
             if (nexmoPurchaseResponse.getErrorcode().equals("420")
                     && nexmoPurchaseResponse.getErrorCodeLabel()
                             .equals("method failed")) {
-                throw new InvalidNumberException(number, provider.getName());
+                throw new InvalidNumberException(nexmoNumber,
+                        provider.getName());
             }
         }
         throw new ImiException("Some Error occured while purchasing the number "
-                + number + " please try again");
+                + nexmoNumber + " please try again");
     }
 
     public Number getPurchaseNumberDetails(String number, Provider provider)
@@ -510,7 +515,8 @@ public class NexmoFactoryImpl implements NumberSearch, CountrySearch,
             String countryIsoCode, ApplicationResponse application,
             Provider provider)
                     throws ImiException, ClientProtocolException, IOException {
-        Number numberDetails = getPurchaseNumberDetails(number, provider);
+        String nexmoNumber = (number.trim().replace("+", ""));
+        Number numberDetails = getPurchaseNumberDetails(nexmoNumber, provider);
         if (numberDetails == null) {
             throw new ImiException(
                     "Number requested " + number + " does not belong to your "
@@ -521,7 +527,6 @@ public class NexmoFactoryImpl implements NumberSearch, CountrySearch,
                     "CountryIsoCode is required for provisioning Nexmo number. Please use url /number/update/{countryIsoCode}/{number} ");
         }
         String nexmoAccountUpdateUrl = NEXMO_NUMBER_UPDATE_URL;
-        String nexmoNumber = number.trim();
         nexmoAccountUpdateUrl = nexmoAccountUpdateUrl
                 .replace("{country}", countryIsoCode)
                 .replace("{api_key}", provider.getAuthId())
@@ -535,7 +540,7 @@ public class NexmoFactoryImpl implements NumberSearch, CountrySearch,
         ApplicationResponse applicationResponse = new ApplicationResponse();
         if (restResponse.getResponseCode() == HttpStatus.OK.value()) {
             applicationResponse.setMoHttpUrl(application.getMoHttpUrl());
-            applicationResponse.setPhone_number(number);
+            applicationResponse.setPhone_number(nexmoNumber);
             applicationResponse
                     .setMoSmppSysType(application.getMoSmppSysType());
             applicationResponse

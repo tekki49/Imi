@@ -458,8 +458,9 @@ public class TwilioFactoryImpl implements NumberSearch, CountrySearch,
 
     public void releaseNumber(String number, Provider provider,
             String countryIsoCode) throws IOException, ImiException {
-        ApplicationResponse incomingPhoneNumber = getIncomingPhoneNumber(number,
-                provider);
+        String twilioNumber = "+" + (number.trim().replace("+", ""));
+        ApplicationResponse incomingPhoneNumber = getIncomingPhoneNumber(
+                twilioNumber, provider);
         if (incomingPhoneNumber == null) {
             throw new ImiException(
                     "Number requested " + number + " does not belong to your "
@@ -497,9 +498,10 @@ public class TwilioFactoryImpl implements NumberSearch, CountrySearch,
     public ApplicationResponse updateNumber(String number,
             ApplicationResponse applicationResponsetoModify, Provider provider)
                     throws ClientProtocolException, IOException, ImiException {
+        String twilioNumber = "+" + (number.trim().replace("+", ""));
         String twilioNumberUpdateUrl = TWILIO_NUMBER_UPDATE_URL;
-        ApplicationResponse incomingPhoneNumber = getIncomingPhoneNumber(number,
-                provider);
+        ApplicationResponse incomingPhoneNumber = getIncomingPhoneNumber(
+                twilioNumber, provider);
         if (incomingPhoneNumber == null) {
             throw new ImiException(
                     "Number requested " + number + " does not belong to your "
