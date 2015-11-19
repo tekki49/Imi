@@ -1,10 +1,9 @@
 package com.imi.rest.service;
 
-import static org.mockito.Mockito.when;
-
 import java.io.IOException;
 
 import org.apache.http.client.ClientProtocolException;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,8 +16,7 @@ import com.imi.rest.dao.AddressDao;
 import com.imi.rest.dao.model.Provider;
 import com.imi.rest.exception.ImiException;
 import com.imi.rest.model.Address;
-
-import junit.framework.Assert;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AddressServiceTest {
@@ -41,7 +39,6 @@ public class AddressServiceTest {
 	@Before
 	public void setup() throws ImiException, ClientProtocolException, IOException {
 		String providerName = "a";
-		
 	}
 
 	@Test
