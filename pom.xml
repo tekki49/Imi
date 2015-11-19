@@ -58,10 +58,21 @@
 			<version>20140107</version>
 		</dependency>
 		<dependency>
-	<groupId>org.springframework</groupId>
-	<artifactId>spring-test</artifactId>
-</dependency>
-		
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-test</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.4</version>
+		</dependency>
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-all</artifactId>
+			<version>1.9.5</version>
+		</dependency>
+
+
 
 	</dependencies>
 	<properties>
