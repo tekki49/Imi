@@ -46,665 +46,629 @@ import com.imi.rest.model.InboundCallPrice;
 import com.imi.rest.model.Number;
 import com.imi.rest.model.NumberResponse;
 import com.imi.rest.model.PurchaseResponse;
+import com.imi.rest.model.SubAccountDetails;
+import com.imi.rest.model.TwilioAccountResponse;
 import com.imi.rest.model.TwilioAddressResponse;
 import com.imi.rest.model.TwilioNumberPrice;
 import com.imi.rest.service.CountrySearchService;
 import com.imi.rest.service.ForexService;
 import com.imi.rest.service.ResourceService;
+import com.imi.rest.service.SubAccountService;
 import com.imi.rest.util.ImiBasicAuthUtil;
 import com.imi.rest.util.ImiDataFormatUtils;
 import com.imi.rest.util.ImiHttpUtil;
 import com.imi.rest.util.ImiJsonUtil;
 
 @Component
-public class TwilioFactoryImpl implements NumberSearch, CountrySearch,
-        PurchaseNumber, UrlConstants, ProviderConstants, NumberTypeConstants {
+public class TwilioFactoryImpl
+		implements NumberSearch, CountrySearch, PurchaseNumber, UrlConstants, ProviderConstants, NumberTypeConstants {
 
-    private static final String TWILIO_CSV_FILE_PATH = "/Twilio - Number Prices.csv";
-    private static final Logger LOG = Logger
-            .getLogger(CountrySearchService.class);
+	private static final String TWILIO_CSV_FILE_PATH = "/Twilio - Number Prices.csv";
+	private static final Logger LOG = Logger.getLogger(CountrySearchService.class);
 
-    private TwilioNumberPrice numberTypePricing;
-    private String priceUnit;
-    private Map<String, TwilioNumberPrice> twilioMonthlyPriceMap;
-    private Double forexValue;
+	private TwilioNumberPrice numberTypePricing;
+	private String priceUnit;
+	private Map<String, TwilioNumberPrice> twilioMonthlyPriceMap;
+	private Double forexValue;
 
-    @Autowired
-    ForexService forexService;
+	@Autowired
+	ForexService forexService;
 
-    @Autowired
-    ResourceService resourceService;
+	@Autowired
+	ResourceService resourceService;
+	
+	@Autowired
+	SubAccountService subAccountService;
 
-    @Autowired
-    CountryDao countryDao;
+	@Autowired
+	CountryDao countryDao;
+	
+	
+//TODO Customer SId must be obtained from the address response and integrated with this method to replace provider AuthID
+	@Override
+	public void searchPhoneNumbers(Provider provider, ServiceConstants serviceTypeEnum, String countryIsoCode,
+			String numberType, String pattern, String index, NumberResponse numberResponse)
+					throws ClientProtocolException, IOException {
+		if (!index.equalsIgnoreCase("")) {
+			return;
+		}
+		if (twilioMonthlyPriceMap == null) {
+			getTwilioPricing(countryIsoCode, provider);
+		}
+		List<Number> numberSearchList = numberResponse.getObjects() == null ? new ArrayList<Number>()
+				: numberResponse.getObjects();
+		String twilioPhoneSearchUrl = TWILIO_PHONE_SEARCH_URL;
+		numberTypePricing = null;
+		priceUnit = null;
+		String servicesString = generateTwilioCapabilities(serviceTypeEnum);
+		String type = "Local";
+		if (numberType.equalsIgnoreCase(MOBILE)) {
+			type = "Mobile";
+		} else if (numberType.equalsIgnoreCase(TOLLFREE)) {
+			type = "Tollfree";
+		}
+		twilioPhoneSearchUrl = twilioPhoneSearchUrl.replace("{auth_id}", provider.getAuthId())
+				.replace("{country_iso}", countryIsoCode).replace("{services}", servicesString)
+				.replace("{pattern}", "*" + pattern.trim() + "*").replace("{type}", type);
+		GenericRestResponse twilioNumberSearchResponse = null;
+		if (pattern.equalsIgnoreCase("")) {
+			twilioPhoneSearchUrl = twilioPhoneSearchUrl.replace("Contains=**&", "");
+		}
+		twilioNumberSearchResponse = ImiHttpUtil.defaultHttpGetHandler(twilioPhoneSearchUrl,
+				ImiBasicAuthUtil.getBasicAuthHash(provider));
+		if (twilioNumberSearchResponse.getResponseCode() == HttpStatus.OK.value()) {
+			NumberResponse numberResponseFromTwilo = ImiJsonUtil
+					.deserialize(twilioNumberSearchResponse.getResponseBody(), NumberResponse.class);
+			List<Number> twilioNumberList = numberResponseFromTwilo == null ? new ArrayList<Number>()
+					: numberResponseFromTwilo.getObjects() == null ? new ArrayList<Number>()
+							: numberResponseFromTwilo.getObjects();
+			String searchKey = countryIsoCode + "-" + type;
+			if (numberTypePricing == null) {
+				setNumberTypePricingMap(twilioMonthlyPriceMap.get(searchKey.toUpperCase()));
+			}
+			// String voiceRate = numberTypePricing.get(type.toLowerCase());
+			String voiceRate = numberTypePricing.getInboundVoicePrice();
+			if (forexValue == null) {
+				forexValue = forexService.getForexValueByName("USD_GBP").getValue();
+			}
+			for (Number twilioNumber : twilioNumberList) {
+				if (twilioNumber != null) {
+					setServiceType(twilioNumber);
+					twilioNumber.setProvider(TWILIO);
+					twilioNumber.setType(type.equalsIgnoreCase("local") ? "landline" : type);
+					twilioNumber.setPriceUnit(priceUnit);
+					String voiceRateInGBP = ImiDataFormatUtils.forexConvert(forexValue, voiceRate);
+					twilioNumber.setVoiceRate(voiceRateInGBP);
+					String monthlyRentalRateInGBP = ImiDataFormatUtils.forexConvert(forexValue,
+							numberTypePricing.getMonthlyRentalRate());
+					twilioNumber.setMonthlyRentalRate(monthlyRentalRateInGBP);
+					numberSearchList.add(twilioNumber);
+				}
+			}
+			numberResponse.setObjects(numberSearchList);
+		}
+	}
 
-    @Override
-    public void searchPhoneNumbers(Provider provider,
-            ServiceConstants serviceTypeEnum, String countryIsoCode,
-            String numberType, String pattern, String index,
-            NumberResponse numberResponse)
-                    throws ClientProtocolException, IOException {
-        if (!index.equalsIgnoreCase("")) {
-            return;
-        }
-        if (twilioMonthlyPriceMap == null) {
-            getTwilioPricing(countryIsoCode, provider);
-        }
-        List<Number> numberSearchList = numberResponse.getObjects() == null
-                ? new ArrayList<Number>() : numberResponse.getObjects();
-        String twilioPhoneSearchUrl = TWILIO_PHONE_SEARCH_URL;
-        numberTypePricing = null;
-        priceUnit = null;
-        String servicesString = generateTwilioCapabilities(serviceTypeEnum);
-        String type = "Local";
-        if (numberType.equalsIgnoreCase(MOBILE)) {
-            type = "Mobile";
-        } else if (numberType.equalsIgnoreCase(TOLLFREE)) {
-            type = "Tollfree";
-        }
-        twilioPhoneSearchUrl = twilioPhoneSearchUrl
-                .replace("{auth_id}", provider.getAuthId())
-                .replace("{country_iso}", countryIsoCode)
-                .replace("{services}", servicesString)
-                .replace("{pattern}", "*" + pattern.trim() + "*")
-                .replace("{type}", type);
-        GenericRestResponse twilioNumberSearchResponse = null;
-        if (pattern.equalsIgnoreCase("")) {
-            twilioPhoneSearchUrl = twilioPhoneSearchUrl.replace("Contains=**&",
-                    "");
-        }
-        twilioNumberSearchResponse = ImiHttpUtil.defaultHttpGetHandler(
-                twilioPhoneSearchUrl,
-                ImiBasicAuthUtil.getBasicAuthHash(provider));
-        if (twilioNumberSearchResponse.getResponseCode() == HttpStatus.OK
-                .value()) {
-            NumberResponse numberResponseFromTwilo = ImiJsonUtil.deserialize(
-                    twilioNumberSearchResponse.getResponseBody(),
-                    NumberResponse.class);
-            List<Number> twilioNumberList = numberResponseFromTwilo == null
-                    ? new ArrayList<Number>()
-                    : numberResponseFromTwilo.getObjects() == null
-                            ? new ArrayList<Number>()
-                            : numberResponseFromTwilo.getObjects();
-            String searchKey = countryIsoCode + "-" + type;
-            if (numberTypePricing == null) {
-                setNumberTypePricingMap(
-                        twilioMonthlyPriceMap.get(searchKey.toUpperCase()));
-            }
-            // String voiceRate = numberTypePricing.get(type.toLowerCase());
-            String voiceRate = numberTypePricing.getInboundVoicePrice();
-            if (forexValue == null) {
-                forexValue = forexService.getForexValueByName("USD_GBP")
-                        .getValue();
-            }
-            for (Number twilioNumber : twilioNumberList) {
-                if (twilioNumber != null) {
-                    setServiceType(twilioNumber);
-                    twilioNumber.setProvider(TWILIO);
-                    twilioNumber.setType(
-                            type.equalsIgnoreCase("local") ? "landline" : type);
-                    twilioNumber.setPriceUnit(priceUnit);
-                    String voiceRateInGBP = ImiDataFormatUtils
-                            .forexConvert(forexValue, voiceRate);
-                    twilioNumber.setVoiceRate(voiceRateInGBP);
-                    String monthlyRentalRateInGBP = ImiDataFormatUtils
-                            .forexConvert(forexValue,
-                                    numberTypePricing.getMonthlyRentalRate());
-                    twilioNumber.setMonthlyRentalRate(monthlyRentalRateInGBP);
-                    numberSearchList.add(twilioNumber);
-                }
-            }
-            numberResponse.setObjects(numberSearchList);
-        }
-    }
+	private Map<String, TwilioNumberPrice> getTwilioPricing(String countryIsoCode, Provider provider)
+			throws ClientProtocolException, IOException {
+		Map<String, String> numberTypePricingMap = new HashMap<String, String>();
+		String pricingUrl = TWILIO_PRICING_URL;
+		pricingUrl = pricingUrl.replace("{Country}", countryIsoCode);
+		GenericRestResponse twilioPriceResponse;
+		twilioPriceResponse = ImiHttpUtil.defaultHttpGetHandler(pricingUrl,
+				ImiBasicAuthUtil.getBasicAuthHash(provider));
+		CountryPricing countryPricing = null;
+		if (twilioPriceResponse.getResponseCode() == HttpStatus.OK.value()) {
+			countryPricing = ImiJsonUtil.deserialize(twilioPriceResponse.getResponseBody(), CountryPricing.class);
+		}
+		priceUnit = countryPricing.getPrice_unit();
+		for (InboundCallPrice inboundCallPrice : countryPricing.getInbound_call_prices()) {
+			String basePrice = inboundCallPrice.getBase_price() == null ? inboundCallPrice.getCurrent_price()
+					: inboundCallPrice.getBase_price();
+			numberTypePricingMap.put(inboundCallPrice.getNumber_type().replace(" ", "").trim(), basePrice);
+		}
+		if (twilioMonthlyPriceMap == null) {
+			String line = "";
+			String splitBy = ",";
+			BufferedReader reader = null;
+			twilioMonthlyPriceMap = new HashMap<String, TwilioNumberPrice>();
+			try {
+				InputStream in = getClass().getResourceAsStream(TWILIO_CSV_FILE_PATH);
+				reader = new BufferedReader(new InputStreamReader(in, "UTF-8"));
+				int counter = 0;
+				while ((line = reader.readLine()) != null) {
+					String[] row = line.split(splitBy);
+					if (counter != 0 && row.length > 1) {
+						String isoCode = row[0];
+						String numberType = row[3];
+						try {
+							String twilioPricingMapKey = isoCode + "-" + (numberType.replace(" ", ""));
+							TwilioNumberPrice twilioNumberPrice = new TwilioNumberPrice();
+							twilioNumberPrice.setAddressRequired(row[16]);
+							twilioNumberPrice.setBetaStatus(row[15]);
+							twilioNumberPrice.setDomesticSmsOnly(row[9]);
+							twilioNumberPrice.setDomesticVoiceOnly(row[8]);
+							twilioNumberPrice.setInboundMmsPrice(row[14]);
+							twilioNumberPrice.setInboundSmsPrice(row[13]);
+							twilioNumberPrice.setInboundTrunkingPrice(row[12]);
+							twilioNumberPrice.setInboundVoicePrice(row[11]);
+							twilioNumberPrice.setMmsEnabled(row[7]);
+							twilioNumberPrice.setMonthlyRentalRate(row[10]);
+							twilioNumberPrice.setSmsEnabled(row[6]);
+							twilioNumberPrice.setTrunkingEnabled(row[5]);
+							twilioNumberPrice.setVoiceEnabled(row[4]);
+							twilioMonthlyPriceMap.put(twilioPricingMapKey.toUpperCase(), twilioNumberPrice);
+						} catch (Exception e) {
+						}
+					}
+					counter++;
+				}
+			} catch (FileNotFoundException e) {
+				LOG.error(e);
+			} catch (IOException e) {
+				LOG.error(e);
+			} finally {
+				if (reader != null) {
+					try {
+						reader.close();
+					} catch (IOException e2) {
+						LOG.error(e2);
+					}
+				}
+			}
+		}
+		return twilioMonthlyPriceMap;
+	}
 
-    private Map<String, TwilioNumberPrice> getTwilioPricing(
-            String countryIsoCode, Provider provider)
-                    throws ClientProtocolException, IOException {
-        Map<String, String> numberTypePricingMap = new HashMap<String, String>();
-        String pricingUrl = TWILIO_PRICING_URL;
-        pricingUrl = pricingUrl.replace("{Country}", countryIsoCode);
-        GenericRestResponse twilioPriceResponse;
-        twilioPriceResponse = ImiHttpUtil.defaultHttpGetHandler(pricingUrl,
-                ImiBasicAuthUtil.getBasicAuthHash(provider));
-        CountryPricing countryPricing = null;
-        if (twilioPriceResponse.getResponseCode() == HttpStatus.OK.value()) {
-            countryPricing = ImiJsonUtil.deserialize(
-                    twilioPriceResponse.getResponseBody(),
-                    CountryPricing.class);
-        }
-        priceUnit = countryPricing.getPrice_unit();
-        for (InboundCallPrice inboundCallPrice : countryPricing
-                .getInbound_call_prices()) {
-            String basePrice = inboundCallPrice.getBase_price() == null
-                    ? inboundCallPrice.getCurrent_price()
-                    : inboundCallPrice.getBase_price();
-            numberTypePricingMap.put(
-                    inboundCallPrice.getNumber_type().replace(" ", "").trim(),
-                    basePrice);
-        }
-        if (twilioMonthlyPriceMap == null) {
-            String line = "";
-            String splitBy = ",";
-            BufferedReader reader = null;
-            twilioMonthlyPriceMap = new HashMap<String, TwilioNumberPrice>();
-            try {
-                InputStream in = getClass()
-                        .getResourceAsStream(TWILIO_CSV_FILE_PATH);
-                reader = new BufferedReader(new InputStreamReader(in, "UTF-8"));
-                int counter = 0;
-                while ((line = reader.readLine()) != null) {
-                    String[] row = line.split(splitBy);
-                    if (counter != 0 && row.length > 1) {
-                        String isoCode = row[0];
-                        String numberType = row[3];
-                        try {
-                            String twilioPricingMapKey = isoCode + "-"
-                                    + (numberType.replace(" ", ""));
-                            TwilioNumberPrice twilioNumberPrice = new TwilioNumberPrice();
-                            twilioNumberPrice.setAddressRequired(row[16]);
-                            twilioNumberPrice.setBetaStatus(row[15]);
-                            twilioNumberPrice.setDomesticSmsOnly(row[9]);
-                            twilioNumberPrice.setDomesticVoiceOnly(row[8]);
-                            twilioNumberPrice.setInboundMmsPrice(row[14]);
-                            twilioNumberPrice.setInboundSmsPrice(row[13]);
-                            twilioNumberPrice.setInboundTrunkingPrice(row[12]);
-                            twilioNumberPrice.setInboundVoicePrice(row[11]);
-                            twilioNumberPrice.setMmsEnabled(row[7]);
-                            twilioNumberPrice.setMonthlyRentalRate(row[10]);
-                            twilioNumberPrice.setSmsEnabled(row[6]);
-                            twilioNumberPrice.setTrunkingEnabled(row[5]);
-                            twilioNumberPrice.setVoiceEnabled(row[4]);
-                            twilioMonthlyPriceMap.put(
-                                    twilioPricingMapKey.toUpperCase(),
-                                    twilioNumberPrice);
-                        } catch (Exception e) {
-                        }
-                    }
-                    counter++;
-                }
-            } catch (FileNotFoundException e) {
-                LOG.error(e);
-            } catch (IOException e) {
-                LOG.error(e);
-            } finally {
-                if (reader != null) {
-                    try {
-                        reader.close();
-                    } catch (IOException e2) {
-                        LOG.error(e2);
-                    }
-                }
-            }
-        }
-        return twilioMonthlyPriceMap;
-    }
+	public List<String> numberType(String countryIsoCode) {
+		String line = "";
+		String splitBy = ",";
+		BufferedReader reader = null;
+		List<String> numberTypePerCountry = null;
+		try {
+			InputStream in = getClass().getResourceAsStream(TWILIO_CSV_FILE_PATH);
+			reader = new BufferedReader(new InputStreamReader(in, "UTF-8"));
+			int counter = 0;
+			while ((line = reader.readLine()) != null) {
+				numberTypePerCountry = new ArrayList<String>();
+				String[] row = line.split(splitBy);
+				if (counter != 0 && row.length > 1) {
+					String isoCode = row[0];
+					String numberType = row[3];
+					if (isoCode.equals(countryIsoCode)) {
+						String entry = isoCode + "-" + numberType;
+						numberTypePerCountry.add(entry);
+					}
+				}
+				counter++;
+			}
+		} catch (Exception e) {
+			LOG.error(e);
+		}
+		return numberTypePerCountry;
+	}
 
-    public List<String> numberType(String countryIsoCode) {
-        String line = "";
-        String splitBy = ",";
-        BufferedReader reader = null;
-        List<String> numberTypePerCountry = null;
-        try {
-            InputStream in = getClass()
-                    .getResourceAsStream(TWILIO_CSV_FILE_PATH);
-            reader = new BufferedReader(new InputStreamReader(in, "UTF-8"));
-            int counter = 0;
-            while ((line = reader.readLine()) != null) {
-                numberTypePerCountry = new ArrayList<String>();
-                String[] row = line.split(splitBy);
-                if (counter != 0 && row.length > 1) {
-                    String isoCode = row[0];
-                    String numberType = row[3];
-                    if (isoCode.equals(countryIsoCode)) {
-                        String entry = isoCode + "-" + numberType;
-                        numberTypePerCountry.add(entry);
-                    }
-                }
-                counter++;
-            }
-        } catch (Exception e) {
-            LOG.error(e);
-        }
-        return numberTypePerCountry;
-    }
+	@Override
+	public void setServiceType(Number number) {
+		Map<String, Boolean> capabilties = number.getCapabilities();
+		if (capabilties.get("voice") && capabilties.get("SMS")) {
+			number.setServiceType(ServiceConstants.BOTH.name());
+			number.setSmsEnabled(true);
+			number.setVoiceEnabled(true);
+		} else if (capabilties.get("SMS")) {
+			number.setServiceType(ServiceConstants.SMS.name());
+			number.setSmsEnabled(true);
+		} else {
+			number.setServiceType(ServiceConstants.VOICE.name());
+			number.setVoiceEnabled(true);
+		}
+	}
 
-    @Override
-    public void setServiceType(Number number) {
-        Map<String, Boolean> capabilties = number.getCapabilities();
-        if (capabilties.get("voice") && capabilties.get("SMS")) {
-            number.setServiceType(ServiceConstants.BOTH.name());
-            number.setSmsEnabled(true);
-            number.setVoiceEnabled(true);
-        } else if (capabilties.get("SMS")) {
-            number.setServiceType(ServiceConstants.SMS.name());
-            number.setSmsEnabled(true);
-        } else {
-            number.setServiceType(ServiceConstants.VOICE.name());
-            number.setVoiceEnabled(true);
-        }
-    }
+	private String generateTwilioCapabilities(ServiceConstants serviceTypeEnum) {
+		String servicesString = null;
+		switch (serviceTypeEnum) {
+		case SMS:
+			servicesString = "SmsEnabled=true";
+			break;
+		case VOICE:
+			servicesString = "VoiceEnabled=true";
+			break;
+		case BOTH:
+			servicesString = "SmsEnabled=true&VoiceEnabled=true";
+			break;
+		default:
+			break;
+		}
+		return servicesString;
+	}
 
-    private String generateTwilioCapabilities(
-            ServiceConstants serviceTypeEnum) {
-        String servicesString = null;
-        switch (serviceTypeEnum) {
-        case SMS:
-            servicesString = "SmsEnabled=true";
-            break;
-        case VOICE:
-            servicesString = "VoiceEnabled=true";
-            break;
-        case BOTH:
-            servicesString = "SmsEnabled=true&VoiceEnabled=true";
-            break;
-        default:
-            break;
-        }
-        return servicesString;
-    }
+	public Set<com.imi.rest.model.Country> importCountriesByUrl(Provider provider)
+			throws JsonParseException, JsonMappingException, IOException, ImiException {
+		String url = TWILIO_COUNTRY_LIST_URL;
+		String authHash = ImiBasicAuthUtil.getBasicAuthHash(provider);
+		GenericRestResponse restResponse;
+		Set<com.imi.rest.model.Country> countrySet = new HashSet<com.imi.rest.model.Country>();
+		restResponse = ImiHttpUtil.defaultHttpGetHandler(url, authHash);
+		if (restResponse.getResponseCode() == HttpStatus.OK.value()) {
+			CountryResponse countryResponse = ImiJsonUtil.deserialize(
+					restResponse.getResponseBody() == null ? "" : restResponse.getResponseBody(),
+					CountryResponse.class);
+			while (countryResponse != null && countryResponse.getMeta().getNextPageUrl() != null) {
+				String nextPageUrl = countryResponse.getMeta().getNextPageUrl();
+				GenericRestResponse nextRestResponse = null;
+				nextRestResponse = ImiHttpUtil.defaultHttpGetHandler(nextPageUrl, authHash);
+				if (nextRestResponse.getResponseCode() == HttpStatus.OK.value()) {
+					CountryResponse countryResponse2 = ImiJsonUtil.deserialize(
+							nextRestResponse.getResponseBody() == null ? "" : nextRestResponse.getResponseBody(),
+							CountryResponse.class);
+					countryResponse.addCountries(countryResponse2.getCountries());
+				}
+			}
+			countrySet = countryResponse.getCountries();
+		}
+		return countrySet;
+	}
 
-    public Set<com.imi.rest.model.Country> importCountriesByUrl(
-            Provider provider) throws JsonParseException, JsonMappingException,
-                    IOException, ImiException {
-        String url = TWILIO_COUNTRY_LIST_URL;
-        String authHash = ImiBasicAuthUtil.getBasicAuthHash(provider);
-        GenericRestResponse restResponse;
-        Set<com.imi.rest.model.Country> countrySet = new HashSet<com.imi.rest.model.Country>();
-        restResponse = ImiHttpUtil.defaultHttpGetHandler(url, authHash);
-        if (restResponse.getResponseCode() == HttpStatus.OK.value()) {
-            CountryResponse countryResponse = ImiJsonUtil.deserialize(
-                    restResponse.getResponseBody() == null ? ""
-                            : restResponse.getResponseBody(),
-                    CountryResponse.class);
-            while (countryResponse != null
-                    && countryResponse.getMeta().getNextPageUrl() != null) {
-                String nextPageUrl = countryResponse.getMeta().getNextPageUrl();
-                GenericRestResponse nextRestResponse = null;
-                nextRestResponse = ImiHttpUtil
-                        .defaultHttpGetHandler(nextPageUrl, authHash);
-                if (nextRestResponse.getResponseCode() == HttpStatus.OK
-                        .value()) {
-                    CountryResponse countryResponse2 = ImiJsonUtil
-                            .deserialize(
-                                    nextRestResponse.getResponseBody() == null
-                                            ? ""
-                                            : nextRestResponse
-                                                    .getResponseBody(),
-                                    CountryResponse.class);
-                    countryResponse
-                            .addCountries(countryResponse2.getCountries());
-                }
-            }
-            countrySet = countryResponse.getCountries();
-        }
-        return countrySet;
-    }
+	@Override
+	public Set<com.imi.rest.model.Country> importCountries(Map<String, Map<String, String>> providerCapabilities)
+			throws JsonParseException, JsonMappingException, IOException {
+		Map<String, String> twilioCapabilties = providerCapabilities.get(TWILIO);
+		Set<com.imi.rest.model.Country> countrySet = new TreeSet<com.imi.rest.model.Country>();
+		String line = "";
+		String splitBy = ",";
+		BufferedReader reader = null;
+		try {
+			InputStream in = getClass().getResourceAsStream(TWILIO_CSV_FILE_PATH);
+			reader = new BufferedReader(new InputStreamReader(in, "UTF-8"));
+			int counter = 0;
+			while ((line = reader.readLine()) != null) {
+				String[] row = line.split(splitBy);
+				if (counter != 0 && row.length > 1) {
+					com.imi.rest.model.Country country = new com.imi.rest.model.Country();
+					country.setCountry(row[1]);
+					country.setIsoCountry(row[0]);
+					country.setCountryCode(row[2]);
+					countrySet.add(country);
+					String capabilities = row[3].replace(" ", "");
+					if (twilioCapabilties.get(country.getCountry()) != null) {
+						capabilities += ("," + twilioCapabilties.get(country.getCountry()));
+					}
+					twilioCapabilties.put(country.getCountry(), capabilities);
+				}
+				counter++;
+			}
+		} catch (FileNotFoundException e) {
+			LOG.error(e);
+		} catch (IOException e) {
+			LOG.error(e);
+		} finally {
+			if (reader != null) {
+				try {
+					reader.close();
+				} catch (IOException e2) {
+					LOG.error(e2);
+				}
+			}
+		}
+		return countrySet;
+	}
 
-    @Override
-    public Set<com.imi.rest.model.Country> importCountries(
-            Map<String, Map<String, String>> providerCapabilities)
-                    throws JsonParseException, JsonMappingException,
-                    IOException {
-        Map<String, String> twilioCapabilties = providerCapabilities
-                .get(TWILIO);
-        Set<com.imi.rest.model.Country> countrySet = new TreeSet<com.imi.rest.model.Country>();
-        String line = "";
-        String splitBy = ",";
-        BufferedReader reader = null;
-        try {
-            InputStream in = getClass()
-                    .getResourceAsStream(TWILIO_CSV_FILE_PATH);
-            reader = new BufferedReader(new InputStreamReader(in, "UTF-8"));
-            int counter = 0;
-            while ((line = reader.readLine()) != null) {
-                String[] row = line.split(splitBy);
-                if (counter != 0 && row.length > 1) {
-                    com.imi.rest.model.Country country = new com.imi.rest.model.Country();
-                    country.setCountry(row[1]);
-                    country.setIsoCountry(row[0]);
-                    country.setCountryCode(row[2]);
-                    countrySet.add(country);
-                    String capabilities = row[3].replace(" ", "");
-                    if (twilioCapabilties.get(country.getCountry()) != null) {
-                        capabilities += (","
-                                + twilioCapabilties.get(country.getCountry()));
-                    }
-                    twilioCapabilties.put(country.getCountry(), capabilities);
-                }
-                counter++;
-            }
-        } catch (FileNotFoundException e) {
-            LOG.error(e);
-        } catch (IOException e) {
-            LOG.error(e);
-        } finally {
-            if (reader != null) {
-                try {
-                    reader.close();
-                } catch (IOException e2) {
-                    LOG.error(e2);
-                }
-            }
-        }
-        return countrySet;
-    }
+	//TODO Customer SId must be obtained from the address response and integrated with this method to replace provider AuthID
+	@Override
+	public PurchaseResponse purchaseNumber(String number, String numberType, Provider provider, Country country,
+			ServiceConstants serviceTypeEnum) throws ClientProtocolException, IOException, ImiException {
+		String twilioPurchaseUrl = TWILIO_PURCHASE_URL;
+		String twilioNumber = "+" + (number.trim().replace("+", ""));
+		twilioPurchaseUrl = twilioPurchaseUrl.replace("{number}", twilioNumber).replace("{auth_id}",
+				provider.getAuthId());
+		Map<String, String> requestBody = new HashMap<String, String>();
+		requestBody.put("PhoneNumber", twilioNumber);
+		GenericRestResponse response = ImiHttpUtil.defaultHttpPostHandler(twilioPurchaseUrl, requestBody,
+				ImiBasicAuthUtil.getBasicAuthHash(provider), null);
+		String type = "Local";
+		if (numberType.equalsIgnoreCase(MOBILE)) {
+			type = "Mobile";
+		} else if (numberType.equalsIgnoreCase(TOLLFREE)) {
+			type = "Tollfree";
+		}
+		if (twilioMonthlyPriceMap == null) {
+			getTwilioPricing(country.getCountryIso(), provider);
+		}
+		if (response.getResponseCode() == HttpStatus.CREATED.value()) {
+			ApplicationResponse numberDetails = ImiJsonUtil.deserialize(response.getResponseBody(),
+					ApplicationResponse.class);
+			String searchKey = country.getCountryIso() + "-" + type.toUpperCase();
+			TwilioNumberPrice twilioPrice = twilioMonthlyPriceMap.get(searchKey);
+			PurchaseResponse purchaseResponse = new PurchaseResponse();
+			if (numberDetails.getAddress_requirements().equalsIgnoreCase("none")) {
+				purchaseResponse.setAddressRequired(false);
+			} else {
+				purchaseResponse.setAddressRequired(true);
+			}
+			ResourceMaster resourceMaster = resourceService.updateResource(number, serviceTypeEnum);
+			resourceService.updateResourceAllocation(resourceMaster);
+			resourceService.updateChannelAssetsAllocation(resourceMaster);
+			purchaseResponse.setNumber(number);
+			purchaseResponse.setNumberType(numberType);
+			purchaseResponse.setMonthlyRentalRate(
+					ImiDataFormatUtils.forexConvert(forexValue, twilioPrice.getMonthlyRentalRate()));
+			purchaseResponse.setSetUpRate("");
+			purchaseResponse.setSmsRate(ImiDataFormatUtils.forexConvert(forexValue, twilioPrice.getInboundSmsPrice()));
+			purchaseResponse
+					.setVoicePrice(ImiDataFormatUtils.forexConvert(forexValue, twilioPrice.getInboundVoicePrice()));
+			purchaseResponse.setEffectiveDate(ImiDataFormatUtils.getCurrentTimeStamp());
+			Purchase purchase = resourceService.updatePurchase(purchaseResponse, numberType,
+					ImiDataFormatUtils.getAddressRestrictions(purchaseResponse.isAddressRequired(),
+							numberDetails.getAddress_requirements()),
+					resourceMaster);
+			resourceService.updatePurchasehistory(purchase);
+			return purchaseResponse;
+		} else {
+			throw new InvalidNumberException(number, provider.getName());
+		}
+	}
 
-    @Override
-    public PurchaseResponse purchaseNumber(String number, String numberType,
-            Provider provider, Country country,
-            ServiceConstants serviceTypeEnum)
-                    throws ClientProtocolException, IOException, ImiException {
-        String twilioPurchaseUrl = TWILIO_PURCHASE_URL;
-        String twilioNumber = "+" + (number.trim().replace("+", ""));
-        twilioPurchaseUrl = twilioPurchaseUrl.replace("{number}", twilioNumber)
-                .replace("{auth_id}", provider.getAuthId());
-        Map<String, String> requestBody = new HashMap<String, String>();
-        requestBody.put("PhoneNumber", twilioNumber);
-        GenericRestResponse response = ImiHttpUtil.defaultHttpPostHandler(
-                twilioPurchaseUrl, requestBody,
-                ImiBasicAuthUtil.getBasicAuthHash(provider), null);
-        String type = "Local";
-        if (numberType.equalsIgnoreCase(MOBILE)) {
-            type = "Mobile";
-        } else if (numberType.equalsIgnoreCase(TOLLFREE)) {
-            type = "Tollfree";
-        }
-        if (twilioMonthlyPriceMap == null) {
-            getTwilioPricing(country.getCountryIso(), provider);
-        }
-        if (response.getResponseCode() == HttpStatus.CREATED.value()) {
-            ApplicationResponse numberDetails = ImiJsonUtil.deserialize(
-                    response.getResponseBody(), ApplicationResponse.class);
-            String searchKey = country.getCountryIso() + "-"
-                    + type.toUpperCase();
-            TwilioNumberPrice twilioPrice = twilioMonthlyPriceMap
-                    .get(searchKey);
-            PurchaseResponse purchaseResponse = new PurchaseResponse();
-            if (numberDetails.getAddress_requirements()
-                    .equalsIgnoreCase("none")) {
-                purchaseResponse.setAddressRequired(false);
-            } else {
-                purchaseResponse.setAddressRequired(true);
-            }
-            ResourceMaster resourceMaster = resourceService
-                    .updateResource(number, serviceTypeEnum);
-            resourceService.updateResourceAllocation(resourceMaster);
-            resourceService.updateChannelAssetsAllocation(resourceMaster);
-            purchaseResponse.setNumber(number);
-            purchaseResponse.setNumberType(numberType);
-            purchaseResponse.setMonthlyRentalRate(
-                    ImiDataFormatUtils.forexConvert(forexValue,
-                            twilioPrice.getMonthlyRentalRate()));
-            purchaseResponse.setSetUpRate("");
-            purchaseResponse.setSmsRate(ImiDataFormatUtils.forexConvert(
-                    forexValue, twilioPrice.getInboundSmsPrice()));
-            purchaseResponse.setVoicePrice(ImiDataFormatUtils.forexConvert(
-                    forexValue, twilioPrice.getInboundVoicePrice()));
-            purchaseResponse
-                    .setEffectiveDate(ImiDataFormatUtils.getCurrentTimeStamp());
-            Purchase purchase = resourceService.updatePurchase(purchaseResponse,
-                    numberType,
-                    ImiDataFormatUtils.getAddressRestrictions(
-                            purchaseResponse.isAddressRequired(),
-                            numberDetails.getAddress_requirements()),
-                    resourceMaster);
-            resourceService.updatePurchasehistory(purchase);
-            return purchaseResponse;
-        } else {
-            throw new InvalidNumberException(number, provider.getName());
-        }
-    }
+	//TODO Customer SId must be obtained from the address response and integrated with this method to replace provider AuthID
+	public void releaseNumber(String number, Provider provider, String countryIsoCode)
+			throws IOException, ImiException {
+		String twilioNumber = "+" + (number.trim().replace("+", ""));
+		ApplicationResponse incomingPhoneNumber = getIncomingPhoneNumber(twilioNumber, provider);
+		if (incomingPhoneNumber == null) {
+			throw new ImiException(
+					"Number requested " + number + " does not belong to your " + provider.getName() + "Account");
+		}
+		String incomingPhoneNumberSid = incomingPhoneNumber.getSid();
+		String twilioReleaseurl = TWILIO_RELEASE_URL;
+		twilioReleaseurl = twilioReleaseurl.replace("{auth_id}", provider.getAuthId())
+				.replace("{IncomingPhoneNumberSid}", incomingPhoneNumberSid);
+		GenericRestResponse response = ImiHttpUtil.defaultHttpDeleteHandler(twilioReleaseurl,
+				new HashMap<String, String>(), ImiBasicAuthUtil.getBasicAuthHash(provider), null);
+		if (response.getResponseCode() != HttpStatus.NO_CONTENT.value()) {
+			throw new InvalidNumberException(number, provider.getName());
+		}
+	}
 
-    public void releaseNumber(String number, Provider provider,
-            String countryIsoCode) throws IOException, ImiException {
-        String twilioNumber = "+" + (number.trim().replace("+", ""));
-        ApplicationResponse incomingPhoneNumber = getIncomingPhoneNumber(
-                twilioNumber, provider);
-        if (incomingPhoneNumber == null) {
-            throw new ImiException(
-                    "Number requested " + number + " does not belong to your "
-                            + provider.getName() + "Account");
-        }
-        String incomingPhoneNumberSid = incomingPhoneNumber.getSid();
-        String twilioReleaseurl = TWILIO_RELEASE_URL;
-        twilioReleaseurl = twilioReleaseurl
-                .replace("{auth_id}", provider.getAuthId())
-                .replace("{IncomingPhoneNumberSid}", incomingPhoneNumberSid);
-        GenericRestResponse response = ImiHttpUtil.defaultHttpDeleteHandler(
-                twilioReleaseurl, new HashMap<String, String>(),
-                ImiBasicAuthUtil.getBasicAuthHash(provider), null);
-        if (response.getResponseCode() != HttpStatus.NO_CONTENT.value()) {
-            throw new InvalidNumberException(number, provider.getName());
-        }
-    }
+	public TwilioNumberPrice getNumberTypePricingMap() {
+		return numberTypePricing;
+	}
 
-    public TwilioNumberPrice getNumberTypePricingMap() {
-        return numberTypePricing;
-    }
+	public void setNumberTypePricingMap(TwilioNumberPrice numberTypePricing) {
+		this.numberTypePricing = numberTypePricing;
+	}
 
-    public void setNumberTypePricingMap(TwilioNumberPrice numberTypePricing) {
-        this.numberTypePricing = numberTypePricing;
-    }
+	public String getPriceUnit() {
+		return priceUnit;
+	}
 
-    public String getPriceUnit() {
-        return priceUnit;
-    }
+	public void setPriceUnit(String priceUnit) {
+		this.priceUnit = priceUnit;
+	}
 
-    public void setPriceUnit(String priceUnit) {
-        this.priceUnit = priceUnit;
-    }
+	//TODO Customer SId must be obtained from the address response and integrated with this method to replace provider AuthID
+	public ApplicationResponse updateNumber(String number, ApplicationResponse applicationResponsetoModify,
+			Provider provider) throws ClientProtocolException, IOException, ImiException {
+		String twilioNumber = "+" + (number.trim().replace("+", ""));
+		String twilioNumberUpdateUrl = TWILIO_NUMBER_UPDATE_URL;
+		ApplicationResponse incomingPhoneNumber = getIncomingPhoneNumber(twilioNumber, provider);
+		if (incomingPhoneNumber == null) {
+			throw new ImiException(
+					"Number requested " + number + " does not belong to your " + provider.getName() + "Account");
+		}
+		twilioNumberUpdateUrl = twilioNumberUpdateUrl.replace("{IncomingPhoneNumberSid}", incomingPhoneNumber.getSid())
+				.replace("{auth_id}", provider.getAuthId());
+		twilioNumberUpdateUrl = getUpdatedUrl(twilioNumberUpdateUrl, applicationResponsetoModify);
+		ApplicationResponse applicationResponse = new ApplicationResponse();
+		GenericRestResponse response = ImiHttpUtil.defaultHttpPostHandler(twilioNumberUpdateUrl,
+				new HashMap<String, String>(), ImiBasicAuthUtil.getBasicAuthHash(provider), null);
+		if (response.getResponseCode() == HttpStatus.OK.value()) {
+			applicationResponse = ImiJsonUtil.deserialize(response.getResponseBody(), ApplicationResponse.class);
+			resourceService.provisionData(applicationResponse);
+		} else {
+			throw new ImiException(
+					"Some Error occured while updating the number. Please check back again. Response from Twilio is "
+							+ response.getResponseBody());
+		}
+		return applicationResponse;
+	}
 
-    public ApplicationResponse updateNumber(String number,
-            ApplicationResponse applicationResponsetoModify, Provider provider)
-                    throws ClientProtocolException, IOException, ImiException {
-        String twilioNumber = "+" + (number.trim().replace("+", ""));
-        String twilioNumberUpdateUrl = TWILIO_NUMBER_UPDATE_URL;
-        ApplicationResponse incomingPhoneNumber = getIncomingPhoneNumber(
-                twilioNumber, provider);
-        if (incomingPhoneNumber == null) {
-            throw new ImiException(
-                    "Number requested " + number + " does not belong to your "
-                            + provider.getName() + "Account");
-        }
-        twilioNumberUpdateUrl = twilioNumberUpdateUrl
-                .replace("{IncomingPhoneNumberSid}",
-                        incomingPhoneNumber.getSid())
-                .replace("{auth_id}", provider.getAuthId());
-        twilioNumberUpdateUrl = getUpdatedUrl(twilioNumberUpdateUrl,
-                applicationResponsetoModify);
-        ApplicationResponse applicationResponse = new ApplicationResponse();
-        GenericRestResponse response = ImiHttpUtil.defaultHttpPostHandler(
-                twilioNumberUpdateUrl, new HashMap<String, String>(),
-                ImiBasicAuthUtil.getBasicAuthHash(provider), null);
-        if (response.getResponseCode() == HttpStatus.OK.value()) {
-            applicationResponse = ImiJsonUtil.deserialize(
-                    response.getResponseBody(), ApplicationResponse.class);
-            resourceService.provisionData(applicationResponse);
-        } else {
-            throw new ImiException(
-                    "Some Error occured while updating the number. Please check back again. Response from Twilio is "
-                            + response.getResponseBody());
-        }
-        return applicationResponse;
-    }
+	//TODO Customer SId must be obtained from the address response and integrated with this method to replace provider AuthID
+	private ApplicationResponse getIncomingPhoneNumber(String number, Provider provider)
+			throws ClientProtocolException, IOException, ImiException {
+		number = number.replace("+", "");
+		number = "+".concat(number);
+		String twilioNumberGetUrl = TWILIO_PURCHASED_NUMBER_URL;
+		twilioNumberGetUrl = twilioNumberGetUrl.replace("{auth_id}", provider.getAuthId());
+		ApplicationResponse applicationResponse = null;
+		GenericRestResponse restResponse = ImiHttpUtil.defaultHttpGetHandler(twilioNumberGetUrl,
+				ImiBasicAuthUtil.getBasicAuthHash(provider));
+		if (restResponse.getResponseCode() == HttpStatus.OK.value()) {
+			ApplicationResponseList incomingPhoneNumbers = ImiJsonUtil.deserialize(restResponse.getResponseBody(),
+					ApplicationResponseList.class);
+			if (incomingPhoneNumbers != null && incomingPhoneNumbers.getObjects().size() > 0) {
+				loop: for (ApplicationResponse response : incomingPhoneNumbers.getObjects()) {
+					if (response.getPhoneNumber().equalsIgnoreCase(number)) {
+						applicationResponse = response;
+						break loop;
+					}
+				}
+			}
+		}
+		return applicationResponse;
+	}
 
-    private ApplicationResponse getIncomingPhoneNumber(String number,
-            Provider provider)
-                    throws ClientProtocolException, IOException, ImiException {
-        number = number.replace("+", "");
-        number = "+".concat(number);
-        String twilioNumberGetUrl = TWILIO_PURCHASED_NUMBER_URL;
-        twilioNumberGetUrl = twilioNumberGetUrl.replace("{auth_id}",
-                provider.getAuthId());
-        ApplicationResponse applicationResponse = null;
-        GenericRestResponse restResponse = ImiHttpUtil.defaultHttpGetHandler(
-                twilioNumberGetUrl,
-                ImiBasicAuthUtil.getBasicAuthHash(provider));
-        if (restResponse.getResponseCode() == HttpStatus.OK.value()) {
-            ApplicationResponseList incomingPhoneNumbers = ImiJsonUtil
-                    .deserialize(restResponse.getResponseBody(),
-                            ApplicationResponseList.class);
-            if (incomingPhoneNumbers != null
-                    && incomingPhoneNumbers.getObjects().size() > 0) {
-                loop: for (ApplicationResponse response : incomingPhoneNumbers
-                        .getObjects()) {
-                    if (response.getPhoneNumber().equalsIgnoreCase(number)) {
-                        applicationResponse = response;
-                        break loop;
-                    }
-                }
-            }
-        }
-        return applicationResponse;
-    }
+	private String getUpdatedUrl(String url, ApplicationResponse modifyapplication) {
+		String toAppend = "?";
+		if (modifyapplication.getFriendlyName() != null) {
+			toAppend = toAppend.concat("FriendlyName=" + modifyapplication.getFriendlyName() + "&");
+		}
+		if (modifyapplication.getApiVersion() != null) {
+			toAppend = toAppend.concat("ApiVersion=" + modifyapplication.getApiVersion() + "&");
+		}
+		if (modifyapplication.getVoiceUrl() != null) {
+			toAppend = toAppend.concat("VoiceUrl=" + modifyapplication.getVoiceUrl() + "&");
+		}
+		if (modifyapplication.getVoiceMethod() != null) {
+			toAppend = toAppend.concat("VoiceMethod=" + modifyapplication.getVoiceMethod() + "&");
+		}
+		if (modifyapplication.getVoiceFallback() != null) {
+			toAppend = toAppend.concat("VoiceFallbackUrl=" + modifyapplication.getVoiceFallback() + "&");
+		}
+		if (modifyapplication.getVoiceFallbackMethod() != null) {
+			toAppend = toAppend.concat("VoiceFallbackMethod=" + modifyapplication.getVoiceFallbackMethod() + "&");
+		}
+		if (modifyapplication.getStatusCallback() != null) {
+			toAppend = toAppend.concat("StatusCallback=" + modifyapplication.getStatusCallback() + "&");
+		}
+		if (modifyapplication.getStatusCallbackMethod() != null) {
+			toAppend = toAppend.concat("StatusCallbackMethod=" + modifyapplication.getStatusCallbackMethod() + "&");
+		}
+		if (modifyapplication.getVoiceCallerIdLookup() != null) {
+			toAppend.concat("VoiceCallerIdLookup=" + modifyapplication.getVoiceCallerIdLookup() + "&");
+		}
+		if (modifyapplication.getVoiceApplicationSid() != null) {
+			toAppend = toAppend.concat("VoiceApplicationSid=" + modifyapplication.getVoiceApplicationSid() + "&");
+		}
+		if (modifyapplication.getTrunkSid() != null) {
+			toAppend = toAppend.concat("TrunkSid=" + modifyapplication.getTrunkSid() + "&");
+		}
+		if (modifyapplication.getSmsUrl() != null) {
+			toAppend = toAppend.concat("SmsUrl=" + modifyapplication.getSmsUrl() + "&");
+		}
+		if (modifyapplication.getSmsFallbackUrl() != null) {
+			toAppend = toAppend.concat("SmsFallbackUrl=" + modifyapplication.getSmsFallbackUrl() + "&");
+		}
+		if (modifyapplication.getSmsFallbackMethod() != null) {
+			toAppend = toAppend.concat("SmsFallbackMethod=" + modifyapplication.getSmsFallbackMethod() + "&");
+		}
+		if (modifyapplication.getSmsApplicationSid() != null) {
+			toAppend = toAppend.concat("SmsApplicationSid=" + modifyapplication.getSmsApplicationSid() + "&");
+		}
+		if (modifyapplication.getAccountSid() != null) {
+			toAppend = toAppend.concat("AccountSid=" + modifyapplication.getAccountSid() + "&");
+		}
+		toAppend = toAppend.substring(0, toAppend.length() - 1);
+		url = url.concat(toAppend);
+		return url;
+	}
 
-    private String getUpdatedUrl(String url,
-            ApplicationResponse modifyapplication) {
-        String toAppend = "?";
-        if (modifyapplication.getFriendlyName() != null) {
-            toAppend = toAppend.concat("FriendlyName="
-                    + modifyapplication.getFriendlyName() + "&");
-        }
-        if (modifyapplication.getApiVersion() != null) {
-            toAppend = toAppend.concat(
-                    "ApiVersion=" + modifyapplication.getApiVersion() + "&");
-        }
-        if (modifyapplication.getVoiceUrl() != null) {
-            toAppend = toAppend.concat(
-                    "VoiceUrl=" + modifyapplication.getVoiceUrl() + "&");
-        }
-        if (modifyapplication.getVoiceMethod() != null) {
-            toAppend = toAppend.concat(
-                    "VoiceMethod=" + modifyapplication.getVoiceMethod() + "&");
-        }
-        if (modifyapplication.getVoiceFallback() != null) {
-            toAppend = toAppend.concat("VoiceFallbackUrl="
-                    + modifyapplication.getVoiceFallback() + "&");
-        }
-        if (modifyapplication.getVoiceFallbackMethod() != null) {
-            toAppend = toAppend.concat("VoiceFallbackMethod="
-                    + modifyapplication.getVoiceFallbackMethod() + "&");
-        }
-        if (modifyapplication.getStatusCallback() != null) {
-            toAppend = toAppend.concat("StatusCallback="
-                    + modifyapplication.getStatusCallback() + "&");
-        }
-        if (modifyapplication.getStatusCallbackMethod() != null) {
-            toAppend = toAppend.concat("StatusCallbackMethod="
-                    + modifyapplication.getStatusCallbackMethod() + "&");
-        }
-        if (modifyapplication.getVoiceCallerIdLookup() != null) {
-            toAppend.concat("VoiceCallerIdLookup="
-                    + modifyapplication.getVoiceCallerIdLookup() + "&");
-        }
-        if (modifyapplication.getVoiceApplicationSid() != null) {
-            toAppend = toAppend.concat("VoiceApplicationSid="
-                    + modifyapplication.getVoiceApplicationSid() + "&");
-        }
-        if (modifyapplication.getTrunkSid() != null) {
-            toAppend = toAppend.concat(
-                    "TrunkSid=" + modifyapplication.getTrunkSid() + "&");
-        }
-        if (modifyapplication.getSmsUrl() != null) {
-            toAppend = toAppend
-                    .concat("SmsUrl=" + modifyapplication.getSmsUrl() + "&");
-        }
-        if (modifyapplication.getSmsFallbackUrl() != null) {
-            toAppend = toAppend.concat("SmsFallbackUrl="
-                    + modifyapplication.getSmsFallbackUrl() + "&");
-        }
-        if (modifyapplication.getSmsFallbackMethod() != null) {
-            toAppend = toAppend.concat("SmsFallbackMethod="
-                    + modifyapplication.getSmsFallbackMethod() + "&");
-        }
-        if (modifyapplication.getSmsApplicationSid() != null) {
-            toAppend = toAppend.concat("SmsApplicationSid="
-                    + modifyapplication.getSmsApplicationSid() + "&");
-        }
-        if (modifyapplication.getAccountSid() != null) {
-            toAppend = toAppend.concat(
-                    "AccountSid=" + modifyapplication.getAccountSid() + "&");
-        }
-        toAppend = toAppend.substring(0, toAppend.length() - 1);
-        url = url.concat(toAppend);
-        return url;
-    }
+	public Address getAddressOfCustomer(String customerName, Provider provider)
+			throws ClientProtocolException, IOException, ImiException {
+		String addressGetUrl = TWILIO_ADDRESS_URL;
+		customerName = customerName.trim().replaceAll(" +", "+");
+		SubAccountDetails customerAccountDetails=getSubAccountDetails(customerName, provider);
+		String accountSid=provider.getAuthId();
+		if(customerAccountDetails!=null)
+		{
+			accountSid=customerAccountDetails.getSid();
+		}
+		addressGetUrl = addressGetUrl.replace("{auth_id}",accountSid)
+				.concat("?CustomerName=" + customerName);
+		GenericRestResponse restResponse = ImiHttpUtil.defaultHttpGetHandler(addressGetUrl,
+				ImiBasicAuthUtil.getBasicAuthHash(provider));
+		Address address = null;
+		if (restResponse.getResponseCode() == HttpStatus.OK.value()) {
+			TwilioAddressResponse addressResponse = ImiJsonUtil.deserialize(restResponse.getResponseBody(),
+					TwilioAddressResponse.class);
+			if (addressResponse == null || addressResponse.getAddresses() == null
+					|| addressResponse.getAddresses().size() == 0) {
+				address = null;
+			} else {
+				address = addressResponse.getAddresses().get(0);
+			}
+		}
+		return address;
+	}
 
-    public Address getAddressOfCustomer(String customerName, Provider provider)
-            throws ClientProtocolException, IOException {
-        String addressGetUrl = TWILIO_ADDRESS_URL;
-        customerName = customerName.trim().replaceAll(" +", "+");
-        addressGetUrl = addressGetUrl.replace("{auth_id}", provider.getAuthId())
-                .concat("?CustomerName=" + customerName);
-        GenericRestResponse restResponse = ImiHttpUtil.defaultHttpGetHandler(
-                addressGetUrl, ImiBasicAuthUtil.getBasicAuthHash(provider));
-        Address address = null;
-        if (restResponse.getResponseCode() == HttpStatus.OK.value()) {
-            TwilioAddressResponse addressResponse = ImiJsonUtil.deserialize(
-                    restResponse.getResponseBody(),
-                    TwilioAddressResponse.class);
-            if (addressResponse == null
-                    || addressResponse.getAddresses() == null
-                    || addressResponse.getAddresses().size() == 0) {
-                address = null;
-            } else {
-                address = addressResponse.getAddresses().get(0);
-            }
-        }
-        return address;
-    }
+	public Address createNewAddressOfCustomer(Customer customer, Provider provider)
+			throws ClientProtocolException, IOException, ImiException {
+		Address address = getAddressOfCustomer(customer.getCustomer(), provider);
+		SubAccountDetails customerAccountDetails=getSubAccountDetails(customer.getCustomer(), provider);
+		String accountSid=provider.getAuthId();
+		if(customerAccountDetails!=null)
+		{
+			accountSid=customerAccountDetails.getSid();
+		}
+		String addressPostUrl = TWILIO_ADDRESS_URL;
+		addressPostUrl = addressPostUrl.replace("{auth_id}", accountSid);
+		Map<String, String> requestBody = new HashMap<String, String>();
+		if (customer.getCountryIso() == null) {
+			com.imi.rest.dao.model.Country country = countryDao.getCountryByName(customer.getCountry());
+			if (country != null) {
+				customer.setCountryIso(country.getCountryIso());
+			}
+		}
+		if (address == null) {
+			requestBody.put("IsoCountry", customer.getCountryIso());
+			requestBody.put("CustomerName", customer.getCustomer());
+		} else {
+			addressPostUrl = TWILIO_ADDRESS_BY_SID_URL.replace("{auth_id}", provider.getAuthId())
+					.replace("{AddressSid}", address.getSid());
+		}
+		if (customer.getCity() != null) {
+			requestBody.put("City", customer.getCity());
+		}
+		if (customer.getPostalcode() != null) {
+			requestBody.put("PostalCode", customer.getPostalcode());
+		}
+		if (customer.getState() != null) {
+			requestBody.put("Region", customer.getState());
+		}
+		if (customer.getStreet() != null) {
+			requestBody.put("Street", customer.getStreet());
+		}
+		GenericRestResponse restResponse = ImiHttpUtil.defaultHttpPostHandler(addressPostUrl, requestBody,
+				ImiBasicAuthUtil.getBasicAuthHash(provider), null);
+		if (restResponse.getResponseCode() == HttpStatus.OK.value()
+				|| restResponse.getResponseCode() == HttpStatus.CREATED.value()) {
+			address = ImiJsonUtil.deserialize(restResponse.getResponseBody(), Address.class);
+		} else {
+			throw new ImiException("Exception while updating the customer address. Error response from Twilio "
+					+ restResponse.getResponseBody());
+		}
+		return address;
+	}
 
-    public Address createNewAddressOfCustomer(Customer customer,
-            Provider provider)
-                    throws ClientProtocolException, IOException, ImiException {
-        Address address = getAddressOfCustomer(customer.getCustomer(),
-                provider);
-        String addressPostUrl = TWILIO_ADDRESS_URL;
-        addressPostUrl = addressPostUrl.replace("{auth_id}",
-                provider.getAuthId());
-        Map<String, String> requestBody = new HashMap<String, String>();
-        if (customer.getCountryIso() == null) {
-            com.imi.rest.dao.model.Country country = countryDao
-                    .getCountryByName(customer.getCountry());
-            if (country != null) {
-                customer.setCountryIso(country.getCountryIso());
-            }
-        }
-        if (address == null) {
-            requestBody.put("IsoCountry", customer.getCountryIso());
-            requestBody.put("CustomerName", customer.getCustomer());
-        } else {
-            addressPostUrl = TWILIO_ADDRESS_BY_SID_URL
-                    .replace("{auth_id}", provider.getAuthId())
-                    .replace("{AddressSid}", address.getSid());
-        }
-        if (customer.getCity() != null) {
-            requestBody.put("City", customer.getCity());
-        }
-        if (customer.getPostalcode() != null) {
-            requestBody.put("PostalCode", customer.getPostalcode());
-        }
-        if (customer.getState() != null) {
-            requestBody.put("Region", customer.getState());
-        }
-        if (customer.getStreet() != null) {
-            requestBody.put("Street", customer.getStreet());
-        }
-        GenericRestResponse restResponse = ImiHttpUtil.defaultHttpPostHandler(
-                addressPostUrl, requestBody,
-                ImiBasicAuthUtil.getBasicAuthHash(provider), null);
-        if (restResponse.getResponseCode() == HttpStatus.OK.value()
-                || restResponse.getResponseCode() == HttpStatus.CREATED
-                        .value()) {
-            address = ImiJsonUtil.deserialize(restResponse.getResponseBody(),
-                    Address.class);
-        } else {
-            throw new ImiException(
-                    "Exception while updating the customer address. Error response from Twilio "
-                            + restResponse.getResponseBody());
-        }
-        return address;
-    }
+	public SubAccountDetails createSubAccount(String friendlyName, Provider provider)
+			throws JsonParseException, JsonMappingException, IOException, ImiException {
+		SubAccountDetails subAccountDetails = getSubAccountDetails(friendlyName, provider);
+		if (subAccountDetails != null) {
+			String twilioSubAccountCreateUrl = TWILIO_ACCOUNT_URL;
+			twilioSubAccountCreateUrl = twilioSubAccountCreateUrl.replace("{auth_id}", provider.getAuthId());
+			Map<String, String> requestBody = new HashMap<String, String>();
+			requestBody.put("FriendlyName", friendlyName);
+			GenericRestResponse restResponse = ImiHttpUtil.defaultHttpPostHandler(twilioSubAccountCreateUrl,
+					requestBody, ImiBasicAuthUtil.getBasicAuthHash(provider), null);
+			if (restResponse.getResponseCode() == HttpStatus.OK.value()
+					|| restResponse.getResponseCode() == HttpStatus.CREATED.value()) {
+				subAccountDetails = ImiJsonUtil.deserialize(restResponse.getResponseBody(), SubAccountDetails.class);
+			} else {
+				throw new ImiException("Exception while creating new SubAccount. Error response from Twilio "
+						+ restResponse.getResponseBody());
+			}
+		}
+		return subAccountDetails;
+	}
+
+	public SubAccountDetails getSubAccountDetails(String friendlyName, Provider provider)
+			throws JsonParseException, JsonMappingException, IOException, ImiException {
+		String twilioSubAccountCreateUrl = TWILIO_ACCOUNT_URL;
+		twilioSubAccountCreateUrl = twilioSubAccountCreateUrl.replace("{auth_id}", provider.getAuthId());
+		Map<String, SubAccountDetails> twilioAccountMap = new HashMap<String, SubAccountDetails>();
+		GenericRestResponse restResponse = ImiHttpUtil.defaultHttpGetHandler(twilioSubAccountCreateUrl,
+				ImiBasicAuthUtil.getBasicAuthHash(provider));
+		if (restResponse.getResponseCode() == HttpStatus.OK.value()
+				|| restResponse.getResponseCode() == HttpStatus.CREATED.value()) {
+			TwilioAccountResponse twilioAccountResponse = ImiJsonUtil.deserialize(restResponse.getResponseBody(),
+					TwilioAccountResponse.class);
+			for (SubAccountDetails twilioAccount : twilioAccountResponse.getAccounts()) {
+				twilioAccountMap.put(twilioAccount.getFriendly_name(), twilioAccount);
+			}
+
+		} else {
+			throw new ImiException("Exception while creating new SubAccount. Error response from Twilio "
+					+ restResponse.getResponseBody());
+		}
+		return twilioAccountMap.get(friendlyName) == null ? null : twilioAccountMap.get(friendlyName);
+	}
 
 }

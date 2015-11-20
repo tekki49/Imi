@@ -14,7 +14,15 @@ public class ProviderService implements ProviderConstants {
     @Autowired
     private ProviderDao dao;
 
-    public Provider getProviderById(int providerId) throws ImiException {
+    public ProviderDao getDao() {
+		return dao;
+	}
+
+	public void setDao(ProviderDao dao) {
+		this.dao = dao;
+	}
+
+	public Provider getProviderById(int providerId) throws ImiException {
         return dao.getProvider(providerId);
     }
 
