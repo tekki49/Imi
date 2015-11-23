@@ -1,6 +1,7 @@
 package com.imi.rest.service;
 
 import static org.mockito.Mockito.when;
+import static org.junit.Assert.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -21,7 +22,7 @@ import com.imi.rest.exception.ImiException;
 import com.imi.rest.model.Address;
 import com.imi.rest.model.Customer;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AddressServiceTest {
@@ -45,8 +46,11 @@ public class AddressServiceTest {
 	@InjectMocks
 	String client_id;
 	@InjectMocks
+	String address_id;
+	@InjectMocks
 	String country;
 
+	@SuppressWarnings("deprecation")
 	@Test
 	public void getAddressByCustomerNameWhenProviderIsTWILIO()
 			throws ClientProtocolException, IOException, ImiException {
@@ -56,7 +60,7 @@ public class AddressServiceTest {
 		provider.setName("TWILIO");
 		when(providerService.getProviderByName(providerName)).thenReturn(provider);
 		when(twilioFactoryImpl.getAddressOfCustomer(customerName, provider)).thenReturn(address);
-		Assert.assertEquals("CITY", twilioFactoryImpl.getAddressOfCustomer(customerName, provider).getCity());
+		assertEquals("CITY", twilioFactoryImpl.getAddressOfCustomer(customerName, provider).getCity());
 	}
 
 	@Test
@@ -69,9 +73,9 @@ public class AddressServiceTest {
 		when(providerService.getProviderByName(providerName)).thenReturn(provider);
 		when(twilioFactoryImpl.getAddressOfCustomer(customerName, provider)).thenReturn(address);
 		if ("CITY".equalsIgnoreCase(twilioFactoryImpl.getAddressOfCustomer(customerName, provider).getCity())) {
-			Assert.assertEquals(true, true);
+			assertEquals(true, true);
 		} else {
-			Assert.assertEquals(false, false);
+			assertEquals(false, false);
 		}
 	}
 
@@ -84,7 +88,7 @@ public class AddressServiceTest {
 		provider.setName("TWILIO");
 		when(providerService.getProviderByName(providerName)).thenReturn(provider);
 		when(twilioFactoryImpl.createNewAddressOfCustomer(customer, provider)).thenReturn(address);
-		Assert.assertNotNull(twilioFactoryImpl.createNewAddressOfCustomer(customer, provider));
+		assertNotNull(twilioFactoryImpl.createNewAddressOfCustomer(customer, provider));
 	}
 
 	@Test
@@ -96,7 +100,7 @@ public class AddressServiceTest {
 		provider.setName("NOT_TWILIO");
 		when(providerService.getProviderByName(providerName)).thenReturn(provider);
 		when(twilioFactoryImpl.createNewAddressOfCustomer(customer, provider)).thenReturn(address);
-		Assert.assertNotNull(twilioFactoryImpl.createNewAddressOfCustomer(customer, provider));
+		assertNotNull(twilioFactoryImpl.createNewAddressOfCustomer(customer, provider));
 	}
 
 	@Test
@@ -118,7 +122,7 @@ public class AddressServiceTest {
 		userAddressMgmt.setState(customer.getState());
 		userAddressMgmt.setPostalCode(Integer.parseInt(customer.getPostalcode()));
 		userAddressMgmt.setUserId(Integer.parseInt(client_id));
-		Assert.assertEquals("COUNTRY", userAddressMgmt.getCountry());
+		assertEquals("COUNTRY", userAddressMgmt.getCountry());
 	}
 	
 	@Test
@@ -141,7 +145,7 @@ public class AddressServiceTest {
 		userAddressMgmt.setState(customer.getState());
 		userAddressMgmt.setPostalCode(Integer.parseInt(customer.getPostalcode()));
 		userAddressMgmt.setUserId(Integer.parseInt(client_id));
-		Assert.assertEquals("COUNTRY", userAddressMgmt.getCountry());
+		assertEquals("COUNTRY", userAddressMgmt.getCountry());
 	}
 	
 	@Test
@@ -164,7 +168,7 @@ public class AddressServiceTest {
 		userAddressMgmt.setState(customer.getState());
 		userAddressMgmt.setPostalCode(Integer.parseInt(customer.getPostalcode()));
 		userAddressMgmt.setUserId(Integer.parseInt(client_id));
-		Assert.assertEquals("COUNTRY", userAddressMgmt.getCountry());
+		assertEquals("COUNTRY", userAddressMgmt.getCountry());
 	}
 	
 	@Test
@@ -188,7 +192,7 @@ public class AddressServiceTest {
 		userAddressMgmt.setState(customer.getState());
 		userAddressMgmt.setPostalCode(Integer.parseInt(customer.getPostalcode()));
 		userAddressMgmt.setUserId(Integer.parseInt(client_id));
-		Assert.assertEquals("COUNTRY", userAddressMgmt.getCountry());
+		assertEquals("COUNTRY", userAddressMgmt.getCountry());
 	}
 
 	@Test
@@ -197,14 +201,14 @@ public class AddressServiceTest {
 		UserAddressMgmt userAddressMgmt = new UserAddressMgmt();
 		userAddressMgmt.setId(address_id);
 		when(addressDao.getAddressById(address_id)).thenReturn(userAddressMgmt);
-		Assert.assertEquals((long) 1.23, addressDao.getAddressById(address_id).getId(), 0.01);
+		assertEquals((long) 1.23, addressDao.getAddressById(address_id).getId(), 0.01);
 	}
 
 	@Test
 	public void getAddressListCountryNull() throws ImiException {
 		country = null;
 		when(addressDao.getAddressList(userId, null)).thenReturn(null);
-		Assert.assertNull(addressDao.getAddressList(userId, null));
+		assertNull(addressDao.getAddressList(userId, null));
 	}
 
 	@Test
@@ -213,6 +217,16 @@ public class AddressServiceTest {
 		List<Customer> customerList = new ArrayList<Customer>();
 		customerList.add(customer);
 		when(addressDao.getAddressList(userId, country.toUpperCase())).thenReturn(customerList);
-		Assert.assertNotNull(addressDao.getAddressList(userId, country.toUpperCase()));
+		assertNotNull(addressDao.getAddressList(userId, country.toUpperCase()));
 	}
+	
+	@Test
+	 public void deleteAddressFromImi() {
+		UserAddressMgmt userAddressMgmt=new UserAddressMgmt();
+		userAddressMgmt.setCountry("United States");
+		address_id="1200"; 
+        Long id = Long.valueOf(address_id);
+        when(addressDao.getAddressById(id)).thenReturn(userAddressMgmt);
+	}
+
 }
