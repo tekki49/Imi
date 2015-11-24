@@ -4,8 +4,10 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 
 import org.apache.http.client.ClientProtocolException;
 import org.junit.Test;
@@ -18,8 +20,10 @@ import com.imi.rest.core.impl.PlivoFactoryImpl;
 import com.imi.rest.core.impl.TwilioFactoryImpl;
 import com.imi.rest.dao.model.Provider;
 import com.imi.rest.exception.ImiException;
+import com.imi.rest.model.Meta;
 import com.imi.rest.model.Number;
 import com.imi.rest.model.NumberResponse;
+
 
 public class NumberSearchServiceTest {
 
@@ -38,7 +42,7 @@ public class NumberSearchServiceTest {
 	@Mock
 	Provider provider;
 	@Mock
-	String countryIsoCode, numberType, pattern, nextPlivoIndex, nextNexmoIndex, twiloIndex;
+	String countryIsoCode, numberType, pattern, nextPlivoIndex, nextNexmoIndex, twilioIndex;
 
 	@Test
 	public void searchPhoneNumbersProviderPlivo() throws ClientProtocolException, IOException, ImiException {
@@ -53,31 +57,40 @@ public class NumberSearchServiceTest {
 		provider.setName("PLIVO");
 		numberResponse = new NumberResponse();
 		numberResponse.setCount(1);
-		plivoFactoryImpl = Mockito.mock(PlivoFactoryImpl.class);
-		twiloIndex = "";
-		if ("FIRST".equalsIgnoreCase(nextNexmoIndex) || "FIRST".equalsIgnoreCase(nextPlivoIndex)
-				|| "1".equalsIgnoreCase(nextNexmoIndex) || "0".equalsIgnoreCase(nextPlivoIndex)) {
-			twiloIndex = "";
-		} else {
-			twiloIndex = "INDEXED";
-		}
+		plivoFactoryImpl =  mock(PlivoFactoryImpl.class);
+		twilioIndex = "";
+			twilioIndex = "INDEXED";
 		doNothing().when(plivoFactoryImpl).searchPhoneNumbers(provider, serviceTypeEnum, countryIsoCode, numberType,
 				pattern, nextPlivoIndex, numberResponse);
 		assertEquals(1, numberResponse.getCount());
 	}
 	@Test
-	public void searchPhoneNumbers() throws ClientProtocolException, IOException, ImiException {
+	public void searchPhoneNumbersProviderPlivoWithIndices() throws ClientProtocolException, IOException, ImiException {
+		serviceTypeEnum = ServiceConstants.SMS;
+		countryIsoCode = "US";
+		numberType = "MOBILE";
+		nextPlivoIndex = "0";
+		nextNexmoIndex = "1";
+		pattern = "123";
+		provider = new Provider();
+		provider.setId(1);
+		provider.setName("PLIVO");
 		numberResponse = new NumberResponse();
-		plivoFactoryImpl = Mockito.mock(PlivoFactoryImpl.class);
-		twilioFactoryImpl = Mockito.mock(TwilioFactoryImpl.class);
-		nexmoFactoryImpl = Mockito.mock(NexmoFactoryImpl.class);
-		twiloIndex = "";
-		if ("FIRST".equalsIgnoreCase(nextNexmoIndex) || "FIRST".equalsIgnoreCase(nextPlivoIndex)
-				|| "1".equalsIgnoreCase(nextNexmoIndex) || "0".equalsIgnoreCase(nextPlivoIndex)) {
-			twiloIndex = "";
-		} else {
-			twiloIndex = "INDEXED";
-		}
+		numberResponse.setCount(1);
+		plivoFactoryImpl = mock(PlivoFactoryImpl.class);
+		twilioIndex = "";
+			twilioIndex = "";
+		doNothing().when(plivoFactoryImpl).searchPhoneNumbers(provider, serviceTypeEnum, countryIsoCode, numberType,
+				pattern, nextPlivoIndex, numberResponse);
+		assertEquals(1, numberResponse.getCount());
+	}
+	@Test
+	public void searchPhoneNumbersParamsNotNullWithIndices() throws ClientProtocolException, IOException, ImiException {
+		numberResponse = new NumberResponse();
+		plivoFactoryImpl = mock(PlivoFactoryImpl.class);
+		twilioFactoryImpl = mock(TwilioFactoryImpl.class);
+		nexmoFactoryImpl = mock(NexmoFactoryImpl.class);
+		twilioIndex = "";
 		Provider providerPlivo = new Provider();
 		providerPlivo.setName("PLIVO");
 		Provider providerTwilio = new Provider();
@@ -90,11 +103,20 @@ public class NumberSearchServiceTest {
 		doNothing().when(plivoFactoryImpl).searchPhoneNumbers(providerPlivo, serviceTypeEnum, countryIsoCode,
 				numberType, pattern, nextPlivoIndex, numberResponse);
 		doNothing().when(twilioFactoryImpl).searchPhoneNumbers(providerTwilio, serviceTypeEnum,
-				countryIsoCode, numberType, pattern, twiloIndex, numberResponse);
+				countryIsoCode, numberType, pattern, twilioIndex, numberResponse);
 		doNothing().when(nexmoFactoryImpl).searchPhoneNumbers(providerNexmo, serviceTypeEnum,
 				countryIsoCode, numberType, pattern, nextNexmoIndex, numberResponse);
-		if (numberResponse != null && numberResponse.getObjects() != null) {
-			Collections.sort(numberResponse.getObjects(), new Comparator<Number>() {
+		List<Number> objects =mock(List.class);
+		Number number=mock(Number.class);
+		Number number1=mock(Number.class);
+		Meta meta=mock(Meta.class);
+		objects.add(number);
+		objects.add(number1);
+		numberResponse.setCount(1);
+		numberResponse.setObjects(objects);
+		numberResponse.setMeta(meta);
+		//TODO test the commented part
+			/*Collections.sort(numberResponse.getObjects(), new Comparator<Number>() {
 				@Override
 				public int compare(Number n1, Number n2) {
 					if (n1.getMonthlyRentalRate() == null && n2.getMonthlyRentalRate() == null) {
@@ -111,7 +133,107 @@ public class NumberSearchServiceTest {
 					}
 
 				}
-			});
-		}
+			});*/
 	}
+	@Test
+	public void searchPhoneNumbersParamsNotNullWithoutIndices() throws ClientProtocolException, IOException, ImiException {
+		numberResponse = new NumberResponse();
+		plivoFactoryImpl =  mock(PlivoFactoryImpl.class);
+		twilioFactoryImpl =  mock(TwilioFactoryImpl.class);
+		nexmoFactoryImpl =  mock(NexmoFactoryImpl.class);
+		twilioIndex = "INDEXED";
+		Provider providerPlivo = new Provider();
+		providerPlivo.setName("PLIVO");
+		Provider providerTwilio = new Provider();
+		providerTwilio.setName("TWILIO");
+		Provider providerNexmo = new Provider();
+		providerNexmo.setName("NEXMO");
+		pattern = "123";
+		nextPlivoIndex = "2";
+		nextNexmoIndex = "3";
+		doNothing().when(plivoFactoryImpl).searchPhoneNumbers(providerPlivo, serviceTypeEnum, countryIsoCode,
+				numberType, pattern, nextPlivoIndex, numberResponse);
+		doNothing().when(twilioFactoryImpl).searchPhoneNumbers(providerTwilio, serviceTypeEnum,
+				countryIsoCode, numberType, pattern, twilioIndex, numberResponse);
+		doNothing().when(nexmoFactoryImpl).searchPhoneNumbers(providerNexmo, serviceTypeEnum,
+				countryIsoCode, numberType, pattern, nextNexmoIndex, numberResponse);
+		List<Number> objects =mock(List.class);
+		Number number=mock(Number.class);
+		number.setMonthlyRentalRate("2.35");
+		Number number1=mock(Number.class);
+		number1.setMonthlyRentalRate("3.56");
+		Meta meta=mock(Meta.class);
+		objects.add(number);
+		objects.add(number1);
+		numberResponse.setCount(1);
+		numberResponse.setObjects(objects);
+		numberResponse.setMeta(meta);
+		//TODO test the commented part
+			/*Collections.sort(numberResponse.getObjects(), new Comparator<Number>() {
+				@Override
+				public int compare(Number n1, Number n2) {
+					if (n1.getMonthlyRentalRate() == null && n2.getMonthlyRentalRate() == null) {
+						return 0;
+					} else if (n1.getMonthlyRentalRate() == null) {
+						return 1;
+					} else if (n2.getMonthlyRentalRate() == null) {
+						return 2;
+					} else {
+						float f1 = Float.parseFloat(n1.getMonthlyRentalRate());
+						float f2 = Float.parseFloat(n2.getMonthlyRentalRate());
+						int result = Float.compare(f1, f2);
+						return result;
+					}
+
+				}
+			});*/
+	}
+	@Test
+	public void searchPhoneNumbersParamsNullNoIndices() throws ClientProtocolException, IOException, ImiException {
+		numberResponse = new NumberResponse();
+		plivoFactoryImpl =  mock(PlivoFactoryImpl.class);
+		twilioFactoryImpl =  mock(TwilioFactoryImpl.class);
+		nexmoFactoryImpl =  mock(NexmoFactoryImpl.class);
+		twilioIndex = "";
+			twilioIndex = "";
+		Provider providerPlivo = new Provider();
+		providerPlivo.setName("PLIVO");
+		Provider providerTwilio = new Provider();
+		providerTwilio.setName("TWILIO");
+		Provider providerNexmo = new Provider();
+		providerNexmo.setName("NEXMO");
+		pattern = "123";
+		nextPlivoIndex = "2";
+		nextNexmoIndex = "3";
+		doNothing().when(plivoFactoryImpl).searchPhoneNumbers(providerPlivo, serviceTypeEnum, countryIsoCode,
+				numberType, pattern, nextPlivoIndex, numberResponse);
+		doNothing().when(twilioFactoryImpl).searchPhoneNumbers(providerTwilio, serviceTypeEnum,
+				countryIsoCode, numberType, pattern, twilioIndex, numberResponse);
+		doNothing().when(nexmoFactoryImpl).searchPhoneNumbers(providerNexmo, serviceTypeEnum,
+				countryIsoCode, numberType, pattern, nextNexmoIndex, numberResponse);
+	}
+	@Test
+	public void searchPhoneNumbersParamsNullWithIndices() throws ClientProtocolException, IOException, ImiException {
+		numberResponse = new NumberResponse();
+		plivoFactoryImpl =  mock(PlivoFactoryImpl.class);
+		twilioFactoryImpl =  mock(TwilioFactoryImpl.class);
+		nexmoFactoryImpl =  mock(NexmoFactoryImpl.class);
+			twilioIndex = "INDEXED";
+		Provider providerPlivo = new Provider();
+		providerPlivo.setName("PLIVO");
+		Provider providerTwilio = new Provider();
+		providerTwilio.setName("TWILIO");
+		Provider providerNexmo = new Provider();
+		providerNexmo.setName("NEXMO");
+		pattern = "123";
+		nextPlivoIndex = "2";
+		nextNexmoIndex = "3";
+		doNothing().when(plivoFactoryImpl).searchPhoneNumbers(providerPlivo, serviceTypeEnum, countryIsoCode,
+				numberType, pattern, nextPlivoIndex, numberResponse);
+		doNothing().when(twilioFactoryImpl).searchPhoneNumbers(providerTwilio, serviceTypeEnum,
+				countryIsoCode, numberType, pattern, twilioIndex, numberResponse);
+		doNothing().when(nexmoFactoryImpl).searchPhoneNumbers(providerNexmo, serviceTypeEnum,
+				countryIsoCode, numberType, pattern, nextNexmoIndex, numberResponse);
+	}
+	
 }
