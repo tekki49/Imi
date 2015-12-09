@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import com.imi.rest.constants.ProviderConstants;
 import com.imi.rest.dao.ProviderDao;
 import com.imi.rest.dao.model.Provider;
-import com.imi.rest.exception.ImiException;
+
 
 @Service
 public class ProviderService implements ProviderConstants {
@@ -15,30 +15,30 @@ public class ProviderService implements ProviderConstants {
     private ProviderDao dao;
 
     public ProviderDao getDao() {
-		return dao;
-	}
+        return dao;
+    }
 
-	public void setDao(ProviderDao dao) {
-		this.dao = dao;
-	}
+    public void setDao(ProviderDao dao) {
+        this.dao = dao;
+    }
 
-	public Provider getProviderById(int providerId) throws ImiException {
+    public Provider getProviderById(int providerId)  {
         return dao.getProvider(providerId);
     }
 
-    public Provider getProviderByName(String provider) throws ImiException {
+    public Provider getProviderByName(String provider)  {
         return dao.getProviderByName(provider);
     }
 
-    public Provider getTwilioProvider() throws ImiException {
+    public Provider getTwilioProvider()  {
         return getProviderByName(TWILIO);
     }
 
-    public Provider getPlivioProvider() throws ImiException {
+    public Provider getPlivioProvider() {
         return getProviderByName(PLIVO);
     }
 
-    public Provider getNexmoProvider() throws ImiException {
+    public Provider getNexmoProvider() {
         return getProviderByName(NEXMO);
     }
 }

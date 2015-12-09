@@ -21,10 +21,11 @@ public class PurchaseResponse {
 
     public PurchaseResponse(Purchase purchase) {
         this.number = "" + purchase.getNumber();
-        this.provider = purchase.getProvidercountry() == null ? null
-                : purchase.getProvidercountry().getProvider().getName();
-        this.countryIso = purchase.getProvidercountry().getCountry()
-                .getCountryIso();
+        this.provider = purchase.getNumberProviderCountry() == null ? null
+                : purchase.getNumberProviderCountry().getNumberProvider()
+                        .getName();
+        this.countryIso = purchase.getNumberProviderCountry()
+                .getResourceCountry().getCountryIso();
         this.monthlyRentalRate = purchase.getMonthlyRentalRate();
         this.setUpRate = purchase.getSetUpRate();
         this.smsRate = purchase.getSmsRate();

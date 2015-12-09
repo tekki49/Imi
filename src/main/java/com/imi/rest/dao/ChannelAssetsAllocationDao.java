@@ -30,13 +30,30 @@ public class ChannelAssetsAllocationDao {
     }
 
     public ChannelAssetsAllocation getChannelAssetsAllocationById(int id) {
-        Criteria criteria = getSession()
-                .createCriteria(ChannelAssetsAllocation.class);
+        Criteria criteria = getSession().createCriteria(
+                ChannelAssetsAllocation.class);
         criteria.add(Restrictions.eq("id", id));
         List<ChannelAssetsAllocation> resourceList = criteria.list();
         if (resourceList != null && resourceList.size() > 0) {
             return resourceList.get(0);
         }
         return null;
+    }
+
+    public ChannelAssetsAllocation getChannelAssetsAllocationByAssetId(
+            long assetId) {
+        Criteria criteria = getSession().createCriteria(
+                ChannelAssetsAllocation.class);
+        criteria.add(Restrictions.eq("assetId", assetId));
+        List<ChannelAssetsAllocation> resourceList = criteria.list();
+        if (resourceList != null && resourceList.size() > 0) {
+            return resourceList.get(0);
+        }
+        return null;
+    }
+
+    public void deleteChannelAssetsAllocation(
+            ChannelAssetsAllocation channelAssetsAllocation) {
+        getSession().delete(channelAssetsAllocation);
     }
 }

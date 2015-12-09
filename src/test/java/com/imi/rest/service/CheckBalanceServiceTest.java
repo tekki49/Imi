@@ -1,6 +1,5 @@
 package com.imi.rest.service;
 
-import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.doReturn;
 
 import java.io.IOException;
@@ -19,7 +18,6 @@ import com.imi.rest.dao.ProviderDao;
 import com.imi.rest.dao.model.Country;
 import com.imi.rest.dao.model.Provider;
 import com.imi.rest.dao.model.Providercountry;
-import com.imi.rest.exception.ImiException;
 import com.imi.rest.model.BalanceResponse;
 
 public class CheckBalanceServiceTest {
@@ -42,7 +40,7 @@ public class CheckBalanceServiceTest {
 	BalanceResponse balanceResponse;
 
 	@Test
-	public void checkBalanceProviderPlivo() throws ClientProtocolException, IOException, ImiException {
+	public void checkBalanceProviderPlivo() throws ClientProtocolException, IOException {
 		providerCountries = new HashSet<Providercountry>(0);
 		providerCountry=new Providercountry();
 		providerService=Mockito.mock(ProviderService.class);
@@ -67,7 +65,7 @@ public class CheckBalanceServiceTest {
 	// Balance Check not required for TWILIO
 	
 /*	 * @Test public void checkBalanceProviderTwilio() throws
-	 * ClientProtocolException, IOException, ImiException { Provider provider =
+	 * ClientProtocolException, IOException { Provider provider =
 	 * new Provider();provider.setName("TWILIO"); BalanceResponse
 	 * balanceResponse = new BalanceResponse();
 	 * balanceResponse.setAccountBalance("1000");
@@ -79,7 +77,7 @@ public class CheckBalanceServiceTest {
 	 
 
 	@Test
-	public void checkBalanceProviderNexmo() throws ClientProtocolException, IOException, ImiException {
+	public void checkBalanceProviderNexmo() throws ClientProtocolException, IOException {
 		providerCountries = new HashSet<Providercountry>(0);
 		providerCountry=new Providercountry();
 		providerService=Mockito.mock(ProviderService.class);

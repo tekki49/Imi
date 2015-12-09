@@ -42,7 +42,7 @@ public class ProvisionServiceTest {
 	ApplicationResponse application;
 
 	@Test
-	public void provisionNumberWhenProviderTwilio() throws ClientProtocolException, IOException, ImiException {
+	public void provisionNumberWhenProviderTwilio() throws ClientProtocolException, IOException {
 		ApplicationResponse applicationResponse = new ApplicationResponse();
 		twilioFactoryImpl = Mockito.mock(TwilioFactoryImpl.class);
 		applicationResponse.setFriendlyName("FRIENDLY.NAME");
@@ -52,7 +52,7 @@ public class ProvisionServiceTest {
 	}
 
 	@Test
-	public void provisionNumberWhenProviderPlivo() throws ClientProtocolException, IOException, ImiException {
+	public void provisionNumberWhenProviderPlivo() throws ClientProtocolException, IOException {
 		ApplicationResponse applicationResponse = new ApplicationResponse();
 		plivoFactoryImpl = Mockito.mock(PlivoFactoryImpl.class);
 		applicationResponse.setFriendlyName("FRIENDLY.NAME");
@@ -62,7 +62,7 @@ public class ProvisionServiceTest {
 	}
 
 	@Test
-	public void provisionNumberWhenProviderNexmo() throws ClientProtocolException, IOException, ImiException {
+	public void provisionNumberWhenProviderNexmo() throws ClientProtocolException, IOException {
 		ApplicationResponse applicationResponse = new ApplicationResponse();
 		nexmoFactoryImpl = Mockito.mock(NexmoFactoryImpl.class);
 		applicationResponse.setFriendlyName("FRIENDLY.NAME");
@@ -73,7 +73,7 @@ public class ProvisionServiceTest {
 	}
 
 	@Test
-	public void provisionNumberWhenProviderNeither() throws ClientProtocolException, IOException, ImiException {
+	public void provisionNumberWhenProviderNeither() throws ClientProtocolException, IOException {
 		ApplicationResponse applicationResponse = new ApplicationResponse();
 		nexmoFactoryImpl = Mockito.mock(NexmoFactoryImpl.class);
 		applicationResponse.setFriendlyName("FRIENDLY.NAME");
@@ -83,7 +83,7 @@ public class ProvisionServiceTest {
 	}
 
 	@Test
-	public void provisionAllNumbersWhenProviderPlivo() throws ImiException, ClientProtocolException, IOException {
+	public void provisionAllNumbersWhenProviderPlivo() ClientProtocolException, IOException {
 		ApplicationResponse applicationResponse = new ApplicationResponse();
 		providerName = "PLIVO";
 		plivoFactoryImpl = Mockito.mock(PlivoFactoryImpl.class);
@@ -93,7 +93,7 @@ public class ProvisionServiceTest {
 	}
 
 	@Test
-	public void provisionAllNumbersWhenProviderNotPlivo() throws ImiException, ClientProtocolException, IOException {
+	public void provisionAllNumbersWhenProviderNotPlivo() throws ClientProtocolException, IOException {
 		ApplicationResponse applicationResponse = new ApplicationResponse();
 		providerName = "NOT_PLIVO";
 		plivoFactoryImpl = Mockito.mock(PlivoFactoryImpl.class);
@@ -102,7 +102,7 @@ public class ProvisionServiceTest {
 	}
 
 	@Test
-	public void updateApplicationWhenProviderPlivo() throws ImiException, ClientProtocolException, IOException {
+	public void updateApplicationWhenProviderPlivo() throws ClientProtocolException, IOException {
 		ApplicationResponse applicationResponse = new ApplicationResponse();
 		providerName = "PLIVO";
 		plivoFactoryImpl = Mockito.mock(PlivoFactoryImpl.class);
@@ -112,7 +112,7 @@ public class ProvisionServiceTest {
 	}
 
 	@Test
-	public void updateApplicationWhenProviderNotPlivo() throws ImiException, ClientProtocolException, IOException {
+	public void updateApplicationWhenProviderNotPlivo()throws ClientProtocolException, IOException {
 		ApplicationResponse applicationResponse = new ApplicationResponse();
 		providerName = "NOT_PLIVO";
 		plivoFactoryImpl = Mockito.mock(PlivoFactoryImpl.class);
@@ -121,7 +121,7 @@ public class ProvisionServiceTest {
 	}
 
 	@Test
-	public void createApplicationWhenProviderPlivo() throws ImiException, ClientProtocolException, IOException {
+	public void createApplicationWhenProviderPlivo() throws ClientProtocolException, IOException {
 		ApplicationResponse applicationResponse = new ApplicationResponse();
 		providerName = "PLIVO";
 		plivoFactoryImpl = Mockito.mock(PlivoFactoryImpl.class);
@@ -131,7 +131,7 @@ public class ProvisionServiceTest {
 	}
 
 	@Test
-	public void createApplicationWhenProviderNotPlivo() throws ImiException, ClientProtocolException, IOException {
+	public void createApplicationWhenProviderNotPlivo() throws ClientProtocolException, IOException {
 		ApplicationResponse applicationResponse = new ApplicationResponse();
 		providerName = "NOT_PLIVO";
 		plivoFactoryImpl = Mockito.mock(PlivoFactoryImpl.class);
@@ -140,7 +140,7 @@ public class ProvisionServiceTest {
 	}
 
 	@Test
-	public void getApplicationWhenProviderPlivo() throws ClientProtocolException, IOException, ImiException {
+	public void getApplicationWhenProviderPlivo() throws ClientProtocolException, IOException {
 		ApplicationResponse applicationResponse = new ApplicationResponse();
 		providerName = "PLIVO";
 		plivoFactoryImpl = Mockito.mock(PlivoFactoryImpl.class);
@@ -150,7 +150,7 @@ public class ProvisionServiceTest {
 	}
 
 	@Test
-	public void getApplicationWhenProviderNotPlivo() throws ImiException, ClientProtocolException, IOException {
+	public void getApplicationWhenProviderNotPlivo() throws ClientProtocolException, IOException {
 		ApplicationResponse applicationResponse = new ApplicationResponse();
 		providerName = "NOT_PLIVO";
 		plivoFactoryImpl = Mockito.mock(PlivoFactoryImpl.class);

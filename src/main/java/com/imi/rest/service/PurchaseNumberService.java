@@ -14,7 +14,9 @@ import com.imi.rest.core.impl.PlivoFactoryImpl;
 import com.imi.rest.core.impl.TwilioFactoryImpl;
 import com.imi.rest.dao.model.Country;
 import com.imi.rest.dao.model.Provider;
-import com.imi.rest.exception.ImiException;
+import com.imi.rest.exception.InboundApiErrorCodes;
+import com.imi.rest.exception.InboundRestException;
+import com.imi.rest.model.PurchaseRequest;
 import com.imi.rest.model.PurchaseResponse;
 
 @Service
@@ -31,22 +33,33 @@ public class PurchaseNumberService implements ProviderConstants, UrlConstants {
 
     public PurchaseResponse purchaseNumber(String number, String numberType,
             Provider provider, Country country,
-            ServiceConstants serviceTypeEnum)
-                    throws ClientProtocolException, IOException, ImiException {
+            ServiceConstants serviceTypeEnum, Integer userid, Integer clientId,
+            Integer groupid, Integer teamid, String clientname,
+            String clientkey, PurchaseRequest purchaseRequest, String teamuuid)
+            throws ClientProtocolException, IOException {
         if (provider.getName().equalsIgnoreCase(TWILIO)) {
             return twilioFactoryImpl.purchaseNumber(number, numberType,
-                    provider, country, serviceTypeEnum);
+                    provider, country, serviceTypeEnum, userid, clientId,
+                    groupid, teamid, clientname, clientkey, purchaseRequest,
+                    teamuuid);
         } else if (provider.getName().equalsIgnoreCase(PLIVO)) {
             return plivioFactoryImpl.purchaseNumber(number, numberType,
-                    provider, country, serviceTypeEnum);
+                    provider, country, serviceTypeEnum, userid, clientId,
+                    groupid, teamid, clientname, clientkey, purchaseRequest,
+                    teamuuid);
         } else if (provider.getName().equalsIgnoreCase(NEXMO)) {
-            return nexmoFactoryImpl.purchaseNumber(number, numberType, provider,
-                    country, serviceTypeEnum);
+            return nexmoFactoryImpl.purchaseNumber(number, numberType,
+                    provider, country, serviceTypeEnum, userid, clientId,
+                    groupid, teamid, clientname, clientkey, purchaseRequest,
+                    teamuuid);
         } else if (provider.getName().equalsIgnoreCase(TWILIO_DUMMY)) {
             return twilioFactoryImpl.purchaseNumber(number, numberType,
-                    provider, country, serviceTypeEnum);
+                    provider, country, serviceTypeEnum, userid, clientId,
+                    groupid, teamid, clientname, clientkey, purchaseRequest,
+                    teamuuid);
         } else {
-            return null;
+            String message="Provider "+provider.getName() +" is invalid";
+            throw InboundRestException.createApiException(InboundApiErrorCodes.INVALID_PROVIDER_EXCEPTION, message);
         }
     }
 }

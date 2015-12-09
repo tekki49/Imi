@@ -7,15 +7,15 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class PurchaseRequest implements Serializable {
 
-    /**
-     * 
-     */
     private static final long serialVersionUID = 1L;
     private String number;
     private String numberType;
     private String service;
     private String countryIso;
     private String provider;
+    private String monthlyRentalRate;
+    private String voiceRate;
+    private String smsRate;
 
     public String getNumber() {
         return number;
@@ -57,4 +57,27 @@ public class PurchaseRequest implements Serializable {
         this.provider = provider;
     }
 
+    public String getMonthlyRentalRate() {
+        return monthlyRentalRate;
+    }
+
+    public void setMonthlyRentalRate(String monthlyRentalRate) {
+        this.monthlyRentalRate = monthlyRentalRate;
+    }
+
+    public String getVoiceRate() {
+        return voiceRate;
+    }
+
+    public void setVoiceRate(String voiceRate) {
+        this.voiceRate = voiceRate;
+    }
+
+    public String getSmsRate() {
+        return smsRate;
+    }
+
+    public void setSmsRate(String smsRate) {
+        this.smsRate = smsRate;
+    }
 }

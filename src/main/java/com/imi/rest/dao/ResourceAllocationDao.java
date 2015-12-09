@@ -30,14 +30,18 @@ public class ResourceAllocationDao {
     }
 
     public ResourceAllocation getResourceAllocationById(int id) {
-        Criteria criteria = getSession()
-                .createCriteria(ResourceAllocation.class);
+        Criteria criteria = getSession().createCriteria(
+                ResourceAllocation.class);
         criteria.add(Restrictions.eq("resourceId", id));
         List<ResourceAllocation> resourceList = criteria.list();
         if (resourceList != null && resourceList.size() > 0) {
             return resourceList.get(0);
         }
         return null;
+    }
+
+    public void deleteResourceAllocation(ResourceAllocation resourceAllocation) {
+        getSession().delete(resourceAllocation);
     }
 
 }

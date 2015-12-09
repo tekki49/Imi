@@ -16,7 +16,7 @@ import com.imi.rest.core.impl.NexmoFactoryImpl;
 import com.imi.rest.core.impl.PlivoFactoryImpl;
 import com.imi.rest.core.impl.TwilioFactoryImpl;
 import com.imi.rest.dao.CountryDao;
-import com.imi.rest.exception.ImiException;
+
 import com.imi.rest.model.Country;
 import com.imi.rest.model.CountryResponse;
 
@@ -54,23 +54,23 @@ public class CountrySearchService implements ProviderConstants {
         return countryDao.getCountryByIso(countryIsoCode);
     }
 
-    public Set<Country> getCountryListFromDB() throws ImiException {
+    public Set<Country> getCountryListFromDB() {
         return countryDao.getCountrySet();
     }
 
     public void countryBatchImport() throws JsonParseException,
-            JsonMappingException, IOException, ImiException {
+            JsonMappingException, IOException {
         Map<String, Map<String, String>> providerCapabilities = new HashMap<String, Map<String, String>>();
         CountryResponse countryResponse = new CountryResponse();
         providerCapabilities.put(TWILIO, new HashMap<String, String>());
         providerCapabilities.put(NEXMO, new HashMap<String, String>());
         providerCapabilities.put(PLIVO, new HashMap<String, String>());
-        countryResponse.addCountries(
-                twilioFactoryImpl.importCountries(providerCapabilities));
-        countryResponse.addCountries(
-                nexmoFactoryImpl.importCountries(providerCapabilities));
-        countryResponse.addCountries(
-                plivioFactoryImpl.importCountries(providerCapabilities));
+        countryResponse.addCountries(twilioFactoryImpl
+                .importCountries(providerCapabilities));
+        countryResponse.addCountries(nexmoFactoryImpl
+                .importCountries(providerCapabilities));
+        countryResponse.addCountries(plivioFactoryImpl
+                .importCountries(providerCapabilities));
         Set<Country> countryModelSet = countryResponse.getCountries();
         countryDao.batchUpdate(countryModelSet);
         countryDao.batchUpdate(providerCapabilities.get(TWILIO),

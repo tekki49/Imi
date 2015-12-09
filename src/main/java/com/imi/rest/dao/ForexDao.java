@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.transaction.Transactional;
 
+import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -14,11 +15,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.imi.rest.dao.model.ForexValues;
+import com.imi.rest.util.ImiDataFormatUtils;
 
 @Repository
 @Transactional
 public class ForexDao {
 
+    private static final Logger LOG=Logger.getLogger(ForexDao.class);
+    
     @Autowired
     private SessionFactory sessionFactory;
     Transaction tx = null;
@@ -66,7 +70,7 @@ public class ForexDao {
         } catch (HibernateException e) {
             if (tx != null)
                 tx.rollback();
-            e.printStackTrace();
+            LOG.error(ImiDataFormatUtils.getStackTrace(e));
         } finally {
             tx.commit();
             session.close();

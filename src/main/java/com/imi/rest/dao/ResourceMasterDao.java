@@ -38,14 +38,19 @@ public class ResourceMasterDao {
         return null;
     }
 
-    public ResourceMaster getResourceByNumber(String serviceCode) {
+    public ResourceMaster getResourceByNumber(String number, Integer providerId) {
         Criteria criteria = getSession().createCriteria(ResourceMaster.class);
-        criteria.add(Restrictions.eq("serviceCode", serviceCode));
+        criteria.add(Restrictions.eq("serviceCode", number));
+        criteria.add(Restrictions.eq("providerId", providerId));
         List<ResourceMaster> resourceList = criteria.list();
         if (resourceList != null && resourceList.size() > 0) {
             return resourceList.get(0);
         }
         return null;
+    }
+
+    public void deleteResourceMaster(ResourceMaster resourceMaster) {
+        getSession().delete(resourceMaster);
     }
 
 }

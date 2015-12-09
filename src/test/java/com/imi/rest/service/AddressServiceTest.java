@@ -18,7 +18,6 @@ import com.imi.rest.core.impl.TwilioFactoryImpl;
 import com.imi.rest.dao.AddressDao;
 import com.imi.rest.dao.model.Provider;
 import com.imi.rest.dao.model.UserAddressMgmt;
-import com.imi.rest.exception.ImiException;
 import com.imi.rest.model.Address;
 import com.imi.rest.model.Customer;
 
@@ -53,7 +52,7 @@ public class AddressServiceTest {
 	@SuppressWarnings("deprecation")
 	@Test
 	public void getAddressByCustomerNameWhenProviderIsTWILIO()
-			throws ClientProtocolException, IOException, ImiException {
+			throws ClientProtocolException, IOException  {
 		Provider provider = new Provider();
 		Address address = new Address();
 		address.setCity("CITY");
@@ -65,7 +64,7 @@ public class AddressServiceTest {
 
 	@Test
 	public void getAddressByCustomerNameWhenProviderIsNotTWILIO()
-			throws ImiException, ClientProtocolException, IOException {
+			throws ClientProtocolException, IOException {
 		Provider provider = new Provider();
 		Address address = new Address();
 		address.setCity("CITY");
@@ -81,7 +80,7 @@ public class AddressServiceTest {
 
 	@Test
 	public void updateClientAddressToProviderWhenProviderIsTWILIO()
-			throws ImiException, ClientProtocolException, IOException {
+			throws ClientProtocolException, IOException {
 		Provider provider = new Provider();
 		Address address = new Address();
 		address.setCity("CITY");
@@ -93,7 +92,7 @@ public class AddressServiceTest {
 
 	@Test
 	public void updateClientAddressToProviderWhenProviderIsNotTWILIO()
-			throws ImiException, ClientProtocolException, IOException {
+			throws , ClientProtocolException, IOException {
 		Provider provider = new Provider();
 		Address address = new Address();
 		address.setCity("CITY");
@@ -205,14 +204,14 @@ public class AddressServiceTest {
 	}
 
 	@Test
-	public void getAddressListCountryNull() throws ImiException {
+	public void getAddressListCountryNull()   {
 		country = null;
 		when(addressDao.getAddressList(userId, null)).thenReturn(null);
 		assertNull(addressDao.getAddressList(userId, null));
 	}
 
 	@Test
-	public void getAddressListCountryNotNull() throws ImiException {
+	public void getAddressListCountryNotNull()   {
 		country = "United States";
 		List<Customer> customerList = new ArrayList<Customer>();
 		customerList.add(customer);

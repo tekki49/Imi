@@ -1,25 +1,21 @@
 package com.imi.rest.service;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import org.apache.http.client.ClientProtocolException;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 
 import com.imi.rest.constants.ServiceConstants;
 import com.imi.rest.core.impl.NexmoFactoryImpl;
 import com.imi.rest.core.impl.PlivoFactoryImpl;
 import com.imi.rest.core.impl.TwilioFactoryImpl;
 import com.imi.rest.dao.model.Provider;
-import com.imi.rest.exception.ImiException;
 import com.imi.rest.model.Meta;
 import com.imi.rest.model.Number;
 import com.imi.rest.model.NumberResponse;
@@ -45,7 +41,7 @@ public class NumberSearchServiceTest {
 	String countryIsoCode, numberType, pattern, nextPlivoIndex, nextNexmoIndex, twilioIndex;
 
 	@Test
-	public void searchPhoneNumbersProviderPlivo() throws ClientProtocolException, IOException, ImiException {
+	public void searchPhoneNumbersProviderPlivo() throws ClientProtocolException, IOException {
 		serviceTypeEnum = ServiceConstants.SMS;
 		countryIsoCode = "US";
 		numberType = "MOBILE";
@@ -65,7 +61,7 @@ public class NumberSearchServiceTest {
 		assertEquals(1, numberResponse.getCount());
 	}
 	@Test
-	public void searchPhoneNumbersProviderPlivoWithIndices() throws ClientProtocolException, IOException, ImiException {
+	public void searchPhoneNumbersProviderPlivoWithIndices() throws ClientProtocolException, IOException {
 		serviceTypeEnum = ServiceConstants.SMS;
 		countryIsoCode = "US";
 		numberType = "MOBILE";
@@ -85,7 +81,7 @@ public class NumberSearchServiceTest {
 		assertEquals(1, numberResponse.getCount());
 	}
 	@Test
-	public void searchPhoneNumbersParamsNotNullWithIndices() throws ClientProtocolException, IOException, ImiException {
+	public void searchPhoneNumbersParamsNotNullWithIndices() throws ClientProtocolException, IOException {
 		numberResponse = new NumberResponse();
 		plivoFactoryImpl = mock(PlivoFactoryImpl.class);
 		twilioFactoryImpl = mock(TwilioFactoryImpl.class);
@@ -136,7 +132,7 @@ public class NumberSearchServiceTest {
 			});*/
 	}
 	@Test
-	public void searchPhoneNumbersParamsNotNullWithoutIndices() throws ClientProtocolException, IOException, ImiException {
+	public void searchPhoneNumbersParamsNotNullWithoutIndices() throws ClientProtocolException, IOException {
 		numberResponse = new NumberResponse();
 		plivoFactoryImpl =  mock(PlivoFactoryImpl.class);
 		twilioFactoryImpl =  mock(TwilioFactoryImpl.class);
@@ -189,7 +185,7 @@ public class NumberSearchServiceTest {
 			});*/
 	}
 	@Test
-	public void searchPhoneNumbersParamsNullNoIndices() throws ClientProtocolException, IOException, ImiException {
+	public void searchPhoneNumbersParamsNullNoIndices() throws ClientProtocolException, IOException {
 		numberResponse = new NumberResponse();
 		plivoFactoryImpl =  mock(PlivoFactoryImpl.class);
 		twilioFactoryImpl =  mock(TwilioFactoryImpl.class);
@@ -213,7 +209,7 @@ public class NumberSearchServiceTest {
 				countryIsoCode, numberType, pattern, nextNexmoIndex, numberResponse);
 	}
 	@Test
-	public void searchPhoneNumbersParamsNullWithIndices() throws ClientProtocolException, IOException, ImiException {
+	public void searchPhoneNumbersParamsNullWithIndices() throws ClientProtocolException, IOException {
 		numberResponse = new NumberResponse();
 		plivoFactoryImpl =  mock(PlivoFactoryImpl.class);
 		twilioFactoryImpl =  mock(TwilioFactoryImpl.class);

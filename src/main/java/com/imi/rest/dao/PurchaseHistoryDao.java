@@ -2,6 +2,8 @@ package com.imi.rest.dao;
 
 import java.util.List;
 
+import javax.transaction.Transactional;
+
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -11,10 +13,10 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Repository;
 
 import com.imi.rest.dao.model.Purchase;
-import com.imi.rest.dao.model.Purchasehistory;
+import com.imi.rest.dao.model.PurchaseHistory;
 
-@Configuration
 @Repository
+@Transactional
 public class PurchaseHistoryDao {
 
     @Autowired
@@ -25,26 +27,26 @@ public class PurchaseHistoryDao {
     }
 
     @SuppressWarnings("unchecked")
-    public Purchase getPurhcaseHistory(Integer purchaseId) {
-        Criteria criteria = getSession().createCriteria(Purchase.class);
-        criteria.add(Restrictions.eq("id", purchaseId));
-        List<Purchase> purchaseList = criteria.list();
+    public PurchaseHistory getPurhcaseHistory(Integer id) {
+        Criteria criteria = getSession().createCriteria(PurchaseHistory.class);
+        criteria.add(Restrictions.eq("id", id));
+        List<PurchaseHistory> purchaseList = criteria.list();
         return purchaseList.get(0);
     }
 
     @SuppressWarnings("unchecked")
-    public Purchasehistory getPurchaseHistoryByNumber(Integer number) {
-        Purchasehistory purchasehistory = null;
-        Criteria criteria = getSession().createCriteria(Purchasehistory.class);
+    public PurchaseHistory getPurchaseHistoryByNumber(String number) {
+        PurchaseHistory purchasehistory = null;
+        Criteria criteria = getSession().createCriteria(PurchaseHistory.class);
         criteria.add(Restrictions.eq("number", number));
-        List<Purchasehistory> purchaseHistoryList = criteria.list();
+        List<PurchaseHistory> purchaseHistoryList = criteria.list();
         if (purchaseHistoryList != null && purchaseHistoryList.size() > 0) {
             purchasehistory = purchaseHistoryList.get(0);
         }
         return purchasehistory;
     }
 
-    public void createNewPurchaseHistory(Purchasehistory purchasehistory) {
+    public void createNewPurchaseHistory(PurchaseHistory purchasehistory) {
         getSession().saveOrUpdate(purchasehistory);
     }
 }

@@ -22,8 +22,7 @@ import com.imi.rest.dao.model.Country;
 import com.imi.rest.dao.model.Provider;
 import com.imi.rest.dao.model.Providercountry;
 import com.imi.rest.dao.model.Purchase;
-import com.imi.rest.dao.model.Purchasehistory;
-import com.imi.rest.exception.ImiException;
+import com.imi.rest.dao.model.PurchaseHistory;
 import com.imi.rest.model.PurchaseResponse;
 
 public class PurchaseNumberServiceTest {
@@ -43,7 +42,7 @@ public class PurchaseNumberServiceTest {
 	@Mock
 	private Set<Providercountry> providercountries = new HashSet<Providercountry>(0);
 	@Mock
-	private Set<Purchasehistory> purchasehistories = new HashSet<Purchasehistory>(0);
+	private Set<PurchaseHistory> purchasehistories = new HashSet<PurchaseHistory>(0);
 	@Mock
 	private Set<Purchase> purchases;
 	@Mock
@@ -65,7 +64,7 @@ public class PurchaseNumberServiceTest {
 	}
 
 	@Test
-	public void purchaseNumberWhenProviderTwilio() throws ClientProtocolException, IOException, ImiException {
+	public void purchaseNumberWhenProviderTwilio() throws ClientProtocolException, IOException {
 		serviceTypeEnum = ServiceConstants.SMS;
 		providercountries.add(providerCountry);
 		purchaseResponse = new PurchaseResponse();
@@ -77,7 +76,7 @@ public class PurchaseNumberServiceTest {
 	}
 
 	@Test
-	public void purchaseNumberWhenProviderPlivo() throws ClientProtocolException, IOException, ImiException {
+	public void purchaseNumberWhenProviderPlivo() throws ClientProtocolException, IOException {
 		serviceTypeEnum = ServiceConstants.SMS;
 		providercountries.add(providerCountry);
 		purchaseResponse = new PurchaseResponse();
@@ -89,7 +88,7 @@ public class PurchaseNumberServiceTest {
 	}
 
 	@Test
-	public void purchaseNumberWhenProviderNexmo() throws ClientProtocolException, IOException, ImiException {
+	public void purchaseNumberWhenProviderNexmo() throws ClientProtocolException, IOException {
 		serviceTypeEnum = ServiceConstants.SMS;
 		purchaseResponse = new PurchaseResponse();
 		purchaseResponse.setNumber("123456789");

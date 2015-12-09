@@ -12,9 +12,11 @@ import com.imi.rest.core.impl.TwilioFactoryImpl;
 import com.imi.rest.dao.AddressDao;
 import com.imi.rest.dao.model.Provider;
 import com.imi.rest.dao.model.UserAddressMgmt;
-import com.imi.rest.exception.ImiException;
+import com.imi.rest.exception.InboundApiErrorCodes;
+import com.imi.rest.exception.InboundRestException;
 import com.imi.rest.model.Address;
 import com.imi.rest.model.Customer;
+import com.imi.rest.model.SubAccountDetails;
 
 @Service
 public class AddressService implements ProviderConstants {
@@ -28,28 +30,36 @@ public class AddressService implements ProviderConstants {
     @Autowired
     private AddressDao addressDao;
 
-    public Address getAddressByCustomerName(String customerName,
-            String providerName)
-                    throws ClientProtocolException, IOException, ImiException {
+    public List<Address> getAddressByCustomerName(String customerName,
+            String providerName, Integer clientId)
+                    throws ClientProtocolException, IOException {
         Provider provider = providerService.getProviderByName(providerName);
-        Address address = null;
+        SubAccountDetails customerAccountDetails = twilioFactoryImpl
+                .getSubAccountDetails("" + clientId, provider);
+        List<Address> addressList = null;
         if (provider.getName().equalsIgnoreCase(TWILIO)) {
-            address = twilioFactoryImpl.getAddressOfCustomer(customerName,
-                    provider);
+            addressList = twilioFactoryImpl.getAddressOfCustomer(customerName,
+                    provider, clientId, customerAccountDetails);
         }
-        return address;
+        return addressList;
     }
 
     public void updateClientAddressToProvider(Customer customer,
-            String providerName)
-                    throws ImiException, ClientProtocolException, IOException {
+            String providerName, Integer clientId)
+                    throws ClientProtocolException, IOException {
         Provider provider = providerService.getProviderByName(providerName);
         if (providerName.equalsIgnoreCase(TWILIO)) {
-            twilioFactoryImpl.createNewAddressOfCustomer(customer, provider);
+            twilioFactoryImpl.createNewAddressOfCustomer(customer, provider,
+                    clientId);
+        } else {
+            throw InboundRestException.createApiException(
+                    InboundApiErrorCodes.INVALID_PROVIDER_ACTION_EXCEPTION,
+                    "Provider " + providerName
+                            + "does not support updating address through api");
         }
     }
 
-    public void updateAddress(Customer customer, String clientId) {
+    public void updateAddress(Customer customer, int userId) {
         UserAddressMgmt userAddressMgnt = null;
         if (customer.getAddress_id() == null) {
             userAddressMgnt = new UserAddressMgmt();
@@ -66,7 +76,7 @@ public class AddressService implements ProviderConstants {
         userAddressMgnt.setState(customer.getState());
         userAddressMgnt
                 .setPostalCode(Integer.parseInt(customer.getPostalcode()));
-        userAddressMgnt.setUserId(Integer.parseInt(clientId));
+        userAddressMgnt.setUserId(userId);
         addressDao.createNewAddress(userAddressMgnt);
     }
 
@@ -74,13 +84,12 @@ public class AddressService implements ProviderConstants {
         return addressDao.getAddressById(address_id);
     }
 
-    public List<Customer> getAddressList(String userId, String country)
-            throws ImiException {
-        return addressDao.getAddressList(userId,
+    public List<Customer> getAddressList(Integer userid, String country) {
+        return addressDao.getAddressList(userid,
                 country == null ? null : country.toUpperCase());
     }
 
-    public void deleteAddressFromImi(String clientId, String addressId) {
+    public void deleteAddressFromImi(Integer userid, String addressId) {
         Long id = Long.valueOf(addressId);
         UserAddressMgmt userAddressMgmt = addressDao.getAddressById(id);
         addressDao.deleteAddress(userAddressMgmt);

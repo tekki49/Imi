@@ -12,6 +12,6 @@ import com.imi.rest.model.Country;
 public interface CountrySearch {
     public Set<Country> importCountries(
             Map<String, Map<String, String>> providerCapabilities)
-                    throws FileNotFoundException, JsonParseException,
-                    JsonMappingException, IOException;
+            throws FileNotFoundException, JsonParseException,
+            JsonMappingException, IOException;
 }

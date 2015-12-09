@@ -6,6 +6,7 @@ import java.util.Comparator;
 
 import org.apache.http.client.ClientProtocolException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.imi.rest.constants.ProviderConstants;
@@ -14,8 +15,8 @@ import com.imi.rest.core.impl.NexmoFactoryImpl;
 import com.imi.rest.core.impl.PlivoFactoryImpl;
 import com.imi.rest.core.impl.TwilioFactoryImpl;
 import com.imi.rest.dao.model.Provider;
-import com.imi.rest.exception.ImiException;
-import com.imi.rest.exception.InvalidProviderException;
+import com.imi.rest.exception.InboundApiErrorCodes;
+import com.imi.rest.exception.InboundRestException;
 import com.imi.rest.model.Number;
 import com.imi.rest.model.NumberResponse;
 
@@ -34,10 +35,19 @@ public class NumberSearchService implements ProviderConstants {
     @Autowired
     ProviderService providerService;
 
+    @Value(value = "${search.skip.twilio}")
+    boolean skipTwilio;
+    
+    @Value(value = "${search.skip.nexmo}")
+    boolean skipNexmo;
+    
+    @Value(value = "${search.skip.plivo}")
+    boolean skipPlivo;
+
     public NumberResponse searchPhoneNumbers(ServiceConstants serviceTypeEnum,
             Provider provider, String countryIsoCode, String numberType,
-            String pattern, String nextPlivoIndex, String nextNexmoIndex)
-                    throws ClientProtocolException, IOException, ImiException {
+            String pattern, String nextPlivoIndex, String nextNexmoIndex,
+            String markup) throws ClientProtocolException, IOException {
         NumberResponse numberResponse = new NumberResponse();
         String twiloIndex = "";
         if ("FIRST".equalsIgnoreCase(nextNexmoIndex)
@@ -52,27 +62,29 @@ public class NumberSearchService implements ProviderConstants {
             plivoFactoryImpl.searchPhoneNumbers(
                     providerService.getPlivioProvider(), serviceTypeEnum,
                     countryIsoCode, numberType, pattern, nextPlivoIndex,
-                    numberResponse);
+                    numberResponse, markup);
         } else if (provider.getName().equalsIgnoreCase(TWILIO)) {
             twilioFactoryImpl.searchPhoneNumbers(
                     providerService.getTwilioProvider(), serviceTypeEnum,
                     countryIsoCode, numberType, pattern, twiloIndex,
-                    numberResponse);
+                    numberResponse, markup);
         } else if (provider.getName().equalsIgnoreCase(NEXMO)) {
             nexmoFactoryImpl.searchPhoneNumbers(
                     providerService.getNexmoProvider(), serviceTypeEnum,
                     countryIsoCode, numberType, pattern, nextNexmoIndex,
-                    numberResponse);
+                    numberResponse, markup);
         } else {
-            throw new InvalidProviderException(provider.getName());
+            String message = "Provider " + provider.getName() + " is invalid";
+            throw InboundRestException.createApiException(
+                    InboundApiErrorCodes.INVALID_PROVIDER_EXCEPTION, message);
         }
         return numberResponse;
     }
 
     public NumberResponse searchPhoneNumbers(ServiceConstants serviceTypeEnum,
             String countryIsoCode, String numberType, String pattern,
-            String nextPlivoIndex, String nextNexmoIndex)
-                    throws ClientProtocolException, IOException, ImiException {
+            String nextPlivoIndex, String nextNexmoIndex, String markup)
+            throws ClientProtocolException, IOException {
         NumberResponse numberResponse = new NumberResponse();
         String twiloIndex = "";
         if ("FIRST".equalsIgnoreCase(nextNexmoIndex)
@@ -83,16 +95,25 @@ public class NumberSearchService implements ProviderConstants {
         } else {
             twiloIndex = "INDEXED";
         }
-        plivoFactoryImpl.searchPhoneNumbers(providerService.getPlivioProvider(),
-                serviceTypeEnum, countryIsoCode, numberType, pattern,
-                nextPlivoIndex, numberResponse);
-        twilioFactoryImpl.searchPhoneNumbers(
-                providerService.getTwilioProvider(), serviceTypeEnum,
-                countryIsoCode, numberType, pattern, twiloIndex,
-                numberResponse);
-        nexmoFactoryImpl.searchPhoneNumbers(providerService.getNexmoProvider(),
-                serviceTypeEnum, countryIsoCode, numberType, pattern,
-                nextNexmoIndex, numberResponse);
+        if (!skipPlivo) {
+            plivoFactoryImpl.searchPhoneNumbers(
+                    providerService.getPlivioProvider(), serviceTypeEnum,
+                    countryIsoCode, numberType, pattern, nextPlivoIndex,
+                    numberResponse, markup);
+        }
+
+        if (!skipTwilio) {
+            twilioFactoryImpl.searchPhoneNumbers(
+                    providerService.getTwilioProvider(), serviceTypeEnum,
+                    countryIsoCode, numberType, pattern, twiloIndex,
+                    numberResponse, markup);
+        }
+        if (!skipNexmo) {
+            nexmoFactoryImpl.searchPhoneNumbers(
+                    providerService.getNexmoProvider(), serviceTypeEnum,
+                    countryIsoCode, numberType, pattern, nextNexmoIndex,
+                    numberResponse, markup);
+        }
         if (numberResponse != null && numberResponse.getObjects() != null) {
             Collections.sort(numberResponse.getObjects(),
                     new Comparator<Number>() {
@@ -106,10 +127,10 @@ public class NumberSearchService implements ProviderConstants {
                             } else if (n2.getMonthlyRentalRate() == null) {
                                 return 2;
                             } else {
-                                float f1 = Float
-                                        .parseFloat(n1.getMonthlyRentalRate());
-                                float f2 = Float
-                                        .parseFloat(n2.getMonthlyRentalRate());
+                                float f1 = Float.parseFloat(n1
+                                        .getMonthlyRentalRate());
+                                float f2 = Float.parseFloat(n2
+                                        .getMonthlyRentalRate());
                                 int result = Float.compare(f1, f2);
                                 return result;
                             }
@@ -117,7 +138,6 @@ public class NumberSearchService implements ProviderConstants {
                         }
                     });
         }
-
         return numberResponse;
     }
 

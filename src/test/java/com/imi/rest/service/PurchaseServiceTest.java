@@ -18,12 +18,12 @@ public class PurchaseServiceTest {
     @Mock
     Purchase purchase;
     @Mock
-    Integer number;
+    String number;
 
     @Test
     public void getPurchaseByNumber() {
     	purchaseDao=Mockito.mock(PurchaseDao.class);
-    	number=123456798;
+    	number="123456798";
     	purchase =new Purchase();
     	purchase.setId(1);
     	doReturn(purchase).when(purchaseDao).getPurchaseByNumber(number);

@@ -12,12 +12,16 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
 
 import com.imi.rest.dao.model.Country;
 import com.imi.rest.dao.model.Provider;
 import com.imi.rest.dao.model.Providercountry;
-import com.imi.rest.exception.ImiException;
+import com.imi.rest.exception.ApiError;
+import com.imi.rest.exception.InboundApiErrorCodes;
+import com.imi.rest.exception.InboundRestException;
+
 
 @Repository
 @Transactional
@@ -32,53 +36,56 @@ public class CountryDao {
 
     @SuppressWarnings("unchecked")
     public Country getCountryById(Integer id) {
+        Country country=null;
         Criteria criteria = getSession().createCriteria(Country.class);
         criteria.add(Restrictions.eq("id", id));
         List<Country> countryList = criteria.list();
         if (countryList != null && countryList.size() > 0) {
-            return countryList.get(0);
+            country= countryList.get(0);
         }
-        return null;
+        return country;
 
     }
 
     @SuppressWarnings("unchecked")
     public Country getCountryByName(String countryName) {
+        Country country=null;
         Criteria criteria = getSession().createCriteria(Country.class);
         criteria.add(Restrictions.eq("country", countryName));
         List<Country> countryList = criteria.list();
         if (countryList != null && countryList.size() > 0) {
-            return countryList.get(0);
+            country= countryList.get(0);
         }
-        return null;
+        return country;
     }
 
     @SuppressWarnings("unchecked")
     public Country getCountryByIso(String countryIso) {
+        Country country=null;
         Criteria criteria = getSession().createCriteria(Country.class);
         criteria.add(Restrictions.eq("countryIso", countryIso));
         List<Country> countryList = criteria.list();
         if (countryList != null && countryList.size() > 0) {
-            return countryList.get(0);
+            country= countryList.get(0);
         }
-        return null;
+        return country;
     }
 
     @SuppressWarnings("unchecked")
-    public Set<com.imi.rest.model.Country> getCountrySet() throws ImiException {
+    public Set<com.imi.rest.model.Country> getCountrySet(){
         Criteria criteria = getSession().createCriteria(Country.class);
         List<Country> countryList = criteria.list();
+        Set<com.imi.rest.model.Country> countrySet =null;
         if (countryList != null) {
-            Set<com.imi.rest.model.Country> countrySet = new TreeSet<com.imi.rest.model.Country>();
+            countrySet = new TreeSet<com.imi.rest.model.Country>();
             for (Country daoCountry : countryList) {
                 com.imi.rest.model.Country countryModel = new com.imi.rest.model.Country();
                 countryModel.setCountry(daoCountry.getCountry());
                 countryModel.setIsoCountry(daoCountry.getCountryIso());
                 countrySet.add(countryModel);
             }
-            return countrySet;
         }
-        throw new ImiException("Unable to fetch country data from data base");
+        return countrySet;
     }
 
     public void batchUpdate(Set<com.imi.rest.model.Country> countryModelSet) {
@@ -108,8 +115,8 @@ public class CountryDao {
         Providercountry providercountry = null;
         Criteria criteria = getSession().createCriteria(Providercountry.class);
         if (provider != null && country != null) {
-            criteria.add(Restrictions.eq("provider.id", provider.getId()));
-            criteria.add(Restrictions.eq("country.id", country.getId()));
+            criteria.add(Restrictions.eq("numberProvider.id", provider.getId()));
+            criteria.add(Restrictions.eq("resourceCountry.id", country.getId()));
             List<Providercountry> providercountryList = criteria.list();
             if (providercountryList != null && providercountryList.size() > 0)
                 providercountry = providercountryList.get(0);
@@ -129,8 +136,8 @@ public class CountryDao {
                     country, provider);
             if (providerCountry == null)
                 providerCountry = new Providercountry();
-            providerCountry.setCountry(country);
-            providerCountry.setProvider(provider);
+            providerCountry.setResourceCountry(country);
+            providerCountry.setNumberProvider(provider);
             providerCountry.setServices(map.get(countryName));
             createNewProviderCountry(providerCountry);
         }

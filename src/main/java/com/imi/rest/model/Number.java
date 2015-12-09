@@ -281,7 +281,6 @@ public class Number {
         this.restriction_text = restriction_text;
     }
 
-    @JsonProperty("smsEnabled")
     public boolean isSmsEnabled() {
         return smsEnabled;
     }
@@ -291,7 +290,6 @@ public class Number {
         this.smsEnabled = smsEnabled;
     }
 
-    @JsonProperty("voiceEnabled")
     public boolean isVoiceEnabled() {
         return voiceEnabled;
     }

@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.imi.rest.dao.model.UserAddressMgmt;
-import com.imi.rest.exception.ImiException;
 import com.imi.rest.model.Customer;
 
 @Repository
@@ -28,15 +27,15 @@ public class AddressDao {
     }
 
     @SuppressWarnings("unchecked")
-    public List<com.imi.rest.model.Customer> getAddressList(String userIdString,
-            String country) throws ImiException {
+    public List<com.imi.rest.model.Customer> getAddressList(Integer userId,
+            String country) {
         Criteria criteria = getSession().createCriteria(UserAddressMgmt.class);
-        Integer userId = Integer.parseInt(userIdString);
         criteria.add(Restrictions.eq("userId", userId));
         criteria.add(Restrictions.eq("country", country));
         List<UserAddressMgmt> addressDbList = criteria.list();
+        List<Customer> customerList = null;
         if (addressDbList != null) {
-            List<Customer> customerList = new ArrayList<Customer>();
+            customerList = new ArrayList<Customer>();
             for (UserAddressMgmt daoAddress : addressDbList) {
                 Customer customer = new Customer();
                 customer.setAddress_id(daoAddress.getId());
@@ -49,9 +48,8 @@ public class AddressDao {
                         String.valueOf(daoAddress.getPostalCode()));
                 customerList.add(customer);
             }
-            return customerList;
         }
-        throw new ImiException("Unable to fetch country data from data base");
+        return customerList;
     }
 
     public void createNewAddress(UserAddressMgmt addressMgnt) {

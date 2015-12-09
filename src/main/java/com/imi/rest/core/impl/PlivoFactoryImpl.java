@@ -1,16 +1,12 @@
 package com.imi.rest.core.impl;
 
-import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
 
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.entity.ContentType;
@@ -28,11 +24,15 @@ import com.imi.rest.constants.UrlConstants;
 import com.imi.rest.core.CountrySearch;
 import com.imi.rest.core.NumberSearch;
 import com.imi.rest.core.PurchaseNumber;
+import com.imi.rest.core.aop.ImportCountryAop;
+import com.imi.rest.core.aop.NumberSearchAop;
+import com.imi.rest.core.aop.PricingAop;
+import com.imi.rest.core.aop.PurchaseAop;
+import com.imi.rest.core.aop.ReleaseAop;
+import com.imi.rest.core.aop.UpdateNumberAop;
 import com.imi.rest.dao.model.Provider;
-import com.imi.rest.dao.model.Purchase;
-import com.imi.rest.dao.model.ResourceMaster;
-import com.imi.rest.exception.ImiException;
-import com.imi.rest.exception.InvalidNumberException;
+import com.imi.rest.exception.InboundApiErrorCodes;
+import com.imi.rest.exception.InboundRestException;
 import com.imi.rest.model.ApplicationResponse;
 import com.imi.rest.model.BalanceResponse;
 import com.imi.rest.model.Country;
@@ -42,8 +42,8 @@ import com.imi.rest.model.Number;
 import com.imi.rest.model.NumberResponse;
 import com.imi.rest.model.PlivoAccountResponse;
 import com.imi.rest.model.PlivoPurchaseResponse;
+import com.imi.rest.model.PurchaseRequest;
 import com.imi.rest.model.PurchaseResponse;
-import com.imi.rest.service.CountrySearchService;
 import com.imi.rest.service.ForexService;
 import com.imi.rest.service.ResourceService;
 import com.imi.rest.util.ImiBasicAuthUtil;
@@ -55,12 +55,9 @@ import com.imi.rest.util.ImiJsonUtil;
 public class PlivoFactoryImpl implements NumberSearch, CountrySearch,
         PurchaseNumber, UrlConstants, ProviderConstants, NumberTypeConstants {
 
-    private static final String PLIVO_CSV_FILE_PATH = "/plivo_inbound_rates.csv";
-    private static final Logger LOG = Logger
-            .getLogger(CountrySearchService.class);
+    boolean test = false;
 
-    // Max no of iterative api calls
-    private final static int API_CALL_THRESHOLD = 2;
+    private static final Logger LOG = Logger.getLogger(PlivoFactoryImpl.class);
 
     private Double forexValue;
 
@@ -70,21 +67,44 @@ public class PlivoFactoryImpl implements NumberSearch, CountrySearch,
     @Autowired
     ResourceService resourceService;
 
+    @Autowired
+    NumberSearchAop numberSearchAop;
+
+    @Autowired
+    PricingAop pricingAop;
+
+    @Autowired
+    ImportCountryAop importCountryAop;
+
+    @Autowired
+    ReleaseAop releaseAop;
+
+    @Autowired
+    PurchaseAop purchaseAop;
+
+    @Autowired
+    UpdateNumberAop updateNumberAop;
+
     @Override
     public void searchPhoneNumbers(Provider provider,
             ServiceConstants serviceTypeEnum, String countryIsoCode,
             String numberType, String pattern, String index,
-            NumberResponse numberResponse)
-                    throws ClientProtocolException, IOException, ImiException {
+            NumberResponse numberResponse, String markup)
+                    throws ClientProtocolException, IOException {
         String type = "any";
-        if (numberType.equalsIgnoreCase(LANDLINE)) {
+        if (numberType.equalsIgnoreCase(LANDLINE)
+                || numberType.equalsIgnoreCase(LOCAL)) {
             type = "fixed";
+            numberType = LANDLINE;
         } else if (numberType.equalsIgnoreCase(MOBILE)) {
             type = "mobile";
+            numberType = MOBILE;
         } else if (numberType.equalsIgnoreCase(TOLLFREE)) {
             type = "tollfree";
-        } else if (numberType.equalsIgnoreCase(LOCAL)) {
-            type = "fixed";
+            numberType = TOLLFREE;
+        } else if (numberType.equalsIgnoreCase(MULTI)) {
+            type = "any";
+            numberType = MULTI;
         }
         int offset = 0;
         if (!index.equalsIgnoreCase("FIRST")) {
@@ -96,146 +116,14 @@ public class PlivoFactoryImpl implements NumberSearch, CountrySearch,
             numberResponse.setMeta(meta);
         }
         List<Number> numberSearchList = new ArrayList<Number>();
-        searchPhoneNumbers(provider, serviceTypeEnum, countryIsoCode, type,
-                pattern, numberSearchList, offset, numberResponse);
+        forexValue = forexService.getForexValueByName("USD_GBP").getValue();
+        numberSearchAop.searchPlivoPhoneNumbers(provider, serviceTypeEnum,
+                countryIsoCode, type, pattern, numberSearchList, offset,
+                numberResponse, forexValue, numberType, markup);
         List<Number> numberList = numberResponse.getObjects() == null
                 ? new ArrayList<Number>() : numberResponse.getObjects();
         numberList.addAll(numberSearchList);
         numberResponse.setObjects(numberList);
-    }
-
-    void searchPhoneNumbers(Provider provider, ServiceConstants serviceTypeEnum,
-            String countryIsoCode, String numberType, String pattern,
-            List<Number> numberSearchList, int offset,
-            NumberResponse numberResponse)
-                    throws ClientProtocolException, IOException, ImiException {
-        String plivioPhoneSearchUrl = PLIVO_PHONE_SEARCH_URL;
-        plivioPhoneSearchUrl = plivioPhoneSearchUrl
-                .replace("{auth_id}", provider.getAuthId())
-                .replace("{country_iso}", countryIsoCode)
-                .replace("{type}", numberType)
-                .replace("{services}", serviceTypeEnum.toString())
-                .replace("{pattern}", "*" + pattern + "*");
-        boolean recursive = true;
-        int counter = 0;
-        while (recursive) {
-            String phoneSearchUrl = plivioPhoneSearchUrl;
-            if (offset > 0) {
-                phoneSearchUrl = phoneSearchUrl + "&offset=" + offset;
-            }
-            GenericRestResponse restResponse = null;
-            restResponse = ImiHttpUtil.defaultHttpGetHandler(
-                    plivioPhoneSearchUrl,
-                    ImiBasicAuthUtil.getBasicAuthHash(provider));
-            if (restResponse.getResponseCode() == HttpStatus.OK.value()) {
-                NumberResponse numberResponseFromPlivo = ImiJsonUtil
-                        .deserialize(
-                                restResponse.getResponseBody() == null ? ""
-                                        : restResponse.getResponseBody(),
-                                NumberResponse.class);
-                List<Number> plivioNumberList = numberResponseFromPlivo == null
-                        ? new ArrayList<Number>()
-                        : numberResponseFromPlivo.getObjects() == null
-                                ? new ArrayList<Number>()
-                                : numberResponseFromPlivo.getObjects();
-                if (forexValue == null) {
-                    forexValue = forexService.getForexValueByName("USD_GBP")
-                            .getValue();
-                }
-                List<String> expectedFeatures = new ArrayList<String>();
-                if (serviceTypeEnum.equals(ServiceConstants.VOICE)) {
-                    expectedFeatures.add(
-                            ServiceConstants.VOICE.toString().toUpperCase());
-                } else if (serviceTypeEnum.equals(ServiceConstants.SMS)) {
-                    expectedFeatures
-                            .add(ServiceConstants.SMS.toString().toUpperCase());
-                } else if (serviceTypeEnum.equals(ServiceConstants.BOTH)) {
-                    expectedFeatures
-                            .add(ServiceConstants.SMS.toString().toUpperCase());
-                    expectedFeatures.add(
-                            ServiceConstants.VOICE.toString().toUpperCase());
-                }
-                for (Number plivioNumber : plivioNumberList) {
-                    if (plivioNumber != null) {
-                        boolean isValidNumber = true;
-                        List<String> numberFeatures = new ArrayList<String>();
-                        if (plivioNumber.isSmsEnabled()) {
-                            numberFeatures.add(ServiceConstants.SMS.toString()
-                                    .toUpperCase());
-                        }
-                        if (plivioNumber.isVoiceEnabled()) {
-                            if (plivioNumber.isSmsEnabled()) {
-                                numberFeatures.add(ServiceConstants.VOICE
-                                        .toString().toUpperCase());
-                            }
-                        }
-                        for (String feature : numberFeatures) {
-                            if (!expectedFeatures.contains(feature))
-                                isValidNumber = false;
-                        }
-                        if (isValidNumber) {
-                            plivioNumber.setProvider(PLIVO);
-                            setServiceType(plivioNumber);
-                            plivioNumber.setPriceUnit("USD");
-                            String monthlyRentalRateInGBP = ImiDataFormatUtils
-                                    .forexConvert(forexValue, plivioNumber
-                                            .getMonthlyRentalRate());
-                            plivioNumber.setMonthlyRentalRate(
-                                    monthlyRentalRateInGBP);
-                            String voiceRateInGBP = ImiDataFormatUtils
-                                    .forexConvert(forexValue,
-                                            plivioNumber.getVoiceRate());
-                            plivioNumber.setVoiceRate(voiceRateInGBP);
-                            if (numberType.equalsIgnoreCase("fixed")
-                                    || numberType.equalsIgnoreCase("local")) {
-                                numberType = "Landline";
-                            }
-                            plivioNumber.setType(numberType.toLowerCase());
-                            numberSearchList.add(plivioNumber);
-                        }
-                    }
-                }
-                if (numberResponseFromPlivo.getMeta() != null
-                        && numberResponseFromPlivo.getMeta().getNext() != null
-                        && !numberResponseFromPlivo.getMeta().getNext()
-                                .equals("")) {
-                    if (numberSearchList.size() < API_CALL_THRESHOLD) {
-                        Meta meta = numberResponse.getMeta() == null
-                                ? new Meta() : numberResponse.getMeta();
-                        String previousPlivoIndex = meta.getNextPlivoIndex();
-                        previousPlivoIndex = "" + offset;
-                        String nextPlivoIndex = null;
-                        nextPlivoIndex = "" + (numberResponseFromPlivo.getMeta()
-                                .getOffset()
-                                + numberResponseFromPlivo.getMeta().getLimit());
-                        meta.setPreviousPlivoIndex(previousPlivoIndex);
-                        meta.setNextPlivoIndex(nextPlivoIndex);
-                        offset = numberResponseFromPlivo.getMeta().getOffset()
-                                + numberResponseFromPlivo.getMeta().getLimit();
-                        numberResponse.setMeta(meta);
-                    } else {
-                        recursive = false;
-                    }
-                }
-            } else {
-                recursive = false;
-            }
-            counter++;
-            if (API_CALL_THRESHOLD <= counter) {
-                recursive = false;
-            }
-        }
-    }
-
-    @Override
-    public void setServiceType(Number number) {
-        if (number.isSmsEnabled() && number.isVoiceEnabled()) {
-            number.setServiceType(ServiceConstants.BOTH.name());
-        } else if (number.isSmsEnabled()) {
-            number.setServiceType(ServiceConstants.SMS.name());
-        } else {
-            number.setServiceType(ServiceConstants.VOICE.name());
-        }
     }
 
     @Override
@@ -243,69 +131,17 @@ public class PlivoFactoryImpl implements NumberSearch, CountrySearch,
             Map<String, Map<String, String>> providerCapabilities)
                     throws FileNotFoundException, JsonParseException,
                     JsonMappingException, IOException {
-        Map<String, String> plivoCapabilties = providerCapabilities.get(PLIVO);
-        Set<Country> countrySet = new TreeSet<Country>();
-        String line = "";
-        String splitBy = ",";
-        BufferedReader reader = null;
-        try {
-            InputStream in = getClass()
-                    .getResourceAsStream(PLIVO_CSV_FILE_PATH);
-            reader = new BufferedReader(new InputStreamReader(in, "UTF-8"));
-            int counter = 0;
-            while ((line = reader.readLine()) != null) {
-                String[] row = line.split(splitBy);
-                if (counter != 0 && row.length > 1) {
-                    Country country = new Country();
-                    country.setCountry(row[0]);
-                    country.setIsoCountry(row[2]);
-                    country.setCountryCode(row[1]);
-                    countrySet.add(country);
-                    String capabilities = row[4].replace(" ", "");
-                    if (plivoCapabilties.get(country.getCountry()) != null) {
-                        capabilities += (","
-                                + plivoCapabilties.get(country.getCountry()));
-                    }
-                    plivoCapabilties.put(country.getCountry(), capabilities);
-                }
-                counter++;
-            }
-        } catch (FileNotFoundException e) {
-            LOG.error(e);
-        } catch (IOException e) {
-            LOG.error(e);
-        } finally {
-            if (reader != null) {
-                try {
-                    reader.close();
-                } catch (IOException e2) {
-                    LOG.error(e2);
-                }
-            }
-        }
-        return countrySet;
+        return importCountryAop.importPlivoCountries(providerCapabilities);
     }
 
     public void releaseNumber(String number, Provider provider,
-            String countryIsoCode)
-                    throws ClientProtocolException, IOException, ImiException {
+            String countryIsoCode, Integer userid, Integer clientId,
+            Integer groupid, Integer teamid, String clientname,
+            String clientkey) throws ClientProtocolException, IOException {
         String plivoNumber = (number.trim().replace("+", ""));
         Number numberDetails = getNumberDetails(plivoNumber, provider);
-
-        if (numberDetails == null) {
-            throw new ImiException("Number requested for release " + number
-                    + " is not present in your " + provider.getName()
-                    + " account. ");
-        }
-        String plivioReleaseurl = PLIVO_RELEASE_URL;
-        plivioReleaseurl = plivioReleaseurl.replace("{number}", plivoNumber)
-                .replace("{auth_id}", provider.getAuthId());
-        GenericRestResponse response = ImiHttpUtil.defaultHttpDeleteHandler(
-                plivioReleaseurl, new HashMap<String, String>(),
-                ImiBasicAuthUtil.getBasicAuthHash(provider), null);
-        if (response.getResponseCode() != HttpStatus.NO_CONTENT.value()) {
-            throw new InvalidNumberException(number, provider.getName());
-        }
+        releaseAop.releasePlivoNumber(plivoNumber, provider, countryIsoCode,
+                numberDetails, clientkey);
     }
 
     public BalanceResponse checkBalance(Provider provider)
@@ -332,69 +168,6 @@ public class PlivoFactoryImpl implements NumberSearch, CountrySearch,
         return balanceResponse;
     }
 
-    @Override
-    public PurchaseResponse purchaseNumber(String number, String numberType,
-            Provider provider, com.imi.rest.dao.model.Country country,
-            ServiceConstants serviceTypeEnum)
-                    throws ClientProtocolException, IOException, ImiException {
-        String plivoNumber = (number.trim().replace("+", ""));
-        PurchaseResponse purchaseResponse = new PurchaseResponse();
-        String plivoPurchaseUrl = PLIVO_PURCHASE_URL
-                .replace("{auth_id}", provider.getAuthId())
-                .replace("{number}", plivoNumber);
-        GenericRestResponse response = ImiHttpUtil.defaultHttpPostHandler(
-                plivoPurchaseUrl, new HashMap<String, String>(),
-                ImiBasicAuthUtil.getBasicAuthHash(provider),
-                ContentType.APPLICATION_JSON.getMimeType());
-        PlivoPurchaseResponse plivoPurchaseResponse = ImiJsonUtil.deserialize(
-                response.getResponseBody() == null ? ""
-                        : response.getResponseBody(),
-                PlivoPurchaseResponse.class);
-        if (response.getResponseCode() == HttpStatus.CREATED.value()) {
-            if (plivoPurchaseResponse.getNumberStatus().get(0).getStatus()
-                    .equalsIgnoreCase("pending")) {
-                purchaseResponse.setAddressRequired(true);
-            } else {
-                purchaseResponse.setAddressRequired(false);
-            }
-            if (plivoPurchaseResponse.getStatus().equalsIgnoreCase("Success")) {
-                purchaseResponse.setStatus("Success");
-            }
-            Number numberDetails = getNumberDetails(plivoNumber, provider);
-            ResourceMaster resourceMaster = resourceService
-                    .updateResource(plivoNumber, serviceTypeEnum);
-            resourceService.updateResourceAllocation(resourceMaster);
-            resourceService.updateChannelAssetsAllocation(resourceMaster);
-            purchaseResponse.setNumber(plivoNumber);
-            purchaseResponse.setNumberType(numberType);
-            if (numberDetails != null) {
-                purchaseResponse.setMonthlyRentalRate(
-                        numberDetails.getMonthlyRentalRate());
-                purchaseResponse.setSetUpRate(numberDetails.getSetUpRate());
-                purchaseResponse.setSmsRate(numberDetails.getSmsRate());
-                purchaseResponse.setVoicePrice(numberDetails.getVoiceRate());
-            }
-            purchaseResponse
-                    .setEffectiveDate(ImiDataFormatUtils.getCurrentTimeStamp());
-            // need to verify the type of restriction. putting any as default
-            Purchase purchase = resourceService.updatePurchase(purchaseResponse,
-                    numberType,
-                    ImiDataFormatUtils.getAddressRestrictions(
-                            purchaseResponse.isAddressRequired(),
-                            purchaseResponse.isAddressRequired() ? "any"
-                                    : null),
-                    resourceMaster);
-            resourceService.updatePurchasehistory(purchase);
-        } else {
-            if (plivoPurchaseResponse.getError() != null) {
-                throw new ImiException("error occured for number provided."
-                        + plivoNumber + " Error :"
-                        + plivoPurchaseResponse.getError());
-            }
-        }
-        return purchaseResponse;
-    }
-
     private Number getNumberDetails(String number, Provider provider)
             throws ClientProtocolException, IOException {
         String plivoAccountNumberUrl = PLIVO_RELEASE_URL
@@ -412,8 +185,7 @@ public class PlivoFactoryImpl implements NumberSearch, CountrySearch,
     }
 
     public ApplicationResponse createApplication(
-            ApplicationResponse plivoApplication, Provider provider)
-                    throws ImiException {
+            ApplicationResponse plivoApplication, Provider provider) {
         String plivoCreateApplicationurl = PLIVO_APPLICATION_CREATE_URL;
         plivoCreateApplicationurl = plivoCreateApplicationurl
                 .replace("{auth_id}", provider.getAuthId());
@@ -425,8 +197,11 @@ public class PlivoFactoryImpl implements NumberSearch, CountrySearch,
                 requestBody.put("app_name", plivoApplication.getApp_name());
                 requestBody.put("answer_url", plivoApplication.getVoiceUrl());
             } else {
-                throw new ImiException(
-                        "app_name and answer_url field is compulsory to create a new application");
+                String message = "app_name and answer_url field is compulsory to create a new application";
+                LOG.error(message);
+                throw InboundRestException.createApiException(
+                        InboundApiErrorCodes.PLIVO_APPLICATION_CREATION_EXCEPTION,
+                        message);
             }
             if (plivoApplication.getVoiceMethod() != null) {
                 requestBody.put("answer_method",
@@ -473,17 +248,20 @@ public class PlivoFactoryImpl implements NumberSearch, CountrySearch,
                             : restResponse.getResponseBody(),
                     PlivoPurchaseResponse.class);
             if (restResponse.getResponseCode() == HttpStatus.CREATED.value()) {
-                if (plivoResponse.getMessage().equals("created")) {
-                    plivoApplication = getApplication(plivoResponse.getApp_id(),
-                            provider);
-                } else {
-                    throw new ImiException(plivoResponse.getMessage());
-                }
+                plivoApplication = getApplication(plivoResponse.getApp_id(),
+                        provider);
+            } else {
+                String message = "Exception occured while creating a Plivo application. response from Plivo is "
+                        + restResponse.getResponseBody();
+                LOG.error(message);
+                throw InboundRestException.createApiException(
+                        InboundApiErrorCodes.PLIVO_APPLICATION_CREATION_EXCEPTION,
+                        message);
             }
         } catch (ClientProtocolException e) {
-            e.printStackTrace();
+            LOG.error(ImiDataFormatUtils.getStackTrace(e));
         } catch (IOException e) {
-            e.printStackTrace();
+            LOG.error(ImiDataFormatUtils.getStackTrace(e));
         }
         ;
         return plivoApplicationResponse;
@@ -491,11 +269,14 @@ public class PlivoFactoryImpl implements NumberSearch, CountrySearch,
 
     public ApplicationResponse updateApplication(
             ApplicationResponse plivoApplication, Provider provider)
-                    throws ClientProtocolException, IOException, ImiException {
+                    throws ClientProtocolException, IOException {
         String plivoApplicationUpdateUrl = PLIVO_APPLICATION_UPDATE_URL;
         if (plivoApplication.getApp_id() == null) {
-            throw new ImiException(
-                    "app_id field must be present in sent parameters to update an application");
+            String message = "app_id field must be present in sent parameters to update an application";
+            LOG.error(message);
+            throw InboundRestException.createApiException(
+                    InboundApiErrorCodes.PLIVO_APPLICATION_UPDATE_EXCEPTION,
+                    message);
         }
         plivoApplicationUpdateUrl = plivoApplicationUpdateUrl
                 .replace("{auth_id}", provider.getAuthId())
@@ -553,18 +334,21 @@ public class PlivoFactoryImpl implements NumberSearch, CountrySearch,
                         : restResponse.getResponseBody(),
                 PlivoPurchaseResponse.class);
         if (restResponse.getResponseCode() == HttpStatus.ACCEPTED.value()) {
-            if (plivoResponse.getMessage().equals("changed")) {
-                plivoApplication = getApplication(
-                        currentPlivoApplication.getApp_id(), provider);
-            } else {
-                throw new ImiException(plivoResponse.getMessage());
-            }
+            plivoApplication = getApplication(
+                    currentPlivoApplication.getApp_id(), provider);
+        } else {
+            String message = "Exception while updating the application. Response from Plivo is "
+                    + restResponse.getResponseBody();
+            LOG.error(message);
+            throw InboundRestException.createApiException(
+                    InboundApiErrorCodes.PLIVO_APPLICATION_UPDATE_EXCEPTION,
+                    message);
         }
         return plivoApplication;
     }
 
     public ApplicationResponse getApplication(String appId, Provider provider)
-            throws ClientProtocolException, IOException, ImiException {
+            throws ClientProtocolException, IOException {
         String plivoApplicationUpdateUrl = PLIVO_APPLICATION_UPDATE_URL;
         plivoApplicationUpdateUrl = plivoApplicationUpdateUrl
                 .replace("{auth_id}", provider.getAuthId())
@@ -578,31 +362,48 @@ public class PlivoFactoryImpl implements NumberSearch, CountrySearch,
                     restResponse.getResponseBody() == null ? ""
                             : restResponse.getResponseBody(),
                     ApplicationResponse.class);
+        } else {
+            String message = "Exception while getting the application details. Response from Plivo is "
+                    + restResponse.getResponseBody();
+            LOG.error(message);
+            throw InboundRestException.createApiException(
+                    InboundApiErrorCodes.PLIVO_APPLICATION_DETAILS_EXCEPTION,
+                    message);
         }
         return plivoApplicationResponse;
     }
 
     public ApplicationResponse updateNumber(String number,
-            ApplicationResponse applicationResponsetoModify, Provider provider)
-                    throws ClientProtocolException, IOException, ImiException {
+            ApplicationResponse applicationResponsetoModify, Provider provider,
+            Integer userid, Integer clientId, Integer groupid, Integer teamid,
+            String clientname, String clientkey)
+                    throws ClientProtocolException, IOException {
+        if (test)
+            return new ApplicationResponse();
         String plivoNumberUpdateUrl = PLIVO_RELEASE_URL;
         String plivoNumber = (number.trim().replace("+", ""));
         plivoNumberUpdateUrl = plivoNumberUpdateUrl
                 .replace("{number}", plivoNumber)
                 .replace("{auth_id}", provider.getAuthId());
         PlivoPurchaseResponse plivioPurchaseResponse = new PlivoPurchaseResponse();
-        ApplicationResponse plivoApplicationResponse = getApplicationByNumber(
-                plivoNumber, provider);
-        if (plivoApplicationResponse != null) {
-            applicationResponsetoModify
-                    .setApi_id(plivoApplicationResponse.getApi_id());
-            applicationResponsetoModify
-                    .setApp_id(plivoApplicationResponse.getApp_id());
-            plivoApplicationResponse = updateApplication(
-                    applicationResponsetoModify, provider);
+        ApplicationResponse plivoApplicationResponse = new ApplicationResponse();
+        if (applicationResponsetoModify.getApp_id() == null) {
+            plivoApplicationResponse = getApplicationByNumber(plivoNumber,
+                    provider);
+            if (plivoApplicationResponse != null) {
+                applicationResponsetoModify
+                        .setApi_id(plivoApplicationResponse.getApi_id());
+                applicationResponsetoModify
+                        .setApp_id(plivoApplicationResponse.getApp_id());
+                plivoApplicationResponse = updateApplication(
+                        applicationResponsetoModify, provider);
+            } else {
+                plivoApplicationResponse = createApplication(
+                        applicationResponsetoModify, provider);
+            }
         } else {
-            plivoApplicationResponse = createApplication(
-                    applicationResponsetoModify, provider);
+            plivoApplicationResponse
+                    .setApp_id(applicationResponsetoModify.getApp_id());
         }
         Map<String, String> requestBody = new HashMap<>();
         requestBody.put("app_id", plivoApplicationResponse.getApp_id());
@@ -615,32 +416,43 @@ public class PlivoFactoryImpl implements NumberSearch, CountrySearch,
                     restResponse.getResponseBody() == null ? ""
                             : restResponse.getResponseBody(),
                     PlivoPurchaseResponse.class);
-            resourceService.provisionData(plivoApplicationResponse);
-            if (!plivioPurchaseResponse.getMessage().equals("changed")) {
-                String message = "application created successfully, but not assigned to the updated number";
-                ImiException e = new ImiException(message);
-                throw e;
-            }
+            plivoApplicationResponse.setVoiceUrl(applicationResponsetoModify.getApp_id());
+            plivoApplicationResponse.setSmsUrl(applicationResponsetoModify.getApp_id());
+            resourceService.provisionData(plivoNumber,
+                    plivoApplicationResponse);
+        } else {
+            String message = "Exception while updating the number " + number
+                    + " . Response from Plivo is "
+                    + restResponse.getResponseBody();
+            LOG.error(message);
+            throw InboundRestException.createApiException(
+                    InboundApiErrorCodes.NUMBER_PROVIDER_ASSOCIATION_EXCEPTION,
+                    message);
         }
         return plivoApplicationResponse;
     }
 
     public ApplicationResponse updateAllNumbers(
-            ApplicationResponse applicationResponsetoModify, Provider provider)
-                    throws ImiException, ClientProtocolException, IOException {
+            ApplicationResponse applicationResponsetoModify, Provider provider,
+            Integer userid, Integer clientId, Integer groupid, Integer teamid,
+            String clientname, String clientkey)
+                    throws ClientProtocolException, IOException {
         NumberResponse numberResponse = getAllRentedNumbers(provider);
         ApplicationResponse applicationResponse = new ApplicationResponse();
         if (numberResponse == null || numberResponse.getObjects().size() == 0) {
             String message = "No numbers rented to this Account to update.";
-            ImiException e = new ImiException(message);
-            throw e;
+            LOG.error(message);
+            throw InboundRestException.createApiException(
+                    InboundApiErrorCodes.NUMBER_PROVIDER_ASSOCIATION_EXCEPTION,
+                    message);
         } else {
             List<Number> rentedNumbersList = numberResponse.getObjects();
             List<String> errorNumber = new ArrayList<String>();
             for (Number numberObj : rentedNumbersList) {
                 try {
                     updateNumber(numberObj.getNumber(),
-                            applicationResponsetoModify, provider);
+                            applicationResponsetoModify, provider, userid,
+                            clientId, groupid, teamid, clientname, clientkey);
                 } catch (Exception e) {
                     errorNumber.add(numberObj.getNumber());
                 }
@@ -654,8 +466,7 @@ public class PlivoFactoryImpl implements NumberSearch, CountrySearch,
                 }
                 message = message.substring(0, message.length() - 1);
                 message.concat("}. ");
-                ImiException e = new ImiException(message);
-                throw e;
+                // throw new ImiException(message);
             } else {
                 applicationResponse = getApplicationByNumber(
                         rentedNumbersList.get(0).getNumber(), provider);
@@ -665,8 +476,7 @@ public class PlivoFactoryImpl implements NumberSearch, CountrySearch,
     }
 
     private ApplicationResponse getApplicationByNumber(String number,
-            Provider provider)
-                    throws ClientProtocolException, IOException, ImiException {
+            Provider provider) throws ClientProtocolException, IOException {
         String plivoNumberGetUrl = PLIVO_RELEASE_URL;
         plivoNumberGetUrl = plivoNumberGetUrl.replace("{number}", number)
                 .replace("{auth_id}", provider.getAuthId());
@@ -676,31 +486,65 @@ public class PlivoFactoryImpl implements NumberSearch, CountrySearch,
         if (response.getResponseCode() == HttpStatus.OK.value()) {
             Number numberObj = ImiJsonUtil
                     .deserialize(response.getResponseBody(), Number.class);
-            String app_id = numberObj.getApplication()
+            String appId = numberObj.getApplication()
                     .substring(
                             numberObj.getApplication()
                                     .lastIndexOf("Application/") + 12,
                             numberObj.getApplication().length() - 1)
                     .trim();
-            if (app_id.length() > 0) {
-                plivoApplicationResponse = getApplication(app_id, provider);
+            if (appId.length() > 0) {
+                plivoApplicationResponse = getApplication(appId, provider);
             }
+        }else
+        {
+            String message = "Number "+number +" is not available in your "+provider.getName() +" account";
+            LOG.error(message);
+            throw InboundRestException.createApiException(
+                    InboundApiErrorCodes.NUMBER_PROVIDER_ASSOCIATION_EXCEPTION,
+                    message);
         }
-
         return plivoApplicationResponse;
     }
 
     private NumberResponse getAllRentedNumbers(Provider provider)
             throws ClientProtocolException, IOException {
+        String offset = "0";
         String plivoNumberSGetUrl = PLIVO_ALL_NUMBERS_URL;
         NumberResponse numberResponse = new NumberResponse();
-        GenericRestResponse response = ImiHttpUtil.defaultHttpGetHandler(
-                plivoNumberSGetUrl,
-                ImiBasicAuthUtil.getBasicAuthHash(provider));
-        if (response.getResponseCode() == HttpStatus.OK.value()) {
-            numberResponse = ImiJsonUtil.deserialize(response.getResponseBody(),
-                    NumberResponse.class);
+        List<Number> purchasedNumberList = new ArrayList<Number>();
+        boolean rescursive = true;
+        while (rescursive) {
+            String url = plivoNumberSGetUrl.replace("{offset}", offset);
+            GenericRestResponse response = ImiHttpUtil.defaultHttpGetHandler(
+                    url, ImiBasicAuthUtil.getBasicAuthHash(provider));
+            NumberResponse numberResponse2 = null;
+            if (response.getResponseCode() == HttpStatus.OK.value()) {
+                numberResponse2 = ImiJsonUtil.deserialize(
+                        response.getResponseBody(), NumberResponse.class);
+            }
+            if (numberResponse2 == null || numberResponse2.getMeta() == null
+                    || numberResponse2.getMeta().getNext() == null) {
+                rescursive = false;
+            } else {
+                purchasedNumberList.addAll(numberResponse2.getObjects());
+                offset = numberResponse2.getMeta().getNext();
+            }
         }
+        numberResponse.setObjects(purchasedNumberList);
         return numberResponse;
+    }
+
+    @Override
+    public PurchaseResponse purchaseNumber(String number, String numberType,
+            Provider provider, com.imi.rest.dao.model.Country country,
+            ServiceConstants serviceTypeEnum, Integer userid, Integer clientId,
+            Integer groupid, Integer teamid, String clientname,
+            String clientkey, PurchaseRequest purchaseRequest, String teamuuid)
+                    throws ClientProtocolException, IOException {
+        String plivoNumber = (number.trim().replace("+", ""));
+        forexValue = forexService.getForexValueByName("USD_GBP").getValue();
+        return purchaseAop.purchasePlivoNumber(plivoNumber, numberType,
+                provider, country, serviceTypeEnum, userid, clientId, groupid,
+                teamid, clientname, clientkey, purchaseRequest, teamuuid);
     }
 }

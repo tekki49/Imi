@@ -1,7 +1,8 @@
 package com.imi.rest.service;
 
-import static org.mockito.Mockito.*;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
 
 import java.util.Date;
 
@@ -24,13 +25,11 @@ import com.imi.rest.dao.model.Provider;
 import com.imi.rest.dao.model.Providercountry;
 import com.imi.rest.dao.model.Provisioning;
 import com.imi.rest.dao.model.Purchase;
-import com.imi.rest.dao.model.Purchasehistory;
+import com.imi.rest.dao.model.PurchaseHistory;
 import com.imi.rest.dao.model.ResourceAllocation;
 import com.imi.rest.dao.model.ResourceMaster;
-import com.imi.rest.exception.ImiException;
 import com.imi.rest.model.ApplicationResponse;
 import com.imi.rest.model.PurchaseResponse;
-import com.imi.rest.util.ImiDataFormatUtils;
 
 public class ResourceServiceTest {
 
@@ -63,7 +62,7 @@ public class ResourceServiceTest {
 	@Mock
 	ProvisioningDao provisioningDao;
 	@Mock
-	Purchasehistory purchasehistory;
+	PurchaseHistory purchasehistory;
 	@Mock
 	PurchaseHistoryDao purchaseHistoryDao;
 	@Mock
@@ -127,7 +126,7 @@ public class ResourceServiceTest {
 			doNothing().when(channelAssetsAllocationDao).createNewChannelAssetsAllocation(channelAssetsAllocation);
 	}
 	@Test
-	public void updatePurchase() throws ImiException {
+	public void updatePurchase()  {
 			purchaseDao=Mockito.mock(PurchaseDao.class);
 			numberType="SMS";
 			restrictions="restrictions";
@@ -194,10 +193,10 @@ public class ResourceServiceTest {
 	public void getResourceMasterByNumber() {
 		resourceMasterDao=Mockito.mock(ResourceMasterDao.class);
 		resourceMaster=new ResourceMaster();
-		resourceMaster.setCost("1.00");
+		resourceMaster.setVoiceInboundPrice("1.00");
 		number="123456789";
 		doReturn(resourceMaster).when(resourceMasterDao).getResourceByNumber(number);
-		assertEquals("1.00", resourceMaster.getCost());
+		assertEquals("1.00", resourceMaster.getVoiceInboundPrice());
 	}
 	@Test
 	public void provisionData() {

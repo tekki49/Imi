@@ -9,7 +9,6 @@ import org.mockito.Mockito;
 
 import com.imi.rest.dao.ProviderDao;
 import com.imi.rest.dao.model.Provider;
-import com.imi.rest.exception.ImiException;
 
 public class ProviderServiceTest {
 
@@ -22,7 +21,7 @@ public class ProviderServiceTest {
     String providerName;
 
     @Test
-	public void getProviderById() throws ImiException {
+	public void getProviderById() {
     	provider=new Provider();
 		provider.setId(1);
 		Integer providerId=1;
@@ -31,7 +30,7 @@ public class ProviderServiceTest {
         assertEquals(Integer.valueOf(1),provider.getId());
     }
     @Test
-    public void getProviderByName() throws ImiException {
+    public void getProviderByName() {
     	provider=new Provider();
     	provider.setId(1);
 		dao=Mockito.mock(ProviderDao.class);

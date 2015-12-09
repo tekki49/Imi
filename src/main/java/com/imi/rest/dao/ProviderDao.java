@@ -12,8 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.imi.rest.dao.model.Provider;
-import com.imi.rest.exception.ImiException;
-import com.imi.rest.exception.InvalidProviderException;
 
 @Repository
 @Transactional
@@ -27,23 +25,26 @@ public class ProviderDao {
     }
 
     @SuppressWarnings("unchecked")
-    public Provider getProvider(int providerId) throws ImiException {
+    public Provider getProvider(int providerId) {
+        Provider provider = null;
         Criteria criteria = getSession().createCriteria(Provider.class);
         criteria.add(Restrictions.eq("id", providerId));
         List<Provider> providerList = criteria.list();
-        if (providerList == null || providerList.size() == 0) {
-            throw new InvalidProviderException(providerId);
+        if (providerList != null && providerList.size()> 0) {
+            provider = providerList.get(0);
         }
-        return providerList.get(0);
+        return provider;
     }
 
     @SuppressWarnings("unchecked")
-    public Provider getProviderByName(String providerName) throws ImiException {
+    public Provider getProviderByName(String providerName) {
+        Provider provider = null;
         Criteria criteria = getSession().createCriteria(Provider.class);
         criteria.add(Restrictions.eq("name", providerName));
         List<Provider> providerList = criteria.list();
-        if (providerList == null || providerList.size() == 0)
-            throw new InvalidProviderException(providerName);
-        return providerList.get(0);
+        if (providerList != null && providerList.size()>0) {
+            provider = providerList.get(0);
+        }
+        return provider;
     }
 }
