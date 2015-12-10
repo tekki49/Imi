@@ -57,7 +57,7 @@ public class Purchase implements java.io.Serializable {
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
-    @Column(name = "Id", unique = true, nullable = false)
+    @Column(name = "id", unique = true, nullable = false)
     public Integer getId() {
         return this.id;
     }
@@ -76,7 +76,7 @@ public class Purchase implements java.io.Serializable {
         this.numberProviderCountry = numberProviderCountry;
     }
 
-    @Column(name = "Number")
+    @Column(name = "number")
     public String getNumber() {
         return this.number;
     }
@@ -85,7 +85,7 @@ public class Purchase implements java.io.Serializable {
         this.number = number;
     }
 
-    @Column(name = "NumberType", length = 45)
+    @Column(name = "number_type", length = 45)
     public String getNumberType() {
         return this.numberType;
     }
@@ -94,7 +94,7 @@ public class Purchase implements java.io.Serializable {
         this.numberType = numberType;
     }
 
-    @Column(name = "Restrictions", length = 45)
+    @Column(name = "restrictions", length = 45)
     public String getRestrictions() {
         return this.restrictions;
     }
@@ -103,7 +103,7 @@ public class Purchase implements java.io.Serializable {
         this.restrictions = restrictions;
     }
 
-    @Column(name = "MonthlyRentalRate", length = 45)
+    @Column(name = "monthly_rental_rate", length = 45)
     public String getMonthlyRentalRate() {
         return this.monthlyRentalRate;
     }
@@ -112,7 +112,7 @@ public class Purchase implements java.io.Serializable {
         this.monthlyRentalRate = monthlyRentalRate;
     }
 
-    @Column(name = "SetUpRate", length = 45)
+    @Column(name = "set_up_rate", length = 45)
     public String getSetUpRate() {
         return this.setUpRate;
     }
@@ -121,7 +121,7 @@ public class Purchase implements java.io.Serializable {
         this.setUpRate = setUpRate;
     }
 
-    @Column(name = "SmsRate", length = 45)
+    @Column(name = "sms_rate", length = 45)
     public String getSmsRate() {
         return this.smsRate;
     }
@@ -130,7 +130,7 @@ public class Purchase implements java.io.Serializable {
         this.smsRate = smsRate;
     }
 
-    @Column(name = "VoicePrice", length = 45)
+    @Column(name = "voice_price", length = 45)
     public String getVoicePrice() {
         return this.voicePrice;
     }
@@ -139,7 +139,7 @@ public class Purchase implements java.io.Serializable {
         this.voicePrice = voicePrice;
     }
 
-    @Column(name = "EffectiveDate", length = 45)
+    @Column(name = "effective_date", length = 45)
     public String getEffectiveDate() {
         return this.effectiveDate;
     }
@@ -148,7 +148,7 @@ public class Purchase implements java.io.Serializable {
         this.effectiveDate = effectiveDate;
     }
 
-    @Column(name = "ResouceManagerId")
+    @Column(name = "resouce_manager_id")
     public Integer getResouceManagerId() {
         return this.resouceManagerId;
     }
@@ -157,7 +157,7 @@ public class Purchase implements java.io.Serializable {
         this.resouceManagerId = resouceManagerId;
     }
 
-    @Column(name = "numbersid", length = 25)
+    @Column(name = "number_sid", length = 25)
     public String getNumbersid() {
         return numbersid;
     }
@@ -166,7 +166,7 @@ public class Purchase implements java.io.Serializable {
         this.numbersid = numbersid;
     }
 
-    @Column(name = "subaccountsid", length = 25)
+    @Column(name = "subaccount_sid", length = 25)
     public String getSubaccountsid() {
         return subaccountsid;
     }
@@ -175,7 +175,7 @@ public class Purchase implements java.io.Serializable {
         this.subaccountsid = subaccountsid;
     }
 
-    @Column(name = "clientId", length = 25)
+    @Column(name = "client_id", length = 25)
     public String getClientId() {
         return clientId;
     }

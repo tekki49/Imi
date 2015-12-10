@@ -121,7 +121,7 @@ public class ResourceAllocation implements java.io.Serializable {
         this.rcId = rcId;
     }
 
-    @Column(name = "userkey", length = 512)
+    @Column(name = "user_key", length = 512)
     public String getUserkey() {
         return this.userkey;
     }

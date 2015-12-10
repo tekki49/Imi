@@ -49,7 +49,7 @@ public class Country implements java.io.Serializable {
         this.id = id;
     }
 
-    @Column(name = "CountryIso", length = 45)
+    @Column(name = "country_iso", length = 45)
     public String getCountryIso() {
         return this.countryIso;
     }
@@ -58,7 +58,7 @@ public class Country implements java.io.Serializable {
         this.countryIso = countryIso;
     }
 
-    @Column(name = "Country", length = 45)
+    @Column(name = "country", length = 45)
     public String getCountry() {
         return this.country;
     }
@@ -67,7 +67,7 @@ public class Country implements java.io.Serializable {
         this.country = country;
     }
 
-    @Column(name = "CountryCode", length = 45)
+    @Column(name = "country_code", length = 45)
     public String getCountryCode() {
         return this.countryCode;
     }

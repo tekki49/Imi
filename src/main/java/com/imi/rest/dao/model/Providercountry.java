@@ -45,7 +45,7 @@ public class Providercountry implements java.io.Serializable {
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
-    @Column(name = "Id", unique = true, nullable = false)
+    @Column(name = "id", unique = true, nullable = false)
     public Integer getId() {
         return this.id;
     }
@@ -55,7 +55,7 @@ public class Providercountry implements java.io.Serializable {
     }
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "providerId")
+    @JoinColumn(name = "provider_id")
     public Provider getNumberProvider() {
         return this.numberProvider;
     }
@@ -65,7 +65,7 @@ public class Providercountry implements java.io.Serializable {
     }
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "countryId")
+    @JoinColumn(name = "country_id")
     public Country getResourceCountry() {
         return this.resourceCountry;
     }

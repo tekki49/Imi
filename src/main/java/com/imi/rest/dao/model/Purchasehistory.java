@@ -57,7 +57,7 @@ public class PurchaseHistory implements java.io.Serializable {
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
-    @Column(name = "Id", unique = true, nullable = false)
+    @Column(name = "id", unique = true, nullable = false)
     public Integer getId() {
         return this.id;
     }
@@ -67,7 +67,7 @@ public class PurchaseHistory implements java.io.Serializable {
     }
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "CountryProviderId")
+    @JoinColumn(name = "country_provider_id")
     public Providercountry getNumberProviderCountry() {
         return this.numberProviderCountry;
     }
@@ -77,7 +77,7 @@ public class PurchaseHistory implements java.io.Serializable {
     }
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "provisioningId")
+    @JoinColumn(name = "provisioning_id")
     public Provisioning getNumberProvisioning() {
         return this.numberProvisioning;
     }
@@ -86,7 +86,7 @@ public class PurchaseHistory implements java.io.Serializable {
         this.numberProvisioning = numberProvisioning;
     }
 
-    @Column(name = "Number")
+    @Column(name = "number")
     public String getNumber() {
         return this.number;
     }
@@ -95,7 +95,7 @@ public class PurchaseHistory implements java.io.Serializable {
         this.number = number;
     }
 
-    @Column(name = "NumberType", length = 45)
+    @Column(name = "number_type", length = 45)
     public String getNumberType() {
         return this.numberType;
     }
@@ -104,7 +104,7 @@ public class PurchaseHistory implements java.io.Serializable {
         this.numberType = numberType;
     }
 
-    @Column(name = "Restrictions", length = 45)
+    @Column(name = "restrictions", length = 45)
     public String getRestrictions() {
         return this.restrictions;
     }
@@ -113,7 +113,7 @@ public class PurchaseHistory implements java.io.Serializable {
         this.restrictions = restrictions;
     }
 
-    @Column(name = "MonthlyRentalRate", length = 45)
+    @Column(name = "monthly_rental_rate", length = 45)
     public String getMonthlyRentalRate() {
         return this.monthlyRentalRate;
     }
@@ -122,7 +122,7 @@ public class PurchaseHistory implements java.io.Serializable {
         this.monthlyRentalRate = monthlyRentalRate;
     }
 
-    @Column(name = "SetUpRate", length = 45)
+    @Column(name = "set_up_rate", length = 45)
     public String getSetUpRate() {
         return this.setUpRate;
     }
@@ -131,7 +131,7 @@ public class PurchaseHistory implements java.io.Serializable {
         this.setUpRate = setUpRate;
     }
 
-    @Column(name = "SmsPrice", length = 45)
+    @Column(name = "sms_price", length = 45)
     public String getSmsPrice() {
         return this.smsPrice;
     }
@@ -140,7 +140,7 @@ public class PurchaseHistory implements java.io.Serializable {
         this.smsPrice = smsPrice;
     }
 
-    @Column(name = "VoicePrice", length = 45)
+    @Column(name = "voice_price", length = 45)
     public String getVoicePrice() {
         return this.voicePrice;
     }
@@ -149,7 +149,7 @@ public class PurchaseHistory implements java.io.Serializable {
         this.voicePrice = voicePrice;
     }
 
-    @Column(name = "StartDate", length = 45)
+    @Column(name = "start_date", length = 45)
     public String getStartDate() {
         return this.startDate;
     }
@@ -158,7 +158,7 @@ public class PurchaseHistory implements java.io.Serializable {
         this.startDate = startDate;
     }
 
-    @Column(name = "EndDate", length = 45)
+    @Column(name = "end_date", length = 45)
     public String getEndDate() {
         return this.endDate;
     }
@@ -167,7 +167,7 @@ public class PurchaseHistory implements java.io.Serializable {
         this.endDate = endDate;
     }
 
-    @Column(name = "ResourceManagerId")
+    @Column(name = "resource_manager_id")
     public Integer getResourceManagerId() {
         return this.resourceManagerId;
     }

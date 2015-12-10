@@ -61,7 +61,7 @@ public class Provisioning implements java.io.Serializable {
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
-    @Column(name = "Id", unique = true, nullable = false)
+    @Column(name = "id", unique = true, nullable = false)
     public Integer getId() {
         return this.id;
     }
@@ -70,7 +70,7 @@ public class Provisioning implements java.io.Serializable {
         this.id = id;
     }
 
-    @Column(name = "VoiceUrl")
+    @Column(name = "voice_url")
     public String getVoiceUrl() {
         return this.voiceUrl;
     }
@@ -79,7 +79,7 @@ public class Provisioning implements java.io.Serializable {
         this.voiceUrl = voiceUrl;
     }
 
-    @Column(name = "VoiceMethod")
+    @Column(name = "voice_method")
     public String getVoiceMethod() {
         return this.voiceMethod;
     }
@@ -88,7 +88,7 @@ public class Provisioning implements java.io.Serializable {
         this.voiceMethod = voiceMethod;
     }
 
-    @Column(name = "VoiceFallbackUrl")
+    @Column(name = "voice_fallback_url")
     public String getVoiceFallbackUrl() {
         return this.voiceFallbackUrl;
     }
@@ -97,7 +97,7 @@ public class Provisioning implements java.io.Serializable {
         this.voiceFallbackUrl = voiceFallbackUrl;
     }
 
-    @Column(name = "VoiceFallbackMethod")
+    @Column(name = "voice_fallback_method")
     public String getVoiceFallbackMethod() {
         return this.voiceFallbackMethod;
     }
@@ -106,7 +106,7 @@ public class Provisioning implements java.io.Serializable {
         this.voiceFallbackMethod = voiceFallbackMethod;
     }
 
-    @Column(name = "StatusCallBack")
+    @Column(name = "status_callback")
     public String getStatusCallBack() {
         return this.statusCallBack;
     }
@@ -115,7 +115,7 @@ public class Provisioning implements java.io.Serializable {
         this.statusCallBack = statusCallBack;
     }
 
-    @Column(name = "StatusCallbackMethod")
+    @Column(name = "status_callback_method")
     public String getStatusCallbackMethod() {
         return this.statusCallbackMethod;
     }
@@ -124,7 +124,7 @@ public class Provisioning implements java.io.Serializable {
         this.statusCallbackMethod = statusCallbackMethod;
     }
 
-    @Column(name = "SmsUrl")
+    @Column(name = "sms_url")
     public String getSmsUrl() {
         return this.smsUrl;
     }
@@ -133,7 +133,7 @@ public class Provisioning implements java.io.Serializable {
         this.smsUrl = smsUrl;
     }
 
-    @Column(name = "SmsMethod")
+    @Column(name = "sms_method")
     public String getSmsMethod() {
         return this.smsMethod;
     }
@@ -142,7 +142,7 @@ public class Provisioning implements java.io.Serializable {
         this.smsMethod = smsMethod;
     }
 
-    @Column(name = "SmsFallbackUrl")
+    @Column(name = "sms_fallback_url")
     public String getSmsFallbackUrl() {
         return this.smsFallbackUrl;
     }
@@ -151,7 +151,7 @@ public class Provisioning implements java.io.Serializable {
         this.smsFallbackUrl = smsFallbackUrl;
     }
 
-    @Column(name = "SmsFallbackMethod")
+    @Column(name = "sms_fallback_method")
     public String getSmsFallbackMethod() {
         return this.smsFallbackMethod;
     }
@@ -160,7 +160,7 @@ public class Provisioning implements java.io.Serializable {
         this.smsFallbackMethod = smsFallbackMethod;
     }
 
-    @Column(name = "SmsStatusCallback")
+    @Column(name = "sms_status_callback")
     public String getSmsStatusCallback() {
         return this.smsStatusCallback;
     }

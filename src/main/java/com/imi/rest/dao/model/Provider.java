@@ -41,7 +41,7 @@ public class Provider implements java.io.Serializable {
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
-    @Column(name = "Id", unique = true, nullable = false)
+    @Column(name = "id", unique = true, nullable = false)
     public Integer getId() {
         return this.id;
     }
@@ -50,7 +50,7 @@ public class Provider implements java.io.Serializable {
         this.id = id;
     }
 
-    @Column(name = "apiKey", length = 45)
+    @Column(name = "api_key", length = 45)
     public String getApiKey() {
         return this.apiKey;
     }
@@ -59,7 +59,7 @@ public class Provider implements java.io.Serializable {
         this.apiKey = apiKey;
     }
 
-    @Column(name = "authId", length = 45)
+    @Column(name = "auth_id", length = 45)
     public String getAuthId() {
         return this.authId;
     }
