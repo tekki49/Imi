@@ -114,7 +114,7 @@ public class NumberSearchAop implements UrlConstants, ProviderConstants,
             for (Number twilioNumber : twilioNumberList) {
                 if (twilioNumber != null) {
                     serviceTypeAop.setTwilioServiceType(twilioNumber);
-                    twilioNumber.setProvider(TWILIO);
+                    twilioNumber.setProvider(""+provider.getId());
                     twilioNumber.setType(numberType);
                     String voiceRateInGBP = ImiDataFormatUtils.forexConvert(
                             forexValue,
@@ -274,7 +274,7 @@ public class NumberSearchAop implements UrlConstants, ProviderConstants,
                                 nexmoNumber.setCountry(countryPricing
                                         .getCountry());
                             }
-                            nexmoNumber.setProvider(NEXMO);
+                            nexmoNumber.setProvider(""+provider.getId());
                             numberSearchList.add(nexmoNumber);
                         }
                     }
@@ -373,7 +373,7 @@ public class NumberSearchAop implements UrlConstants, ProviderConstants,
                                 isValidNumber = false;
                         }
                         if (isValidNumber) {
-                            plivioNumber.setProvider(PLIVO);
+                            plivioNumber.setProvider(""+provider.getId());
                             serviceTypeAop.setPlivoServiceType(plivioNumber);
                             String monthlyRentalRateInGBP = ImiDataFormatUtils
                                     .forexConvert(
