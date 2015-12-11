@@ -15,8 +15,7 @@ public interface UrlConstants {
     public static final String TWILIO_COUNTRY_LIST_URL = "https://pricing.twilio.com/v1/PhoneNumbers/Countries";
     public static final String TWILIO_ALL_NUMBER_PURCHASED_URL = "https://api.twilio.com/2010-04-01/Accounts/{auth_id}/IncomingPhoneNumbers.json";
     public static final String TWILIO_PURCHASE_URL = "https://api.twilio.com/2010-04-01/Accounts/{auth_id}/IncomingPhoneNumbers.json?PhoneNumber={number}";
-    public static final String TWILIO_PURCHASED_NUMBER_URL = "https://api.twilio.com/2010-04-01/Accounts/{auth_id}/IncomingPhoneNumbers.json?Page={PageNo}";
-    public static final String TWILIO_RELEASE_URL = "https://api.twilio.com/2010-04-01/Accounts/{auth_id}/IncomingPhoneNumbers/{IncomingPhoneNumberSid}.json";
+    public static final String TWILIO_PURCHASED_NUMBER_URL = "https://api.twilio.com/2010-04-01/Accounts/{auth_id}/IncomingPhoneNumbers.json?FriendlyName={FriendlyName}";    public static final String TWILIO_RELEASE_URL = "https://api.twilio.com/2010-04-01/Accounts/{auth_id}/IncomingPhoneNumbers/{IncomingPhoneNumberSid}.json";
     public static final String TWILIO_ACCOUNT_URL = "https://api.twilio.com/2010-04-01/Accounts.json?FriendlyName={friendlyName}";
     public static final String TWILIO_SUB_ACCOUNT_URL="https://api.twilio.com/2010-04-01/Accounts/{subaccountsid}.json";
     public static final String TWILIO_PRICING_URL = "https://pricing.twilio.com/v1/Voice/Countries/{Country}";
