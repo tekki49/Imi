@@ -7,49 +7,49 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Country implements Comparable<Country> {
 
-    private String country;
-    private String isoCountry;
-    private String countryCode;
+	private String country;
+	private String isoCountry;
+	private String countryCode;
 
-    public String getCountry() {
-        return country;
-    }
+	public String getCountry() {
+		return country;
+	}
 
-    public void setCountry(String country) {
-        this.country = country;
-    }
+	public void setCountry(String country) {
+		this.country = country;
+	}
 
-    @JsonProperty("iso_country")
-    public String getIsoCountry() {
-        return isoCountry;
-    }
+	@JsonProperty("iso_country")
+	public String getIsoCountry() {
+		return isoCountry;
+	}
 
-    @JsonProperty("iso_country")
-    public void setIsoCountry(String isoCountry) {
-        this.isoCountry = isoCountry;
-    }
+	@JsonProperty("iso_country")
+	public void setIsoCountry(String isoCountry) {
+		this.isoCountry = isoCountry;
+	}
 
-    @Override
-    public boolean equals(Object country) {
-        if (country instanceof Country) {
-            Country country1 = (Country) country;
-            return isoCountry.equalsIgnoreCase(country1.getIsoCountry());
-        }
-        return false;
-    }
+	@Override
+	public boolean equals(Object country) {
+		if (country instanceof Country) {
+			Country country1 = (Country) country;
+			return isoCountry.equalsIgnoreCase(country1.getIsoCountry());
+		}
+		return false;
+	}
 
-    @Override
-    public int compareTo(Country c) {
-        return this.getCountry().compareTo(c.getCountry());
-    }
+	@Override
+	public int compareTo(Country c) {
+		return this.getCountry().compareTo(c.getCountry());
+	}
 
-    @JsonIgnore
-    public String getCountryCode() {
-        return countryCode;
-    }
+	@JsonIgnore
+	public String getCountryCode() {
+		return countryCode;
+	}
 
-    public void setCountryCode(String countryCode) {
-        this.countryCode = countryCode;
-    }
+	public void setCountryCode(String countryCode) {
+		this.countryCode = countryCode;
+	}
 
 }

@@ -20,70 +20,68 @@ import javax.persistence.Table;
 @Table(name = "resource_country", schema = "ump_resource_mgr")
 public class Country implements java.io.Serializable {
 
-    private Integer id;
-    private String countryIso;
-    private String country;
-    private String countryCode;
-    private Set<Providercountry> numberProviderCountries = new HashSet<Providercountry>(
-            0);
+	private Integer id;
+	private String countryIso;
+	private String country;
+	private String countryCode;
+	private Set<Providercountry> numberProviderCountries = new HashSet<Providercountry>(0);
 
-    public Country() {
-    }
+	public Country() {
+	}
 
-    public Country(String countryIso, String country, String countryCode,
-            Set<Providercountry> numberProviderCountries) {
-        this.countryIso = countryIso;
-        this.country = country;
-        this.countryCode = countryCode;
-        this.numberProviderCountries = numberProviderCountries;
-    }
+	public Country(String countryIso, String country, String countryCode,
+			Set<Providercountry> numberProviderCountries) {
+		this.countryIso = countryIso;
+		this.country = country;
+		this.countryCode = countryCode;
+		this.numberProviderCountries = numberProviderCountries;
+	}
 
-    @Id
-    @GeneratedValue(strategy = IDENTITY)
-    @Column(name = "Id", unique = true, nullable = false)
-    public Integer getId() {
-        return this.id;
-    }
+	@Id
+	@GeneratedValue(strategy = IDENTITY)
+	@Column(name = "Id", unique = true, nullable = false)
+	public Integer getId() {
+		return this.id;
+	}
 
-    public void setId(Integer id) {
-        this.id = id;
-    }
+	public void setId(Integer id) {
+		this.id = id;
+	}
 
-    @Column(name = "country_iso", length = 45)
-    public String getCountryIso() {
-        return this.countryIso;
-    }
+	@Column(name = "country_iso", length = 45)
+	public String getCountryIso() {
+		return this.countryIso;
+	}
 
-    public void setCountryIso(String countryIso) {
-        this.countryIso = countryIso;
-    }
+	public void setCountryIso(String countryIso) {
+		this.countryIso = countryIso;
+	}
 
-    @Column(name = "country", length = 45)
-    public String getCountry() {
-        return this.country;
-    }
+	@Column(name = "country", length = 45)
+	public String getCountry() {
+		return this.country;
+	}
 
-    public void setCountry(String country) {
-        this.country = country;
-    }
+	public void setCountry(String country) {
+		this.country = country;
+	}
 
-    @Column(name = "country_code", length = 45)
-    public String getCountryCode() {
-        return this.countryCode;
-    }
+	@Column(name = "country_code", length = 45)
+	public String getCountryCode() {
+		return this.countryCode;
+	}
 
-    public void setCountryCode(String countryCode) {
-        this.countryCode = countryCode;
-    }
+	public void setCountryCode(String countryCode) {
+		this.countryCode = countryCode;
+	}
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "resourceCountry")
-    public Set<Providercountry> getNumberProviderCountries() {
-        return this.numberProviderCountries;
-    }
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "resourceCountry")
+	public Set<Providercountry> getNumberProviderCountries() {
+		return this.numberProviderCountries;
+	}
 
-    public void setNumberProviderCountries(
-            Set<Providercountry> numberProviderCountries) {
-        this.numberProviderCountries = numberProviderCountries;
-    }
+	public void setNumberProviderCountries(Set<Providercountry> numberProviderCountries) {
+		this.numberProviderCountries = numberProviderCountries;
+	}
 
 }

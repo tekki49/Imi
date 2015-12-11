@@ -12,30 +12,30 @@ import com.imi.rest.dao.model.Provider;
 
 public class ProviderServiceTest {
 
+	@Mock
+	private ProviderDao dao;
+	@Mock
+	Provider provider;
+	@Mock
+	String providerName;
 
-    @Mock
-    private ProviderDao dao;
-    @Mock
-    Provider provider;
-    @Mock
-    String providerName;
-
-    @Test
+	@Test
 	public void getProviderById() {
-    	provider=new Provider();
+		provider = new Provider();
 		provider.setId(1);
-		Integer providerId=1;
-		dao=Mockito.mock(ProviderDao.class);
-        doReturn(provider).when(dao).getProvider(providerId);
-        assertEquals(Integer.valueOf(1),provider.getId());
-    }
-    @Test
-    public void getProviderByName() {
-    	provider=new Provider();
-    	provider.setId(1);
-		dao=Mockito.mock(ProviderDao.class);
-        doReturn(provider).when(dao).getProviderByName("TWILIO");
-        assertEquals(Integer.valueOf(1),provider.getId());
-    }
-    
+		Integer providerId = 1;
+		dao = Mockito.mock(ProviderDao.class);
+		doReturn(provider).when(dao).getProvider(providerId);
+		assertEquals(Integer.valueOf(1), provider.getId());
+	}
+
+	@Test
+	public void getProviderByName() {
+		provider = new Provider();
+		provider.setId(1);
+		dao = Mockito.mock(ProviderDao.class);
+		doReturn(provider).when(dao).getProviderByName("TWILIO");
+		assertEquals(Integer.valueOf(1), provider.getId());
+	}
+
 }

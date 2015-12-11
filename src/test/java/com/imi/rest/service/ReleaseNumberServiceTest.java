@@ -30,19 +30,19 @@ public class ReleaseNumberServiceTest {
 
 	@Test
 	public void releaseNumberWhenProviderTwilio() throws ClientProtocolException, IOException {
-		 twilioFactoryImpl= Mockito.mock(TwilioFactoryImpl.class);
+		twilioFactoryImpl = Mockito.mock(TwilioFactoryImpl.class);
 		doThrow(new RuntimeException()).when(twilioFactoryImpl).releaseNumber(number, provider, countryIsoCode);
 	}
 
 	@Test
 	public void releaseNumberWhenProviderPlivo() throws ClientProtocolException, IOException {
-		plivioFactoryImpl= Mockito.mock(PlivoFactoryImpl.class);
+		plivioFactoryImpl = Mockito.mock(PlivoFactoryImpl.class);
 		doThrow(new RuntimeException()).when(plivioFactoryImpl).releaseNumber(number, provider, countryIsoCode);
 	}
 
 	@Test
 	public void releaseNumberWhenProviderNexmo() throws ClientProtocolException, IOException {
-		nexmoFactoryImpl= Mockito.mock(NexmoFactoryImpl.class);		
+		nexmoFactoryImpl = Mockito.mock(NexmoFactoryImpl.class);
 		doThrow(new RuntimeException()).when(nexmoFactoryImpl).releaseNumber(number, provider, countryIsoCode);
 	}
 

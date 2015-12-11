@@ -17,40 +17,40 @@ import com.imi.rest.dao.model.ResourceMaster;
 @Transactional
 public class ResourceMasterDao {
 
-    @Autowired
-    private SessionFactory sessionFactory;
+	@Autowired
+	private SessionFactory sessionFactory;
 
-    protected Session getSession() {
-        return sessionFactory.getCurrentSession();
-    }
+	protected Session getSession() {
+		return sessionFactory.getCurrentSession();
+	}
 
-    public void createNewResource(ResourceMaster resourceMaster) {
-        getSession().saveOrUpdate(resourceMaster);
-    }
+	public void createNewResource(ResourceMaster resourceMaster) {
+		getSession().saveOrUpdate(resourceMaster);
+	}
 
-    public ResourceMaster getResourceById(int id) {
-        Criteria criteria = getSession().createCriteria(ResourceMaster.class);
-        criteria.add(Restrictions.eq("resourceId", id));
-        List<ResourceMaster> resourceList = criteria.list();
-        if (resourceList != null && resourceList.size() > 0) {
-            return resourceList.get(0);
-        }
-        return null;
-    }
+	public ResourceMaster getResourceById(int id) {
+		Criteria criteria = getSession().createCriteria(ResourceMaster.class);
+		criteria.add(Restrictions.eq("resourceId", id));
+		List<ResourceMaster> resourceList = criteria.list();
+		if (resourceList != null && resourceList.size() > 0) {
+			return resourceList.get(0);
+		}
+		return null;
+	}
 
-    public ResourceMaster getResourceByNumber(String number, Integer providerId) {
-        Criteria criteria = getSession().createCriteria(ResourceMaster.class);
-        criteria.add(Restrictions.eq("serviceCode", number));
-        criteria.add(Restrictions.eq("providerId", providerId));
-        List<ResourceMaster> resourceList = criteria.list();
-        if (resourceList != null && resourceList.size() > 0) {
-            return resourceList.get(0);
-        }
-        return null;
-    }
+	public ResourceMaster getResourceByNumber(String number, Integer providerId) {
+		Criteria criteria = getSession().createCriteria(ResourceMaster.class);
+		criteria.add(Restrictions.eq("serviceCode", number));
+		criteria.add(Restrictions.eq("providerId", providerId));
+		List<ResourceMaster> resourceList = criteria.list();
+		if (resourceList != null && resourceList.size() > 0) {
+			return resourceList.get(0);
+		}
+		return null;
+	}
 
-    public void deleteResourceMaster(ResourceMaster resourceMaster) {
-        getSession().delete(resourceMaster);
-    }
+	public void deleteResourceMaster(ResourceMaster resourceMaster) {
+		getSession().delete(resourceMaster);
+	}
 
 }

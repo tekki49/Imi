@@ -9,10 +9,10 @@ import com.imi.rest.dao.model.Purchase;
 @Service
 public class PurchaseService {
 
-    @Autowired
-    PurchaseDao purchaseDao;
+	@Autowired
+	PurchaseDao purchaseDao;
 
-    public Purchase getPurchaseByNumber(String number) {
-        return purchaseDao.getPurchaseByNumber(number);
-    }
+	public Purchase getPurchaseByNumber(String number) {
+		return purchaseDao.getPurchaseByNumber(number);
+	}
 }

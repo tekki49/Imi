@@ -16,17 +16,15 @@ import com.imi.rest.service.CheckBalanceService;
 @RestController
 public class CheckBalanceController {
 
-    private static final Logger LOG = Logger
-            .getLogger(CheckBalanceController.class);
+	private static final Logger LOG = Logger.getLogger(CheckBalanceController.class);
 
-    @Autowired
-    CheckBalanceService checkBalanceService;
+	@Autowired
+	CheckBalanceService checkBalanceService;
 
-    @RequestMapping(value = "/check/balance", method = RequestMethod.GET)
-    public BalanceResponse getAccountBalance(
-            @RequestHeader("provider") String providerName)
-            throws ClientProtocolException, IOException {
-        LOG.info("Inside check balance controller");
-        return checkBalanceService.checkBalance(providerName);
-    }
+	@RequestMapping(value = "/check/balance", method = RequestMethod.GET)
+	public BalanceResponse getAccountBalance(@RequestHeader("provider") String providerName)
+			throws ClientProtocolException, IOException {
+		LOG.info("Inside check balance controller");
+		return checkBalanceService.checkBalance(providerName);
+	}
 }

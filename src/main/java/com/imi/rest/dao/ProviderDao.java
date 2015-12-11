@@ -17,34 +17,34 @@ import com.imi.rest.dao.model.Provider;
 @Transactional
 public class ProviderDao {
 
-    @Autowired
-    private SessionFactory sessionFactory;
+	@Autowired
+	private SessionFactory sessionFactory;
 
-    protected Session getSession() {
-        return sessionFactory.getCurrentSession();
-    }
+	protected Session getSession() {
+		return sessionFactory.getCurrentSession();
+	}
 
-    @SuppressWarnings("unchecked")
-    public Provider getProvider(int providerId) {
-        Provider provider = null;
-        Criteria criteria = getSession().createCriteria(Provider.class);
-        criteria.add(Restrictions.eq("id", providerId));
-        List<Provider> providerList = criteria.list();
-        if (providerList != null && providerList.size()> 0) {
-            provider = providerList.get(0);
-        }
-        return provider;
-    }
+	@SuppressWarnings("unchecked")
+	public Provider getProvider(int providerId) {
+		Provider provider = null;
+		Criteria criteria = getSession().createCriteria(Provider.class);
+		criteria.add(Restrictions.eq("id", providerId));
+		List<Provider> providerList = criteria.list();
+		if (providerList != null && providerList.size() > 0) {
+			provider = providerList.get(0);
+		}
+		return provider;
+	}
 
-    @SuppressWarnings("unchecked")
-    public Provider getProviderByName(String providerName) {
-        Provider provider = null;
-        Criteria criteria = getSession().createCriteria(Provider.class);
-        criteria.add(Restrictions.eq("name", providerName));
-        List<Provider> providerList = criteria.list();
-        if (providerList != null && providerList.size()>0) {
-            provider = providerList.get(0);
-        }
-        return provider;
-    }
+	@SuppressWarnings("unchecked")
+	public Provider getProviderByName(String providerName) {
+		Provider provider = null;
+		Criteria criteria = getSession().createCriteria(Provider.class);
+		criteria.add(Restrictions.eq("name", providerName));
+		List<Provider> providerList = criteria.list();
+		if (providerList != null && providerList.size() > 0) {
+			provider = providerList.get(0);
+		}
+		return provider;
+	}
 }

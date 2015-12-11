@@ -8,8 +8,8 @@ import com.imi.rest.dao.model.Provider;
 
 public interface ReleaseNumber {
 
-    void releaseNumber(String number, Provider provider);
+	void releaseNumber(String number, Provider provider);
 
-    void releaseNumber(String number, Provider provider, String countryIsoCode)
-            throws ClientProtocolException, IOException;
+	void releaseNumber(String number, Provider provider, String countryIsoCode)
+			throws ClientProtocolException, IOException;
 }

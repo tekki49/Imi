@@ -17,25 +17,25 @@ import com.imi.rest.dao.model.Provisioning;
 @Transactional
 public class ProvisioningDao {
 
-    @Autowired()
-    private SessionFactory sessionFactory;
+	@Autowired()
+	private SessionFactory sessionFactory;
 
-    protected Session getSession() {
-        return sessionFactory.getCurrentSession();
-    }
+	protected Session getSession() {
+		return sessionFactory.getCurrentSession();
+	}
 
-    public void updateProvisioning(Provisioning provisioning) {
-        getSession().saveOrUpdate(provisioning);
-    }
+	public void updateProvisioning(Provisioning provisioning) {
+		getSession().saveOrUpdate(provisioning);
+	}
 
-    public Provisioning getProvisioning(String provisioningId) {
-        Provisioning provisioning = null;
-        Criteria criteria = getSession().createCriteria(Provisioning.class);
-        criteria.add(Restrictions.eq("Id", provisioningId));
-        List<Provisioning> provisioningList = criteria.list();
-        if (provisioningList != null && provisioningList.size() > 0) {
-            provisioning = provisioningList.get(0);
-        }
-        return provisioning;
-    }
+	public Provisioning getProvisioning(String provisioningId) {
+		Provisioning provisioning = null;
+		Criteria criteria = getSession().createCriteria(Provisioning.class);
+		criteria.add(Restrictions.eq("Id", provisioningId));
+		List<Provisioning> provisioningList = criteria.list();
+		if (provisioningList != null && provisioningList.size() > 0) {
+			provisioning = provisioningList.get(0);
+		}
+		return provisioning;
+	}
 }

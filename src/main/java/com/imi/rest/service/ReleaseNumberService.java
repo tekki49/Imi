@@ -17,30 +17,29 @@ import com.imi.rest.exception.InboundRestException;
 @Service
 public class ReleaseNumberService implements ProviderConstants {
 
-    @Autowired
-    TwilioFactoryImpl twilioFactoryImpl;
-    @Autowired
-    PlivoFactoryImpl plivioFactoryImpl;
-    @Autowired
-    NexmoFactoryImpl nexmoFactoryImpl;
+	@Autowired
+	TwilioFactoryImpl twilioFactoryImpl;
+	@Autowired
+	PlivoFactoryImpl plivioFactoryImpl;
+	@Autowired
+	NexmoFactoryImpl nexmoFactoryImpl;
 
-    public void releaseNumber(String number, Provider provider,
-            String countryIsoCode, Integer userid, Integer clientId,
-            Integer groupid, Integer teamid, String clientname, String clientkey)
-            throws ClientProtocolException, IOException {
-        if (provider.getName().equalsIgnoreCase(TWILIO)) {
-            twilioFactoryImpl.releaseNumber(number, provider, countryIsoCode,
-                    userid, clientId, groupid, teamid, clientname, clientkey);
-        } else if (provider.getName().equalsIgnoreCase(PLIVO)) {
-            plivioFactoryImpl.releaseNumber(number, provider, countryIsoCode,
-                    userid, clientId, groupid, teamid, clientname, clientkey);
-        } else if (provider.getName().equalsIgnoreCase(NEXMO)) {
-            nexmoFactoryImpl.releaseNumber(number, provider, countryIsoCode,
-                    userid, clientId, groupid, teamid, clientname, clientkey);
-        } else {
-            String message="Provider "+provider.getName() +" is invalid";
-            throw InboundRestException.createApiException(InboundApiErrorCodes.INVALID_PROVIDER_EXCEPTION, message);
-        }
-    }
+	public void releaseNumber(String number, Provider provider, String countryIsoCode, Integer userid, Integer clientId,
+			Integer groupid, Integer teamid, String clientname, String clientkey)
+					throws ClientProtocolException, IOException {
+		if (provider.getName().equalsIgnoreCase(TWILIO)) {
+			twilioFactoryImpl.releaseNumber(number, provider, countryIsoCode, userid, clientId, groupid, teamid,
+					clientname, clientkey);
+		} else if (provider.getName().equalsIgnoreCase(PLIVO)) {
+			plivioFactoryImpl.releaseNumber(number, provider, countryIsoCode, userid, clientId, groupid, teamid,
+					clientname, clientkey);
+		} else if (provider.getName().equalsIgnoreCase(NEXMO)) {
+			nexmoFactoryImpl.releaseNumber(number, provider, countryIsoCode, userid, clientId, groupid, teamid,
+					clientname, clientkey);
+		} else {
+			String message = "Provider " + provider.getName() + " is invalid";
+			throw InboundRestException.createApiException(InboundApiErrorCodes.INVALID_PROVIDER_EXCEPTION, message);
+		}
+	}
 
 }

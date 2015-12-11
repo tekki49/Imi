@@ -19,188 +19,186 @@ import javax.persistence.TemporalType;
 @Table(name = "channel_assets_allocation", schema = "ump_identity_mgr")
 public class ChannelAssetsAllocation implements java.io.Serializable {
 
-    private Long id;
-    private long assetId;
-    private Long keywordId;
-    private long clientId;
-    private Long groupId;
-    private Long teamId;
-    private Long userId;
-    private Integer channelId;
-    private Integer assetType;
-    private Integer status;
-    private Long createdBy;
-    private byte isDefault;
-    private Byte shareType;
-    private Date createdOn;
-    private Date updatedOn;
+	private Long id;
+	private long assetId;
+	private Long keywordId;
+	private long clientId;
+	private Long groupId;
+	private Long teamId;
+	private Long userId;
+	private Integer channelId;
+	private Integer assetType;
+	private Integer status;
+	private Long createdBy;
+	private byte isDefault;
+	private Byte shareType;
+	private Date createdOn;
+	private Date updatedOn;
 
-    public ChannelAssetsAllocation() {
-    }
+	public ChannelAssetsAllocation() {
+	}
 
-    public ChannelAssetsAllocation(long assetId, long clientId, byte isDefault,
-            Date createdOn) {
-        this.assetId = assetId;
-        this.clientId = clientId;
-        this.isDefault = isDefault;
-        this.createdOn = createdOn;
-    }
+	public ChannelAssetsAllocation(long assetId, long clientId, byte isDefault, Date createdOn) {
+		this.assetId = assetId;
+		this.clientId = clientId;
+		this.isDefault = isDefault;
+		this.createdOn = createdOn;
+	}
 
-    public ChannelAssetsAllocation(long assetId, Long keywordId, long clientId,
-            Long groupId, Long teamId, Long userId, Integer channelId,
-            Integer assetType, Integer status, Long createdBy, byte isDefault,
-            Byte shareType, Date createdOn, Date updatedOn) {
-        this.assetId = assetId;
-        this.keywordId = keywordId;
-        this.clientId = clientId;
-        this.groupId = groupId;
-        this.teamId = teamId;
-        this.userId = userId;
-        this.channelId = channelId;
-        this.assetType = assetType;
-        this.status = status;
-        this.createdBy = createdBy;
-        this.isDefault = isDefault;
-        this.shareType = shareType;
-        this.createdOn = createdOn;
-        this.updatedOn = updatedOn;
-    }
+	public ChannelAssetsAllocation(long assetId, Long keywordId, long clientId, Long groupId, Long teamId, Long userId,
+			Integer channelId, Integer assetType, Integer status, Long createdBy, byte isDefault, Byte shareType,
+			Date createdOn, Date updatedOn) {
+		this.assetId = assetId;
+		this.keywordId = keywordId;
+		this.clientId = clientId;
+		this.groupId = groupId;
+		this.teamId = teamId;
+		this.userId = userId;
+		this.channelId = channelId;
+		this.assetType = assetType;
+		this.status = status;
+		this.createdBy = createdBy;
+		this.isDefault = isDefault;
+		this.shareType = shareType;
+		this.createdOn = createdOn;
+		this.updatedOn = updatedOn;
+	}
 
-    @Id
-    @GeneratedValue(strategy = IDENTITY)
-    @Column(name = "id", unique = true, nullable = false)
-    public Long getId() {
-        return this.id;
-    }
+	@Id
+	@GeneratedValue(strategy = IDENTITY)
+	@Column(name = "id", unique = true, nullable = false)
+	public Long getId() {
+		return this.id;
+	}
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+	public void setId(Long id) {
+		this.id = id;
+	}
 
-    @Column(name = "asset_id", nullable = false)
-    public long getAssetId() {
-        return this.assetId;
-    }
+	@Column(name = "asset_id", nullable = false)
+	public long getAssetId() {
+		return this.assetId;
+	}
 
-    public void setAssetId(long assetId) {
-        this.assetId = assetId;
-    }
+	public void setAssetId(long assetId) {
+		this.assetId = assetId;
+	}
 
-    @Column(name = "keyword_id")
-    public Long getKeywordId() {
-        return this.keywordId;
-    }
+	@Column(name = "keyword_id")
+	public Long getKeywordId() {
+		return this.keywordId;
+	}
 
-    public void setKeywordId(Long keywordId) {
-        this.keywordId = keywordId;
-    }
+	public void setKeywordId(Long keywordId) {
+		this.keywordId = keywordId;
+	}
 
-    @Column(name = "client_id", nullable = false)
-    public long getClientId() {
-        return this.clientId;
-    }
+	@Column(name = "client_id", nullable = false)
+	public long getClientId() {
+		return this.clientId;
+	}
 
-    public void setClientId(long clientId) {
-        this.clientId = clientId;
-    }
+	public void setClientId(long clientId) {
+		this.clientId = clientId;
+	}
 
-    @Column(name = "group_id")
-    public Long getGroupId() {
-        return this.groupId;
-    }
+	@Column(name = "group_id")
+	public Long getGroupId() {
+		return this.groupId;
+	}
 
-    public void setGroupId(Long groupId) {
-        this.groupId = groupId;
-    }
+	public void setGroupId(Long groupId) {
+		this.groupId = groupId;
+	}
 
-    @Column(name = "team_id")
-    public Long getTeamId() {
-        return this.teamId;
-    }
+	@Column(name = "team_id")
+	public Long getTeamId() {
+		return this.teamId;
+	}
 
-    public void setTeamId(Long teamId) {
-        this.teamId = teamId;
-    }
+	public void setTeamId(Long teamId) {
+		this.teamId = teamId;
+	}
 
-    @Column(name = "user_id")
-    public Long getUserId() {
-        return this.userId;
-    }
+	@Column(name = "user_id")
+	public Long getUserId() {
+		return this.userId;
+	}
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
+	public void setUserId(Long userId) {
+		this.userId = userId;
+	}
 
-    @Column(name = "channel_id")
-    public Integer getChannelId() {
-        return this.channelId;
-    }
+	@Column(name = "channel_id")
+	public Integer getChannelId() {
+		return this.channelId;
+	}
 
-    public void setChannelId(Integer channelId) {
-        this.channelId = channelId;
-    }
+	public void setChannelId(Integer channelId) {
+		this.channelId = channelId;
+	}
 
-    @Column(name = "asset_type")
-    public Integer getAssetType() {
-        return this.assetType;
-    }
+	@Column(name = "asset_type")
+	public Integer getAssetType() {
+		return this.assetType;
+	}
 
-    public void setAssetType(Integer assetType) {
-        this.assetType = assetType;
-    }
+	public void setAssetType(Integer assetType) {
+		this.assetType = assetType;
+	}
 
-    @Column(name = "status")
-    public Integer getStatus() {
-        return this.status;
-    }
+	@Column(name = "status")
+	public Integer getStatus() {
+		return this.status;
+	}
 
-    public void setStatus(Integer status) {
-        this.status = status;
-    }
+	public void setStatus(Integer status) {
+		this.status = status;
+	}
 
-    @Column(name = "created_by")
-    public Long getCreatedBy() {
-        return this.createdBy;
-    }
+	@Column(name = "created_by")
+	public Long getCreatedBy() {
+		return this.createdBy;
+	}
 
-    public void setCreatedBy(Long createdBy) {
-        this.createdBy = createdBy;
-    }
+	public void setCreatedBy(Long createdBy) {
+		this.createdBy = createdBy;
+	}
 
-    @Column(name = "is_default", nullable = false)
-    public byte getIsDefault() {
-        return this.isDefault;
-    }
+	@Column(name = "is_default", nullable = false)
+	public byte getIsDefault() {
+		return this.isDefault;
+	}
 
-    public void setIsDefault(byte isDefault) {
-        this.isDefault = isDefault;
-    }
+	public void setIsDefault(byte isDefault) {
+		this.isDefault = isDefault;
+	}
 
-    @Column(name = "share_type")
-    public Byte getShareType() {
-        return this.shareType;
-    }
+	@Column(name = "share_type")
+	public Byte getShareType() {
+		return this.shareType;
+	}
 
-    public void setShareType(Byte shareType) {
-        this.shareType = shareType;
-    }
+	public void setShareType(Byte shareType) {
+		this.shareType = shareType;
+	}
 
-    @Column(name = "created_on", nullable = false, length = 19)
-    public Date getCreatedOn() {
-        return this.createdOn;
-    }
+	@Column(name = "created_on", nullable = false, length = 19)
+	public Date getCreatedOn() {
+		return this.createdOn;
+	}
 
-    public void setCreatedOn(Date createdOn) {
-        this.createdOn = createdOn;
-    }
+	public void setCreatedOn(Date createdOn) {
+		this.createdOn = createdOn;
+	}
 
-    @Column(name = "updated_on", length = 19)
-    public Date getUpdatedOn() {
-        return this.updatedOn;
-    }
+	@Column(name = "updated_on", length = 19)
+	public Date getUpdatedOn() {
+		return this.updatedOn;
+	}
 
-    public void setUpdatedOn(Date updatedOn) {
-        this.updatedOn = updatedOn;
-    }
+	public void setUpdatedOn(Date updatedOn) {
+		this.updatedOn = updatedOn;
+	}
 
 }

@@ -21,7 +21,7 @@ import com.imi.rest.dao.model.Providercountry;
 import com.imi.rest.model.BalanceResponse;
 
 public class CheckBalanceServiceTest {
-	
+
 	@Mock
 	Providercountry providerCountry;
 	@Mock
@@ -42,14 +42,14 @@ public class CheckBalanceServiceTest {
 	@Test
 	public void checkBalanceProviderPlivo() throws ClientProtocolException, IOException {
 		providerCountries = new HashSet<Providercountry>(0);
-		providerCountry=new Providercountry();
-		providerService=Mockito.mock(ProviderService.class);
-		plivoFactoryImpl =Mockito.mock(PlivoFactoryImpl.class);
-		providerDao=new ProviderDao();
-		Country country= new Country();
+		providerCountry = new Providercountry();
+		providerService = Mockito.mock(ProviderService.class);
+		plivoFactoryImpl = Mockito.mock(PlivoFactoryImpl.class);
+		providerDao = new ProviderDao();
+		Country country = new Country();
 		country.setCountry("United States");
 		providerService.setDao(providerDao);
-		provider = new Provider( "apiKey","authId","PLIVO",providerCountries);
+		provider = new Provider("apiKey", "authId", "PLIVO", providerCountries);
 		providerCountry.setCountry(country);
 		providerCountry.setId(1);
 		providerCountry.setProvider(provider);
@@ -63,30 +63,30 @@ public class CheckBalanceServiceTest {
 	}
 
 	// Balance Check not required for TWILIO
-	
-/*	 * @Test public void checkBalanceProviderTwilio() throws
-	 * ClientProtocolException, IOException { Provider provider =
-	 * new Provider();provider.setName("TWILIO"); BalanceResponse
-	 * balanceResponse = new BalanceResponse();
-	 * balanceResponse.setAccountBalance("1000");
+
+	/*
+	 * * @Test public void checkBalanceProviderTwilio() throws
+	 * ClientProtocolException, IOException { Provider provider = new
+	 * Provider();provider.setName("TWILIO"); BalanceResponse balanceResponse =
+	 * new BalanceResponse(); balanceResponse.setAccountBalance("1000");
 	 * when(providerService.getPlivioProvider()).thenReturn(provider);
 	 * when(plivioFactoryImpl
 	 * .checkBalance(providerService.getPlivioProvider())).thenReturn(
 	 * balanceResponse); Assert.assertEquals("1000", twilioFactoryImpl
-	 * .checkBalance(providerService.getTwilioProvider())); }*/
-	 
+	 * .checkBalance(providerService.getTwilioProvider())); }
+	 */
 
 	@Test
 	public void checkBalanceProviderNexmo() throws ClientProtocolException, IOException {
 		providerCountries = new HashSet<Providercountry>(0);
-		providerCountry=new Providercountry();
-		providerService=Mockito.mock(ProviderService.class);
-		nexmoFactoryImpl =Mockito.mock(NexmoFactoryImpl.class);
-		providerDao=new ProviderDao();
-		Country country= new Country();
+		providerCountry = new Providercountry();
+		providerService = Mockito.mock(ProviderService.class);
+		nexmoFactoryImpl = Mockito.mock(NexmoFactoryImpl.class);
+		providerDao = new ProviderDao();
+		Country country = new Country();
 		country.setCountry("United States");
 		providerService.setDao(providerDao);
-		provider = new Provider( "apiKey","authId","NEXMO",providerCountries);
+		provider = new Provider("apiKey", "authId", "NEXMO", providerCountries);
 		providerCountry.setCountry(country);
 		providerCountry.setId(1);
 		providerCountry.setProvider(provider);

@@ -10,74 +10,74 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CountryResponse {
 
-    private Integer id;
-    private String countryIso;
-    private String countryCode;
-    private String country;
-    private MetaForCountries meta;
-    private Set<Country> countries = new TreeSet<Country>();
+	private Integer id;
+	private String countryIso;
+	private String countryCode;
+	private String country;
+	private MetaForCountries meta;
+	private Set<Country> countries = new TreeSet<Country>();
 
-    @JsonIgnore
-    public Integer getId() {
-        return id;
-    }
+	@JsonIgnore
+	public Integer getId() {
+		return id;
+	}
 
-    public void setId(Integer id) {
-        this.id = id;
-    }
+	public void setId(Integer id) {
+		this.id = id;
+	}
 
-    @JsonIgnore
-    public void setCountryIso(String countryIso) {
-        this.countryIso = countryIso;
-    }
+	@JsonIgnore
+	public void setCountryIso(String countryIso) {
+		this.countryIso = countryIso;
+	}
 
-    public String getCountryIso() {
-        return countryIso;
-    }
+	public String getCountryIso() {
+		return countryIso;
+	}
 
-    @JsonIgnore
-    public String getCountryCode() {
-        return countryCode;
-    }
+	@JsonIgnore
+	public String getCountryCode() {
+		return countryCode;
+	}
 
-    public void setCountryCode(String countryCode) {
-        this.countryCode = countryCode;
-    }
+	public void setCountryCode(String countryCode) {
+		this.countryCode = countryCode;
+	}
 
-    @JsonIgnore
-    public String getCountry() {
-        return country;
-    }
+	@JsonIgnore
+	public String getCountry() {
+		return country;
+	}
 
-    public void setCountry(String country) {
-        this.country = country;
-    }
+	public void setCountry(String country) {
+		this.country = country;
+	}
 
-    @JsonIgnore
-    public MetaForCountries getMeta() {
-        return meta;
-    }
+	@JsonIgnore
+	public MetaForCountries getMeta() {
+		return meta;
+	}
 
-    @JsonProperty("meta")
-    public void setMeta(MetaForCountries meta) {
-        this.meta = meta;
-    }
+	@JsonProperty("meta")
+	public void setMeta(MetaForCountries meta) {
+		this.meta = meta;
+	}
 
-    public Set<Country> getCountries() {
-        return countries;
-    }
+	public Set<Country> getCountries() {
+		return countries;
+	}
 
-    public void setCountries(Set<Country> countries) {
-        this.countries = countries;
-    }
+	public void setCountries(Set<Country> countries) {
+		this.countries = countries;
+	}
 
-    public void addCountries(Set<Country> countrySet) {
-        if (countrySet != null) {
-            this.countries.addAll(countrySet);
-        }
-    }
+	public void addCountries(Set<Country> countrySet) {
+		if (countrySet != null) {
+			this.countries.addAll(countrySet);
+		}
+	}
 
-    public CountryResponse() {
-    }
+	public CountryResponse() {
+	}
 
 }

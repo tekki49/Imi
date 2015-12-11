@@ -22,46 +22,40 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @PropertySource(value = { "classpath:application.properties" })
 public class HibernateConfiguration {
 
-    @Autowired
-    private Environment environment;
+	@Autowired
+	private Environment environment;
 
-    @Bean
-    public LocalSessionFactoryBean sessionFactory() {
-        LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
-        sessionFactory.setDataSource(dataSource());
-        sessionFactory.setPackagesToScan(new String[] { "com.imi.rest" });
-        sessionFactory.setHibernateProperties(hibernateProperties());
-        return sessionFactory;
-    }
+	@Bean
+	public LocalSessionFactoryBean sessionFactory() {
+		LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
+		sessionFactory.setDataSource(dataSource());
+		sessionFactory.setPackagesToScan(new String[] { "com.imi.rest" });
+		sessionFactory.setHibernateProperties(hibernateProperties());
+		return sessionFactory;
+	}
 
-    @Bean
-    public DataSource dataSource() {
-        DriverManagerDataSource dataSource = new DriverManagerDataSource();
-        dataSource.setDriverClassName(environment
-                .getRequiredProperty("spring.datasource.driverClassName"));
-        dataSource.setUrl(
-                environment.getRequiredProperty("spring.datasource.url"));
-        dataSource.setUsername(
-                environment.getRequiredProperty("spring.datasource.username"));
-        dataSource.setPassword(
-                environment.getRequiredProperty("spring.datasource.password"));
-        return dataSource;
-    }
+	@Bean
+	public DataSource dataSource() {
+		DriverManagerDataSource dataSource = new DriverManagerDataSource();
+		dataSource.setDriverClassName(environment.getRequiredProperty("spring.datasource.driverClassName"));
+		dataSource.setUrl(environment.getRequiredProperty("spring.datasource.url"));
+		dataSource.setUsername(environment.getRequiredProperty("spring.datasource.username"));
+		dataSource.setPassword(environment.getRequiredProperty("spring.datasource.password"));
+		return dataSource;
+	}
 
-    private Properties hibernateProperties() {
-        Properties properties = new Properties();
-        properties.put("hibernate.dialect",
-                environment.getRequiredProperty("hibernate.dialect"));
-        properties.put("hibernate.show_sql",
-                environment.getRequiredProperty("hibernate.show_sql"));
-        return properties;
-    }
+	private Properties hibernateProperties() {
+		Properties properties = new Properties();
+		properties.put("hibernate.dialect", environment.getRequiredProperty("hibernate.dialect"));
+		properties.put("hibernate.show_sql", environment.getRequiredProperty("hibernate.show_sql"));
+		return properties;
+	}
 
-    @Bean
-    @Autowired
-    public HibernateTransactionManager transactionManager(SessionFactory s) {
-        HibernateTransactionManager txManager = new HibernateTransactionManager();
-        txManager.setSessionFactory(s);
-        return txManager;
-    }
+	@Bean
+	@Autowired
+	public HibernateTransactionManager transactionManager(SessionFactory s) {
+		HibernateTransactionManager txManager = new HibernateTransactionManager();
+		txManager.setSessionFactory(s);
+		return txManager;
+	}
 }

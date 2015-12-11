@@ -4,24 +4,24 @@ import java.util.List;
 
 public class SipTrunkResponse {
 
-    private List<SipTrunk> trunks;
+	private List<SipTrunk> trunks;
 
-    private Meta meta;
+	private Meta meta;
 
-    public List<SipTrunk> getTrunks() {
-        return trunks;
-    }
+	public List<SipTrunk> getTrunks() {
+		return trunks;
+	}
 
-    public void setTrunks(List<SipTrunk> trunks) {
-        this.trunks = trunks;
-    }
+	public void setTrunks(List<SipTrunk> trunks) {
+		this.trunks = trunks;
+	}
 
-    public Meta getMeta() {
-        return meta;
-    }
+	public Meta getMeta() {
+		return meta;
+	}
 
-    public void setMeta(Meta meta) {
-        this.meta = meta;
-    }
+	public void setMeta(Meta meta) {
+		this.meta = meta;
+	}
 
 }

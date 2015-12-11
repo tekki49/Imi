@@ -14,15 +14,15 @@ import org.springframework.stereotype.Repository;
 @Transactional
 public class ImiDefaultQueryDao {
 
-    @Autowired
-    private SessionFactory sessionFactory;
+	@Autowired
+	private SessionFactory sessionFactory;
 
-    protected Session getSession() {
-        return sessionFactory.getCurrentSession();
-    }
+	protected Session getSession() {
+		return sessionFactory.getCurrentSession();
+	}
 
-    public List<Object> getNamedQueryResults(String namedQuery) {
-        SQLQuery query = getSession().createSQLQuery(namedQuery);
-        return query.list();
-    }
+	public List<Object> getNamedQueryResults(String namedQuery) {
+		SQLQuery query = getSession().createSQLQuery(namedQuery);
+		return query.list();
+	}
 }

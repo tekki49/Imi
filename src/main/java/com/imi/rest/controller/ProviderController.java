@@ -14,18 +14,16 @@ import com.imi.rest.service.ProviderService;
 @RestController
 public class ProviderController {
 
-    private static final Logger LOG = Logger
-            .getLogger(ProviderController.class);
+	private static final Logger LOG = Logger.getLogger(ProviderController.class);
 
-    @Autowired
-    ProviderService providerService;
+	@Autowired
+	ProviderService providerService;
 
-    @RequestMapping(value = "/provider", method = RequestMethod.GET)
-    public ProviderResponse providerResponse(
-            @RequestHeader("provider") int providerId) {
-        LOG.info("Inside ProviderController");
-        Provider provider = providerService.getProviderById(providerId);
-        ProviderResponse providerResponse = new ProviderResponse(provider);
-        return providerResponse;
-    }
+	@RequestMapping(value = "/provider", method = RequestMethod.GET)
+	public ProviderResponse providerResponse(@RequestHeader("provider") int providerId) {
+		LOG.info("Inside ProviderController");
+		Provider provider = providerService.getProviderById(providerId);
+		ProviderResponse providerResponse = new ProviderResponse(provider);
+		return providerResponse;
+	}
 }

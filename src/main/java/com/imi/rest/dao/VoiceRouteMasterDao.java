@@ -17,28 +17,27 @@ import com.imi.rest.dao.model.VoiceRouteMaster;
 @Transactional
 public class VoiceRouteMasterDao {
 
-    @Autowired
-    private SessionFactory sessionFactory;
+	@Autowired
+	private SessionFactory sessionFactory;
 
-    protected Session getSession() {
-        return sessionFactory.getCurrentSession();
-    }
+	protected Session getSession() {
+		return sessionFactory.getCurrentSession();
+	}
 
-    public void createNewVoiceRouteMaster(VoiceRouteMaster voiceRouteMaster) {
-        getSession().saveOrUpdate(voiceRouteMaster);
-    }
+	public void createNewVoiceRouteMaster(VoiceRouteMaster voiceRouteMaster) {
+		getSession().saveOrUpdate(voiceRouteMaster);
+	}
 
-    public VoiceRouteMaster getResourceById(int providerId, String countryCode,
-            String countryIso) {
-        Criteria criteria = getSession().createCriteria(VoiceRouteMaster.class);
-        criteria.add(Restrictions.eq("providerId", providerId));
-        criteria.add(Restrictions.eq("countryCode", countryCode));
-        criteria.add(Restrictions.eq("countryIso", countryIso));
-        List<VoiceRouteMaster> voiceRouteMasterList = criteria.list();
-        if (voiceRouteMasterList != null && voiceRouteMasterList.size() > 0) {
-            return voiceRouteMasterList.get(0);
-        }
-        return null;
-    }
+	public VoiceRouteMaster getResourceById(int providerId, String countryCode, String countryIso) {
+		Criteria criteria = getSession().createCriteria(VoiceRouteMaster.class);
+		criteria.add(Restrictions.eq("providerId", providerId));
+		criteria.add(Restrictions.eq("countryCode", countryCode));
+		criteria.add(Restrictions.eq("countryIso", countryIso));
+		List<VoiceRouteMaster> voiceRouteMasterList = criteria.list();
+		if (voiceRouteMasterList != null && voiceRouteMasterList.size() > 0) {
+			return voiceRouteMasterList.get(0);
+		}
+		return null;
+	}
 
 }

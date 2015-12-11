@@ -17,31 +17,29 @@ import com.imi.rest.dao.model.ResourceAllocation;
 @Transactional
 public class ResourceAllocationDao {
 
-    @Autowired
-    private SessionFactory sessionFactory;
+	@Autowired
+	private SessionFactory sessionFactory;
 
-    protected Session getSession() {
-        return sessionFactory.getCurrentSession();
-    }
+	protected Session getSession() {
+		return sessionFactory.getCurrentSession();
+	}
 
-    public void createNewResourceAllocation(
-            ResourceAllocation resourceAllocation) {
-        getSession().saveOrUpdate(resourceAllocation);
-    }
+	public void createNewResourceAllocation(ResourceAllocation resourceAllocation) {
+		getSession().saveOrUpdate(resourceAllocation);
+	}
 
-    public ResourceAllocation getResourceAllocationById(int id) {
-        Criteria criteria = getSession().createCriteria(
-                ResourceAllocation.class);
-        criteria.add(Restrictions.eq("resourceId", id));
-        List<ResourceAllocation> resourceList = criteria.list();
-        if (resourceList != null && resourceList.size() > 0) {
-            return resourceList.get(0);
-        }
-        return null;
-    }
+	public ResourceAllocation getResourceAllocationById(int id) {
+		Criteria criteria = getSession().createCriteria(ResourceAllocation.class);
+		criteria.add(Restrictions.eq("resourceId", id));
+		List<ResourceAllocation> resourceList = criteria.list();
+		if (resourceList != null && resourceList.size() > 0) {
+			return resourceList.get(0);
+		}
+		return null;
+	}
 
-    public void deleteResourceAllocation(ResourceAllocation resourceAllocation) {
-        getSession().delete(resourceAllocation);
-    }
+	public void deleteResourceAllocation(ResourceAllocation resourceAllocation) {
+		getSession().delete(resourceAllocation);
+	}
 
 }

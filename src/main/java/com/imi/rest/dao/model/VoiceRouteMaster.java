@@ -16,92 +16,91 @@ import javax.persistence.UniqueConstraint;
  */
 @Entity
 @Table(name = "voice_route_master", schema = "ump_resource_mgr", uniqueConstraints = @UniqueConstraint(columnNames = {
-        "site", "route", "provider_id", "country_code" }))
+		"site", "route", "provider_id", "country_code" }) )
 public class VoiceRouteMaster implements java.io.Serializable {
 
-    private Integer id;
-    private String site;
-    private String route;
-    private Integer providerId;
-    private String countryCode;
-    private String countryIso;
-    private String dvpCallbackUrl;
+	private Integer id;
+	private String site;
+	private String route;
+	private Integer providerId;
+	private String countryCode;
+	private String countryIso;
+	private String dvpCallbackUrl;
 
-    public VoiceRouteMaster() {
-    }
+	public VoiceRouteMaster() {
+	}
 
-    public VoiceRouteMaster(String site, String route, Integer providerId,
-            String countryCode, String dvpCallbackUrl) {
-        this.site = site;
-        this.route = route;
-        this.providerId = providerId;
-        this.countryCode = countryCode;
-        this.dvpCallbackUrl = dvpCallbackUrl;
-    }
+	public VoiceRouteMaster(String site, String route, Integer providerId, String countryCode, String dvpCallbackUrl) {
+		this.site = site;
+		this.route = route;
+		this.providerId = providerId;
+		this.countryCode = countryCode;
+		this.dvpCallbackUrl = dvpCallbackUrl;
+	}
 
-    @Id
-    @GeneratedValue(strategy = IDENTITY)
-    @Column(name = "id", unique = true, nullable = false)
-    public Integer getId() {
-        return this.id;
-    }
+	@Id
+	@GeneratedValue(strategy = IDENTITY)
+	@Column(name = "id", unique = true, nullable = false)
+	public Integer getId() {
+		return this.id;
+	}
 
-    public void setId(Integer id) {
-        this.id = id;
-    }
+	public void setId(Integer id) {
+		this.id = id;
+	}
 
-    @Column(name = "site", length = 50)
-    public String getSite() {
-        return this.site;
-    }
+	@Column(name = "site", length = 50)
+	public String getSite() {
+		return this.site;
+	}
 
-    public void setSite(String site) {
-        this.site = site;
-    }
+	public void setSite(String site) {
+		this.site = site;
+	}
 
-    @Column(name = "route", length = 50)
-    public String getRoute() {
-        return this.route;
-    }
+	@Column(name = "route", length = 50)
+	public String getRoute() {
+		return this.route;
+	}
 
-    public void setRoute(String route) {
-        this.route = route;
-    }
+	public void setRoute(String route) {
+		this.route = route;
+	}
 
-    @Column(name = "provider_id")
-    public Integer getProviderId() {
-        return this.providerId;
-    }
+	@Column(name = "provider_id")
+	public Integer getProviderId() {
+		return this.providerId;
+	}
 
-    public void setProviderId(Integer providerId) {
-        this.providerId = providerId;
-    }
+	public void setProviderId(Integer providerId) {
+		this.providerId = providerId;
+	}
 
-    @Column(name = "country_iso", length = 10)
-    public String getCountryIso() {
-        return this.countryIso;
-    }
+	@Column(name = "country_iso", length = 10)
+	public String getCountryIso() {
+		return this.countryIso;
+	}
 
-    public void setCountryIso(String countryIso) {
-        this.countryIso = countryIso;
-    }
+	public void setCountryIso(String countryIso) {
+		this.countryIso = countryIso;
+	}
 
-    @Column(name = "country_code", length = 10)
-    public String getCountryCode() {
-        return this.countryCode;
-    }
+	@Column(name = "country_code", length = 10)
+	public String getCountryCode() {
+		return this.countryCode;
+	}
 
-    public void setCountryCode(String countryCode) {
-        this.countryCode = countryCode;
-    }
+	public void setCountryCode(String countryCode) {
+		this.countryCode = countryCode;
+	}
 
-    @Column(name = "voice_callback_url", length = 65535)
-    public String getDvpCallbackUrl() {
-        return this.dvpCallbackUrl;
-    }
+	@Column(name = "voice_callback_url", length = 65535)
+	public String getDvpCallbackUrl() {
+		return this.dvpCallbackUrl;
+	}
 
-    public void setDvpCallbackUrl(String dvpCallbackUrl) {
-        this.dvpCallbackUrl = dvpCallbackUrl;
-    }
+	public void setDvpCallbackUrl(String dvpCallbackUrl) {
+		this.dvpCallbackUrl = dvpCallbackUrl;
+	}
 
 }

@@ -112,7 +112,7 @@ public class ProvisionServiceTest {
 	}
 
 	@Test
-	public void updateApplicationWhenProviderNotPlivo()throws ClientProtocolException, IOException {
+	public void updateApplicationWhenProviderNotPlivo() throws ClientProtocolException, IOException {
 		ApplicationResponse applicationResponse = new ApplicationResponse();
 		providerName = "NOT_PLIVO";
 		plivoFactoryImpl = Mockito.mock(PlivoFactoryImpl.class);

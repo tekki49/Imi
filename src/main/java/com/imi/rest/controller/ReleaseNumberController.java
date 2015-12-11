@@ -20,40 +20,34 @@ import com.imi.rest.util.ImiJsonUtil;
 @RestController
 public class ReleaseNumberController {
 
-    @Autowired
-    ReleaseNumberService releaseNumberService;
+	@Autowired
+	ReleaseNumberService releaseNumberService;
 
-    @Autowired
-    ProviderService providerService;
-    private static final Logger LOG = Logger
-            .getLogger(ReleaseNumberController.class);
+	@Autowired
+	ProviderService providerService;
+	private static final Logger LOG = Logger.getLogger(ReleaseNumberController.class);
 
-    @RequestMapping(value = "/release/{number}/{countryIsoCode}", method = RequestMethod.DELETE)
-    public String releaseNumber(
-            @PathVariable("number") String number,
-            @PathVariable("countryIsoCode") String countryIsoCode,
-            @RequestHeader("provider") String providerName,
-            @RequestHeader(value = "userid", defaultValue = "0") Integer userid,
-            @RequestHeader(value = "clientid", defaultValue = "0") Integer clientId,
-            @RequestHeader(value = "groupid", defaultValue = "0") Integer groupid,
-            @RequestHeader(value = "teamid", defaultValue = "0") Integer teamid,
-            @RequestHeader(value = "clientname", defaultValue = "0") String clientname,
-            @RequestHeader(value = "clientkey", defaultValue = "0") String clientkey,
-            @RequestHeader(value = "markup", defaultValue = "0") String markup)
-            throws ClientProtocolException, IOException {
-        LOG.info("Inside ReleaseNumberController");
-        Provider providerObj = null;
-        if (ImiDataFormatUtils.isNumber(providerName)) {
-            providerObj = providerService.getProviderById(Integer
-                    .parseInt(providerName));
-        } else {
-            providerObj = providerService
-                    .getProviderByName(providerName == null ? "" : providerName
-                            .toUpperCase());
-        }
-        releaseNumberService.releaseNumber(number, providerObj, countryIsoCode,
-                userid, clientId, groupid, teamid, clientname, clientkey);
-        return ImiJsonUtil.getJSONString(number, "released");
-    }
+	@RequestMapping(value = "/release/{number}/{countryIsoCode}", method = RequestMethod.DELETE)
+	public String releaseNumber(@PathVariable("number") String number,
+			@PathVariable("countryIsoCode") String countryIsoCode, @RequestHeader("provider") String providerName,
+			@RequestHeader(value = "userid", defaultValue = "0") Integer userid,
+			@RequestHeader(value = "clientid", defaultValue = "0") Integer clientId,
+			@RequestHeader(value = "groupid", defaultValue = "0") Integer groupid,
+			@RequestHeader(value = "teamid", defaultValue = "0") Integer teamid,
+			@RequestHeader(value = "clientname", defaultValue = "0") String clientname,
+			@RequestHeader(value = "clientkey", defaultValue = "0") String clientkey,
+			@RequestHeader(value = "markup", defaultValue = "0") String markup)
+					throws ClientProtocolException, IOException {
+		LOG.info("Inside ReleaseNumberController");
+		Provider providerObj = null;
+		if (ImiDataFormatUtils.isNumber(providerName)) {
+			providerObj = providerService.getProviderById(Integer.parseInt(providerName));
+		} else {
+			providerObj = providerService.getProviderByName(providerName == null ? "" : providerName.toUpperCase());
+		}
+		releaseNumberService.releaseNumber(number, providerObj, countryIsoCode, userid, clientId, groupid, teamid,
+				clientname, clientkey);
+		return ImiJsonUtil.getJSONString(number, "released");
+	}
 
 }

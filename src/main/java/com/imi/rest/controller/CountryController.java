@@ -17,27 +17,25 @@ import com.imi.rest.service.CountrySearchService;
 
 @RestController
 public class CountryController {
-    private static final Logger LOG = Logger.getLogger(CountryController.class);
+	private static final Logger LOG = Logger.getLogger(CountryController.class);
 
-    @Autowired
-    CountrySearchService countrySearchService;
+	@Autowired
+	CountrySearchService countrySearchService;
 
-    @RequestMapping(value = "/Countries", method = RequestMethod.GET)
-    public CountryResponse countryListResponse()
-            throws JsonParseException, JsonMappingException, IOException {
-        LOG.info("Inside CountryController");
-        CountryResponse countryResponse = new CountryResponse();
-        Set<Country> countrySet = countrySearchService.getCountryListFromDB();
-        countryResponse.addCountries(countrySet);
-        return countryResponse;
-    }
+	@RequestMapping(value = "/Countries", method = RequestMethod.GET)
+	public CountryResponse countryListResponse() throws JsonParseException, JsonMappingException, IOException {
+		LOG.info("Inside CountryController");
+		CountryResponse countryResponse = new CountryResponse();
+		Set<Country> countrySet = countrySearchService.getCountryListFromDB();
+		countryResponse.addCountries(countrySet);
+		return countryResponse;
+	}
 
-    @RequestMapping(value = "/CountryBatchUpdate", method = RequestMethod.POST)
-    public String countryBatchUpdate()
-            throws JsonParseException, JsonMappingException, IOException {
-        LOG.info("Inside CountryController");
-        countrySearchService.countryBatchImport();
-        return "success";
-    }
+	@RequestMapping(value = "/CountryBatchUpdate", method = RequestMethod.POST)
+	public String countryBatchUpdate() throws JsonParseException, JsonMappingException, IOException {
+		LOG.info("Inside CountryController");
+		countrySearchService.countryBatchImport();
+		return "success";
+	}
 
 }

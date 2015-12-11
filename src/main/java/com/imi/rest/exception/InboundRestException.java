@@ -4,9 +4,10 @@ import org.springframework.http.HttpStatus;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+
 @JsonInclude(Include.NON_NULL)
 public class InboundRestException extends RuntimeException {
-	
+
 	private static final long serialVersionUID = 1L;
 	private HttpStatus status;
 	private int code;
@@ -17,8 +18,8 @@ public class InboundRestException extends RuntimeException {
 		super();
 	}
 
-	public InboundRestException(String message, Throwable cause,
-			boolean enableSuppression, boolean writableStackTrace) {
+	public InboundRestException(String message, Throwable cause, boolean enableSuppression,
+			boolean writableStackTrace) {
 		super(message, cause, enableSuppression, writableStackTrace);
 	}
 
@@ -59,15 +60,15 @@ public class InboundRestException extends RuntimeException {
 	}
 
 	public String getDetailedMessage() {
-        return detailedMessage;
-    }
+		return detailedMessage;
+	}
 
-    public void setDetailedMessage(String detailedMessage) {
-        this.detailedMessage = detailedMessage;
-    }
+	public void setDetailedMessage(String detailedMessage) {
+		this.detailedMessage = detailedMessage;
+	}
 
-    public static InboundRestException createApiException(HttpStatus status, int code,
-			String message, String detailedMessage, Throwable rootCause) {
+	public static InboundRestException createApiException(HttpStatus status, int code, String message,
+			String detailedMessage, Throwable rootCause) {
 		InboundRestException exception = new InboundRestException(rootCause);
 		exception.setStatus(status);
 		exception.setCode(code);
@@ -75,8 +76,9 @@ public class InboundRestException extends RuntimeException {
 		exception.setDetailedMessage(detailedMessage);
 		return exception;
 	}
-	
-	public static InboundRestException createApiException(InboundApiErrorCodes errorcode, String additionalMessage, Throwable rootCause) {
+
+	public static InboundRestException createApiException(InboundApiErrorCodes errorcode, String additionalMessage,
+			Throwable rootCause) {
 		InboundRestException exception = new InboundRestException(rootCause);
 		exception.setStatus(errorcode.getHttpStatusCode());
 		exception.setCode(errorcode.getCode());
@@ -84,7 +86,7 @@ public class InboundRestException extends RuntimeException {
 		exception.setDetailedMessage(errorcode.getDetailedMessage());
 		return exception;
 	}
-	
+
 	public static InboundRestException createApiException(InboundApiErrorCodes errorcode, String additionalMessage) {
 		InboundRestException exception = new InboundRestException();
 		exception.setStatus(errorcode.getHttpStatusCode());

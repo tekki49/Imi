@@ -19,169 +19,168 @@ import javax.persistence.Table;
 @Table(name = "purchase", schema = "ump_resource_mgr")
 public class Purchase implements java.io.Serializable {
 
-    private Integer id;
-    private Providercountry numberProviderCountry;
-    private String number;
-    private String numberType;
-    private String restrictions;
-    private String monthlyRentalRate;
-    private String setUpRate;
-    private String smsRate;
-    private String voicePrice;
-    private String effectiveDate;
-    private Integer resouceManagerId;
-    // saving numbersid and subaccountsid will be better handling the twilio
-    // case
-    private String numbersid;
-    private String subaccountsid;
-    private String clientId;
+	private Integer id;
+	private Providercountry numberProviderCountry;
+	private String number;
+	private String numberType;
+	private String restrictions;
+	private String monthlyRentalRate;
+	private String setUpRate;
+	private String smsRate;
+	private String voicePrice;
+	private String effectiveDate;
+	private Integer resouceManagerId;
+	// saving numbersid and subaccountsid will be better handling the twilio
+	// case
+	private String numbersid;
+	private String subaccountsid;
+	private String clientId;
 
-    public Purchase() {
-    }
+	public Purchase() {
+	}
 
-    public Purchase(Providercountry numberProviderCountry, String number,
-            String numberType, String restrictions, String monthlyRentalRate,
-            String setUpRate, String smsRate, String voicePrice,
-            String effectiveDate, Integer resouceManagerId) {
-        this.numberProviderCountry = numberProviderCountry;
-        this.number = number;
-        this.numberType = numberType;
-        this.restrictions = restrictions;
-        this.monthlyRentalRate = monthlyRentalRate;
-        this.setUpRate = setUpRate;
-        this.smsRate = smsRate;
-        this.voicePrice = voicePrice;
-        this.effectiveDate = effectiveDate;
-        this.resouceManagerId = resouceManagerId;
-    }
+	public Purchase(Providercountry numberProviderCountry, String number, String numberType, String restrictions,
+			String monthlyRentalRate, String setUpRate, String smsRate, String voicePrice, String effectiveDate,
+			Integer resouceManagerId) {
+		this.numberProviderCountry = numberProviderCountry;
+		this.number = number;
+		this.numberType = numberType;
+		this.restrictions = restrictions;
+		this.monthlyRentalRate = monthlyRentalRate;
+		this.setUpRate = setUpRate;
+		this.smsRate = smsRate;
+		this.voicePrice = voicePrice;
+		this.effectiveDate = effectiveDate;
+		this.resouceManagerId = resouceManagerId;
+	}
 
-    @Id
-    @GeneratedValue(strategy = IDENTITY)
-    @Column(name = "id", unique = true, nullable = false)
-    public Integer getId() {
-        return this.id;
-    }
+	@Id
+	@GeneratedValue(strategy = IDENTITY)
+	@Column(name = "id", unique = true, nullable = false)
+	public Integer getId() {
+		return this.id;
+	}
 
-    public void setId(Integer id) {
-        this.id = id;
-    }
+	public void setId(Integer id) {
+		this.id = id;
+	}
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "CountryProviderId")
-    public Providercountry getNumberProviderCountry() {
-        return this.numberProviderCountry;
-    }
+	@ManyToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "CountryProviderId")
+	public Providercountry getNumberProviderCountry() {
+		return this.numberProviderCountry;
+	}
 
-    public void setNumberProviderCountry(Providercountry numberProviderCountry) {
-        this.numberProviderCountry = numberProviderCountry;
-    }
+	public void setNumberProviderCountry(Providercountry numberProviderCountry) {
+		this.numberProviderCountry = numberProviderCountry;
+	}
 
-    @Column(name = "number")
-    public String getNumber() {
-        return this.number;
-    }
+	@Column(name = "number")
+	public String getNumber() {
+		return this.number;
+	}
 
-    public void setNumber(String number) {
-        this.number = number;
-    }
+	public void setNumber(String number) {
+		this.number = number;
+	}
 
-    @Column(name = "number_type", length = 45)
-    public String getNumberType() {
-        return this.numberType;
-    }
+	@Column(name = "number_type", length = 45)
+	public String getNumberType() {
+		return this.numberType;
+	}
 
-    public void setNumberType(String numberType) {
-        this.numberType = numberType;
-    }
+	public void setNumberType(String numberType) {
+		this.numberType = numberType;
+	}
 
-    @Column(name = "restrictions", length = 45)
-    public String getRestrictions() {
-        return this.restrictions;
-    }
+	@Column(name = "restrictions", length = 45)
+	public String getRestrictions() {
+		return this.restrictions;
+	}
 
-    public void setRestrictions(String restrictions) {
-        this.restrictions = restrictions;
-    }
+	public void setRestrictions(String restrictions) {
+		this.restrictions = restrictions;
+	}
 
-    @Column(name = "monthly_rental_rate", length = 45)
-    public String getMonthlyRentalRate() {
-        return this.monthlyRentalRate;
-    }
+	@Column(name = "monthly_rental_rate", length = 45)
+	public String getMonthlyRentalRate() {
+		return this.monthlyRentalRate;
+	}
 
-    public void setMonthlyRentalRate(String monthlyRentalRate) {
-        this.monthlyRentalRate = monthlyRentalRate;
-    }
+	public void setMonthlyRentalRate(String monthlyRentalRate) {
+		this.monthlyRentalRate = monthlyRentalRate;
+	}
 
-    @Column(name = "set_up_rate", length = 45)
-    public String getSetUpRate() {
-        return this.setUpRate;
-    }
+	@Column(name = "set_up_rate", length = 45)
+	public String getSetUpRate() {
+		return this.setUpRate;
+	}
 
-    public void setSetUpRate(String setUpRate) {
-        this.setUpRate = setUpRate;
-    }
+	public void setSetUpRate(String setUpRate) {
+		this.setUpRate = setUpRate;
+	}
 
-    @Column(name = "sms_rate", length = 45)
-    public String getSmsRate() {
-        return this.smsRate;
-    }
+	@Column(name = "sms_rate", length = 45)
+	public String getSmsRate() {
+		return this.smsRate;
+	}
 
-    public void setSmsRate(String smsRate) {
-        this.smsRate = smsRate;
-    }
+	public void setSmsRate(String smsRate) {
+		this.smsRate = smsRate;
+	}
 
-    @Column(name = "voice_price", length = 45)
-    public String getVoicePrice() {
-        return this.voicePrice;
-    }
+	@Column(name = "voice_price", length = 45)
+	public String getVoicePrice() {
+		return this.voicePrice;
+	}
 
-    public void setVoicePrice(String voicePrice) {
-        this.voicePrice = voicePrice;
-    }
+	public void setVoicePrice(String voicePrice) {
+		this.voicePrice = voicePrice;
+	}
 
-    @Column(name = "effective_date", length = 45)
-    public String getEffectiveDate() {
-        return this.effectiveDate;
-    }
+	@Column(name = "effective_date", length = 45)
+	public String getEffectiveDate() {
+		return this.effectiveDate;
+	}
 
-    public void setEffectiveDate(String effectiveDate) {
-        this.effectiveDate = effectiveDate;
-    }
+	public void setEffectiveDate(String effectiveDate) {
+		this.effectiveDate = effectiveDate;
+	}
 
-    @Column(name = "resouce_manager_id")
-    public Integer getResouceManagerId() {
-        return this.resouceManagerId;
-    }
+	@Column(name = "resouce_manager_id")
+	public Integer getResouceManagerId() {
+		return this.resouceManagerId;
+	}
 
-    public void setResouceManagerId(Integer resouceManagerId) {
-        this.resouceManagerId = resouceManagerId;
-    }
+	public void setResouceManagerId(Integer resouceManagerId) {
+		this.resouceManagerId = resouceManagerId;
+	}
 
-    @Column(name = "number_sid", length = 25)
-    public String getNumbersid() {
-        return numbersid;
-    }
+	@Column(name = "number_sid", length = 25)
+	public String getNumbersid() {
+		return numbersid;
+	}
 
-    public void setNumbersid(String numbersid) {
-        this.numbersid = numbersid;
-    }
+	public void setNumbersid(String numbersid) {
+		this.numbersid = numbersid;
+	}
 
-    @Column(name = "subaccount_sid", length = 25)
-    public String getSubaccountsid() {
-        return subaccountsid;
-    }
+	@Column(name = "subaccount_sid", length = 25)
+	public String getSubaccountsid() {
+		return subaccountsid;
+	}
 
-    public void setSubaccountsid(String subaccountsid) {
-        this.subaccountsid = subaccountsid;
-    }
+	public void setSubaccountsid(String subaccountsid) {
+		this.subaccountsid = subaccountsid;
+	}
 
-    @Column(name = "client_id", length = 25)
-    public String getClientId() {
-        return clientId;
-    }
+	@Column(name = "client_id", length = 25)
+	public String getClientId() {
+		return clientId;
+	}
 
-    public void setClientId(String clientId) {
-        this.clientId = clientId;
-    }
+	public void setClientId(String clientId) {
+		this.clientId = clientId;
+	}
 
 }

@@ -10,10 +10,8 @@ import com.imi.rest.model.NumberResponse;
 
 public interface NumberSearch {
 
-    void searchPhoneNumbers(Provider provider,
-            ServiceConstants serviceTypeEnum, String countryIsoCode,
-            String numberType, String pattern, String index,
-            NumberResponse numberResponse, String markup)
-            throws ClientProtocolException, IOException;
+	void searchPhoneNumbers(Provider provider, ServiceConstants serviceTypeEnum, String countryIsoCode,
+			String numberType, String pattern, String index, NumberResponse numberResponse, String markup)
+					throws ClientProtocolException, IOException;
 
 }

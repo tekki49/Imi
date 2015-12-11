@@ -15,19 +15,17 @@ import com.imi.rest.model.SubAccountDetails;
 @Service
 public class SubAccountService {
 
-    @Autowired
-    TwilioFactoryImpl twilioFactoryImpl;
+	@Autowired
+	TwilioFactoryImpl twilioFactoryImpl;
 
-    public SubAccountDetails createNewSubAccount(String friendlyName,
-            Provider provider,Integer clientId) throws JsonParseException, JsonMappingException,
-            IOException {
-        return twilioFactoryImpl.createSubAccount(""+clientId, provider);
-    }
+	public SubAccountDetails createNewSubAccount(String friendlyName, Provider provider, Integer clientId)
+			throws JsonParseException, JsonMappingException, IOException {
+		return twilioFactoryImpl.createSubAccount("" + clientId, provider);
+	}
 
-    public SubAccountDetails getSubAccountDetailsByFriendlyName(
-            String friendlyName, Provider provider,Integer clientId) throws JsonParseException,
-            JsonMappingException, IOException {
-        return twilioFactoryImpl.getSubAccountDetails(""+clientId, provider);
-    }
+	public SubAccountDetails getSubAccountDetailsByFriendlyName(String friendlyName, Provider provider,
+			Integer clientId) throws JsonParseException, JsonMappingException, IOException {
+		return twilioFactoryImpl.getSubAccountDetails("" + clientId, provider);
+	}
 
 }

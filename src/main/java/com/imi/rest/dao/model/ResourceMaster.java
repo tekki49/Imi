@@ -20,256 +20,250 @@ import javax.persistence.UniqueConstraint;
  */
 @Entity
 @Table(name = "resource_master", schema = "ump_resource_mgr", uniqueConstraints = @UniqueConstraint(columnNames = {
-        "service_code", "channel" }))
+		"service_code", "channel" }) )
 public class ResourceMaster implements java.io.Serializable {
 
-    private Integer resourceId;
-    private String serviceCode;
-    private byte channel;
-    private byte status;
-    private byte resourceType;
-    private byte category;
-    private byte subCategory;
-    private Date createdOn;
-    private Date updatedOn;
-    private String createdBy;
-    private String XParams;
-    private Integer providerId;
-    private String countryCode;
-    private String smsInboundPrice;
-    private String voiceInboundPrice;
-    private String smsOutboundPrice;
-    private String voiceOutboundPrice;
-    private String monthlyRentalPrice;
-    private String countryIso;
-    private String numberType;
+	private Integer resourceId;
+	private String serviceCode;
+	private byte channel;
+	private byte status;
+	private byte resourceType;
+	private byte category;
+	private byte subCategory;
+	private Date createdOn;
+	private Date updatedOn;
+	private String createdBy;
+	private String XParams;
+	private Integer providerId;
+	private String countryCode;
+	private String smsInboundPrice;
+	private String voiceInboundPrice;
+	private String smsOutboundPrice;
+	private String voiceOutboundPrice;
+	private String monthlyRentalPrice;
+	private String countryIso;
+	private String numberType;
 
-    public ResourceMaster() {
-    }
+	public ResourceMaster() {
+	}
 
-    public ResourceMaster(String serviceCode, byte direction, byte channel,
-            byte bindDetails, byte status, byte resourceType, byte category,
-            byte subCategory) {
-        this.serviceCode = serviceCode;
-        this.channel = channel;
-        this.status = status;
-        this.resourceType = resourceType;
-        this.category = category;
-        this.subCategory = subCategory;
-    }
+	public ResourceMaster(String serviceCode, byte direction, byte channel, byte bindDetails, byte status,
+			byte resourceType, byte category, byte subCategory) {
+		this.serviceCode = serviceCode;
+		this.channel = channel;
+		this.status = status;
+		this.resourceType = resourceType;
+		this.category = category;
+		this.subCategory = subCategory;
+	}
 
-    public ResourceMaster(String serviceCode, byte channel, byte status,
-            byte resourceType, byte category, byte subCategory, Date createdOn,
-            Date updatedOn, String createdBy, String profile, String XParams,
-            String operators, String countrys, Integer providerId,
-            String countryCode, String smsInboundPrice,
-            String voiceInboundPrice, String smsOutboundPrice,
-            String voiceOutboundPrice, String monthlyRentalPrice,
-            String countryIso) {
-        this.serviceCode = serviceCode;
-        this.channel = channel;
-        this.status = status;
-        this.resourceType = resourceType;
-        this.category = category;
-        this.subCategory = subCategory;
-        this.createdOn = createdOn;
-        this.updatedOn = updatedOn;
-        this.createdBy = createdBy;
-        this.XParams = XParams;
-        this.providerId = providerId;
-        this.countryCode = countryCode;
-        this.smsInboundPrice = smsInboundPrice;
-        this.voiceInboundPrice = voiceInboundPrice;
-        this.smsOutboundPrice = smsOutboundPrice;
-        this.voiceOutboundPrice = voiceOutboundPrice;
-        this.monthlyRentalPrice = monthlyRentalPrice;
-        this.countryIso = countryIso;
-    }
+	public ResourceMaster(String serviceCode, byte channel, byte status, byte resourceType, byte category,
+			byte subCategory, Date createdOn, Date updatedOn, String createdBy, String profile, String XParams,
+			String operators, String countrys, Integer providerId, String countryCode, String smsInboundPrice,
+			String voiceInboundPrice, String smsOutboundPrice, String voiceOutboundPrice, String monthlyRentalPrice,
+			String countryIso) {
+		this.serviceCode = serviceCode;
+		this.channel = channel;
+		this.status = status;
+		this.resourceType = resourceType;
+		this.category = category;
+		this.subCategory = subCategory;
+		this.createdOn = createdOn;
+		this.updatedOn = updatedOn;
+		this.createdBy = createdBy;
+		this.XParams = XParams;
+		this.providerId = providerId;
+		this.countryCode = countryCode;
+		this.smsInboundPrice = smsInboundPrice;
+		this.voiceInboundPrice = voiceInboundPrice;
+		this.smsOutboundPrice = smsOutboundPrice;
+		this.voiceOutboundPrice = voiceOutboundPrice;
+		this.monthlyRentalPrice = monthlyRentalPrice;
+		this.countryIso = countryIso;
+	}
 
-    @Id
-    @GeneratedValue(strategy = IDENTITY)
-    @Column(name = "resource_id", unique = true, nullable = false)
-    public Integer getResourceId() {
-        return this.resourceId;
-    }
+	@Id
+	@GeneratedValue(strategy = IDENTITY)
+	@Column(name = "resource_id", unique = true, nullable = false)
+	public Integer getResourceId() {
+		return this.resourceId;
+	}
 
-    public void setResourceId(Integer resourceId) {
-        this.resourceId = resourceId;
-    }
+	public void setResourceId(Integer resourceId) {
+		this.resourceId = resourceId;
+	}
 
-    @Column(name = "service_code", nullable = false, length = 20)
-    public String getServiceCode() {
-        return this.serviceCode;
-    }
+	@Column(name = "service_code", nullable = false, length = 20)
+	public String getServiceCode() {
+		return this.serviceCode;
+	}
 
-    public void setServiceCode(String serviceCode) {
-        this.serviceCode = serviceCode;
-    }
+	public void setServiceCode(String serviceCode) {
+		this.serviceCode = serviceCode;
+	}
 
-    @Column(name = "channel", nullable = false)
-    public byte getChannel() {
-        return this.channel;
-    }
+	@Column(name = "channel", nullable = false)
+	public byte getChannel() {
+		return this.channel;
+	}
 
-    public void setChannel(byte channel) {
-        this.channel = channel;
-    }
+	public void setChannel(byte channel) {
+		this.channel = channel;
+	}
 
-    @Column(name = "status", nullable = false)
-    public byte getStatus() {
-        return this.status;
-    }
+	@Column(name = "status", nullable = false)
+	public byte getStatus() {
+		return this.status;
+	}
 
-    public void setStatus(byte status) {
-        this.status = status;
-    }
+	public void setStatus(byte status) {
+		this.status = status;
+	}
 
-    @Column(name = "resource_type", nullable = false)
-    public byte getResourceType() {
-        return this.resourceType;
-    }
+	@Column(name = "resource_type", nullable = false)
+	public byte getResourceType() {
+		return this.resourceType;
+	}
 
-    public void setResourceType(byte resourceType) {
-        this.resourceType = resourceType;
-    }
+	public void setResourceType(byte resourceType) {
+		this.resourceType = resourceType;
+	}
 
-    @Column(name = "category", nullable = false)
-    public byte getCategory() {
-        return this.category;
-    }
+	@Column(name = "category", nullable = false)
+	public byte getCategory() {
+		return this.category;
+	}
 
-    public void setCategory(byte category) {
-        this.category = category;
-    }
+	public void setCategory(byte category) {
+		this.category = category;
+	}
 
-    @Column(name = "sub_category", nullable = false)
-    public byte getSubCategory() {
-        return this.subCategory;
-    }
+	@Column(name = "sub_category", nullable = false)
+	public byte getSubCategory() {
+		return this.subCategory;
+	}
 
-    public void setSubCategory(byte subCategory) {
-        this.subCategory = subCategory;
-    }
+	public void setSubCategory(byte subCategory) {
+		this.subCategory = subCategory;
+	}
 
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "created_on", length = 19)
-    public Date getCreatedOn() {
-        return this.createdOn;
-    }
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "created_on", length = 19)
+	public Date getCreatedOn() {
+		return this.createdOn;
+	}
 
-    public void setCreatedOn(Date createdOn) {
-        this.createdOn = createdOn;
-    }
+	public void setCreatedOn(Date createdOn) {
+		this.createdOn = createdOn;
+	}
 
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "updated_on", length = 19)
-    public Date getUpdatedOn() {
-        return this.updatedOn;
-    }
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "updated_on", length = 19)
+	public Date getUpdatedOn() {
+		return this.updatedOn;
+	}
 
-    public void setUpdatedOn(Date updatedOn) {
-        this.updatedOn = updatedOn;
-    }
+	public void setUpdatedOn(Date updatedOn) {
+		this.updatedOn = updatedOn;
+	}
 
-    @Column(name = "created_by")
-    public String getCreatedBy() {
-        return this.createdBy;
-    }
+	@Column(name = "created_by")
+	public String getCreatedBy() {
+		return this.createdBy;
+	}
 
-    public void setCreatedBy(String createdBy) {
-        this.createdBy = createdBy;
-    }
+	public void setCreatedBy(String createdBy) {
+		this.createdBy = createdBy;
+	}
 
-    @Column(name = "x_params", length = 65535)
-    public String getXParams() {
-        return this.XParams;
-    }
+	@Column(name = "x_params", length = 65535)
+	public String getXParams() {
+		return this.XParams;
+	}
 
-    public void setXParams(String XParams) {
-        this.XParams = XParams;
-    }
+	public void setXParams(String XParams) {
+		this.XParams = XParams;
+	}
 
-    @Column(name = "provider_id")
-    public Integer getProviderId() {
-        return this.providerId;
-    }
+	@Column(name = "provider_id")
+	public Integer getProviderId() {
+		return this.providerId;
+	}
 
-    public void setProviderId(Integer providerId) {
-        this.providerId = providerId;
-    }
+	public void setProviderId(Integer providerId) {
+		this.providerId = providerId;
+	}
 
-    @Column(name = "country_code", length = 45)
-    public String getCountryCode() {
-        return this.countryCode;
-    }
+	@Column(name = "country_code", length = 45)
+	public String getCountryCode() {
+		return this.countryCode;
+	}
 
-    public void setCountryCode(String countryCode) {
-        this.countryCode = countryCode;
-    }
+	public void setCountryCode(String countryCode) {
+		this.countryCode = countryCode;
+	}
 
-    @Column(name = "sms_inbound_price", length = 45)
-    public String getSmsInboundPrice() {
-        return this.smsInboundPrice;
-    }
+	@Column(name = "sms_inbound_price", length = 45)
+	public String getSmsInboundPrice() {
+		return this.smsInboundPrice;
+	}
 
-    public void setSmsInboundPrice(String smsInboundPrice) {
-        this.smsInboundPrice = smsInboundPrice;
-    }
+	public void setSmsInboundPrice(String smsInboundPrice) {
+		this.smsInboundPrice = smsInboundPrice;
+	}
 
-    @Column(name = "voice_inbound_price", length = 45)
-    public String getVoiceInboundPrice() {
-        return this.voiceInboundPrice;
-    }
+	@Column(name = "voice_inbound_price", length = 45)
+	public String getVoiceInboundPrice() {
+		return this.voiceInboundPrice;
+	}
 
-    public void setVoiceInboundPrice(String voiceInboundPrice) {
-        this.voiceInboundPrice = voiceInboundPrice;
-    }
+	public void setVoiceInboundPrice(String voiceInboundPrice) {
+		this.voiceInboundPrice = voiceInboundPrice;
+	}
 
-    @Column(name = "sms_outbound_price", length = 45)
-    public String getSmsOutboundPrice() {
-        return this.smsOutboundPrice;
-    }
+	@Column(name = "sms_outbound_price", length = 45)
+	public String getSmsOutboundPrice() {
+		return this.smsOutboundPrice;
+	}
 
-    public void setSmsOutboundPrice(String smsOutboundPrice) {
-        this.smsOutboundPrice = smsOutboundPrice;
-    }
+	public void setSmsOutboundPrice(String smsOutboundPrice) {
+		this.smsOutboundPrice = smsOutboundPrice;
+	}
 
-    @Column(name = "voice_outbound_price", length = 45)
-    public String getVoiceOutboundPrice() {
-        return this.voiceOutboundPrice;
-    }
+	@Column(name = "voice_outbound_price", length = 45)
+	public String getVoiceOutboundPrice() {
+		return this.voiceOutboundPrice;
+	}
 
-    public void setVoiceOutboundPrice(String voiceOutboundPrice) {
-        this.voiceOutboundPrice = voiceOutboundPrice;
-    }
+	public void setVoiceOutboundPrice(String voiceOutboundPrice) {
+		this.voiceOutboundPrice = voiceOutboundPrice;
+	}
 
-    @Column(name = "monthly_rental_price", length = 45)
-    public String getMonthlyRentalPrice() {
-        return this.monthlyRentalPrice;
-    }
+	@Column(name = "monthly_rental_price", length = 45)
+	public String getMonthlyRentalPrice() {
+		return this.monthlyRentalPrice;
+	}
 
-    public void setMonthlyRentalPrice(String monthlyRentalPrice) {
-        this.monthlyRentalPrice = monthlyRentalPrice;
-    }
+	public void setMonthlyRentalPrice(String monthlyRentalPrice) {
+		this.monthlyRentalPrice = monthlyRentalPrice;
+	}
 
-    @Column(name = "country_iso", length = 5)
-    public String getCountryIso() {
-        return countryIso;
-    }
+	@Column(name = "country_iso", length = 5)
+	public String getCountryIso() {
+		return countryIso;
+	}
 
-    public void setCountryIso(String countryIso) {
-        this.countryIso = countryIso;
-    }
+	public void setCountryIso(String countryIso) {
+		this.countryIso = countryIso;
+	}
 
-    @Column(name = "number_type", length = 20)
-    public String getNumberType() {
-        return numberType;
-    }
+	@Column(name = "number_type", length = 20)
+	public String getNumberType() {
+		return numberType;
+	}
 
-    public void setNumberType(String numberType) {
-        this.numberType = numberType;
-    }
-    
-    
+	public void setNumberType(String numberType) {
+		this.numberType = numberType;
+	}
 
 }

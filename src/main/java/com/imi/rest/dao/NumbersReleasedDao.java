@@ -13,15 +13,15 @@ import com.imi.rest.dao.model.NumbersReleased;
 @Transactional
 public class NumbersReleasedDao {
 
-    @Autowired
-    private SessionFactory sessionFactory;
+	@Autowired
+	private SessionFactory sessionFactory;
 
-    protected Session getSession() {
-        return sessionFactory.getCurrentSession();
-    }
+	protected Session getSession() {
+		return sessionFactory.getCurrentSession();
+	}
 
-    public void createNewNumbersReleased(NumbersReleased numbersReleased) {
-        getSession().saveOrUpdate(numbersReleased);
-    }
+	public void createNewNumbersReleased(NumbersReleased numbersReleased) {
+		getSession().saveOrUpdate(numbersReleased);
+	}
 
 }
