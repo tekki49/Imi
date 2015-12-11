@@ -161,7 +161,7 @@ public class ResourceServiceTest {
 	@Test
 	public void updatePurchasehistory() {
 			purchaseHistoryDao=Mockito.mock(PurchaseHistoryDao.class);
-			purchasehistory = new Purchasehistory();
+			purchasehistory = new PurchaseHistory();
 			purchase=new Purchase();
 			country=new Country();
 			country.setCountry("United States");
