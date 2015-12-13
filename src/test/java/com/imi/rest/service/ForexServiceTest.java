@@ -1,26 +1,39 @@
 package com.imi.rest.service;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.*;
+
+import org.junit.Before;
 import org.junit.Test;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 
 import com.imi.rest.dao.ForexDao;
 import com.imi.rest.dao.model.ForexValues;
 
-import static org.junit.Assert.*;
 
 public class ForexServiceTest {
 
-	@Mock
+	@Mock 
+	ForexDao forexDao;
+	@InjectMocks
+	ForexService forexService;
+	
 	String name;
-
-	@Test
-	public void getForexValueByName() {
-		ForexDao forexDao = Mockito.mock(ForexDao.class);
-		ForexValues forexValues = new ForexValues();
+	ForexValues forexValues;
+	
+	@Before
+	public void setUp(){
+		forexValues=new ForexValues();
 		forexValues.setName("USD to GBP");
 		forexValues.setValue(Double.valueOf(12.00));
-		Mockito.doReturn(forexValues).when(forexDao).getForexValueByName(name);
-		assertEquals(Double.valueOf(12.00), forexValues.getValue());
+		MockitoAnnotations.initMocks(this);
+	}
+	
+	@Test
+	public void getForexValueByName() {
+		doReturn(forexValues).when(forexDao).getForexValueByName(name);
+		assertEquals(Double.valueOf(12.00),forexValues.getValue());
 	}
 }

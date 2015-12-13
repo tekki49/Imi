@@ -9,9 +9,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.junit.Before;
 import org.junit.Test;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -26,10 +29,6 @@ import com.imi.rest.model.CountryResponse;
 public class CountrySearchServiceTest {
 
 	@Mock
-	private Map<String, Map<String, String>> providerCapabilities;
-	@Mock
-	private Set<com.imi.rest.model.Country> countrySet;
-	@Mock
 	TwilioFactoryImpl twilioFactoryImpl;
 	@Mock
 	PlivoFactoryImpl plivoFactoryImpl;
@@ -39,20 +38,20 @@ public class CountrySearchServiceTest {
 	CountryDao countryDao;
 	@Mock
 	ProviderService providerService;
-	@Mock
+	@InjectMocks
+	CountrySearchService countrySearchService;
+
+	private Map<String, Map<String, String>> providerCapabilities;
+	private Set<com.imi.rest.model.Country> countrySet;
 	CountryResponse countryResponse;
-	@Mock
 	Country country;
 
-	@Test
-	public void countryBatchImport() throws JsonParseException, JsonMappingException, IOException {
+	@Before
+	public void setUp() {
 		providerCapabilities = new HashMap<String, Map<String, String>>();
 		countryDao = new CountryDao();
 		providerService = new ProviderService();
 		countryResponse = new CountryResponse();
-		twilioFactoryImpl = Mockito.mock(TwilioFactoryImpl.class);
-		plivoFactoryImpl = Mockito.mock(PlivoFactoryImpl.class);
-		nexmoFactoryImpl = Mockito.mock(NexmoFactoryImpl.class);
 		countryResponse.addCountries(countrySet);
 		providerCapabilities.put(com.imi.rest.constants.ProviderConstants.TWILIO, new HashMap<String, String>());
 		providerCapabilities.put(com.imi.rest.constants.ProviderConstants.NEXMO, new HashMap<String, String>());
@@ -63,6 +62,11 @@ public class CountrySearchServiceTest {
 		country.setCountryCode("01");
 		country.setIsoCountry("US");
 		countrySet.add(country);
+		MockitoAnnotations.initMocks(this);
+	}
+
+	@Test
+	public void countryBatchImport() throws JsonParseException, JsonMappingException, IOException {
 		doReturn(countrySet).when(twilioFactoryImpl).importCountries(providerCapabilities);
 		doReturn(countrySet).when(plivoFactoryImpl).importCountries(providerCapabilities);
 		doReturn(countrySet).when(nexmoFactoryImpl).importCountries(providerCapabilities);

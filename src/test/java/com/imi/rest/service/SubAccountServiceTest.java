@@ -17,6 +17,7 @@ import com.imi.rest.model.SubAccountDetails;
 
 public class SubAccountServiceTest {
 
+
 	@Mock
 	TwilioFactoryImpl twilioFactoryImpl;
 	@Mock
@@ -25,22 +26,21 @@ public class SubAccountServiceTest {
 	Provider provider;
 	@Mock
 	SubAccountDetails subAccountDetails;
-
+	
 	@Test
 	public void createNewSubAccount() throws JsonParseException, JsonMappingException, IOException {
-		twilioFactoryImpl = Mockito.mock(TwilioFactoryImpl.class);
-		subAccountDetails = new SubAccountDetails();
+		twilioFactoryImpl=Mockito.mock(TwilioFactoryImpl.class);
+		subAccountDetails=new SubAccountDetails();
 		subAccountDetails.setFriendly_name("FRIENDLY.NAME");
 		doReturn(subAccountDetails).when(twilioFactoryImpl).createSubAccount(friendlyName, provider);
-		assertEquals("FRIENDLY.NAME", subAccountDetails.getFriendly_name());
+		assertEquals("FRIENDLY.NAME",subAccountDetails.getFriendly_name());
 	}
-
 	@Test
 	public void getSubAccountDetailsByFriendlyName() throws JsonParseException, JsonMappingException, IOException {
-		twilioFactoryImpl = Mockito.mock(TwilioFactoryImpl.class);
-		subAccountDetails = new SubAccountDetails();
+		twilioFactoryImpl=Mockito.mock(TwilioFactoryImpl.class);
+		subAccountDetails=new SubAccountDetails();
 		subAccountDetails.setFriendly_name("FRIENDLY.NAME");
 		doReturn(subAccountDetails).when(twilioFactoryImpl).getSubAccountDetails(friendlyName, provider);
-		assertEquals("FRIENDLY.NAME", subAccountDetails.getFriendly_name());
+		assertEquals("FRIENDLY.NAME",subAccountDetails.getFriendly_name());
 	}
 }
