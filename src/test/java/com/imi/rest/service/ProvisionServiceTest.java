@@ -91,7 +91,7 @@ public class ProvisionServiceTest {
         when(countrySearchService.getCountryByIsoCode(countryIsoCode)).thenReturn(country);
 		when(twilioFactoryImpl.updateNumber(number,application, providerService.getTwilioProvider(), userid,
                 clientId, groupid, teamid, clientname, clientkey)).thenReturn(applicationResponse);
-		ApplicationResponse applicationResponseReturnValue=provisionService.provisionNumber(number,countryIsoCode,provider,userid,clientId,groupid,teamid,clientname,clientkey);
+		ApplicationResponse applicationResponseReturnValue=provisionService.provisionNumber(number,countryIsoCode,provider,userid,clientId,groupid,teamid,clientname,clientkey,application);
 		assertNotNull(applicationResponseReturnValue);
 		assertEquals("FRIENDLY.NAME", applicationResponse.getFriendlyName());
 	}
