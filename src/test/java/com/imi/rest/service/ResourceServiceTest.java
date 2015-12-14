@@ -201,6 +201,7 @@ public class ResourceServiceTest {
 		providerId = 1;
 		doReturn(resourceMaster).when(resourceMasterDao).getResourceByNumber(number, providerId);
 		assertEquals("1.00", resourceMaster.getVoiceInboundPrice());
+		assertEquals(providerId, resourceMaster.getProviderId());
 	}
 	@Test
 	public void provisionData() {
