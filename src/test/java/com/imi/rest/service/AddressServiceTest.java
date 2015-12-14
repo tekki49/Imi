@@ -1,6 +1,9 @@
 package com.imi.rest.service;
-
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
@@ -13,10 +16,13 @@ import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.exceptions.base.MockitoException;
 
 import com.imi.rest.core.impl.TwilioFactoryImpl;
 import com.imi.rest.dao.AddressDao;
 import com.imi.rest.dao.model.Provider;
+import com.imi.rest.dao.model.UserAddressMgmt;
+import com.imi.rest.exception.InboundRestException;
 import com.imi.rest.model.Address;
 import com.imi.rest.model.Customer;
 import com.imi.rest.model.SubAccountDetails;
@@ -38,16 +44,23 @@ public class AddressServiceTest {
 	String customerName;
 	String providerName;
 	Integer userId;
-	String client_id;
-	String address_id;
+	Integer clientId;
+	String addressId;
 	String country;
 	Address address;
 	Provider provider;
-	
+	@Mock
+	UserAddressMgmt userAddressMgmt;
+
 	@Before
-	public void setUp() {
+	public void setUp() throws ClientProtocolException, IOException {
 		customer = new Customer();
+		customer.setStreet("STREET");
+		customer.setCustomer("CUSTOMER");
 		customer.setCity("CITY");
+		customer.setCountry("Country");
+		customer.setState("State");
+		customer.setPostalcode("10000");
 		address=new Address();
 		address.setCity("CITY");
 		addressList=new ArrayList<Address>();
@@ -55,49 +68,143 @@ public class AddressServiceTest {
 		customerName = "CUSTOMER_NAME";
 		providerName = "TWILIO";
 		userId = 123;
-		address_id = "ADDRESS_ID";
+		clientId = 123;
+		addressId = "ADDRESS_ID";
 		country = "COUNTRY";
+		userAddressMgmt = new UserAddressMgmt();
 		customerAccountDetails = new SubAccountDetails();
 		customerAccountDetails.setFriendly_name("FRIENDLY_NAME");
 		provider=new Provider();
 		provider.setName(providerName);
+		providerService=mock(ProviderService.class);
+		twilioFactoryImpl=mock(TwilioFactoryImpl.class);
 		MockitoAnnotations.initMocks(this);
+
+		when(providerService.getProviderByName(providerName)).thenReturn(provider);
+		when(twilioFactoryImpl.getSubAccountDetails(""+clientId, provider)).thenReturn(customerAccountDetails);		
 	}
 
 	@Test
 	public void getAddressByCustomerNameWhenProviderIsTWILIO() throws ClientProtocolException, IOException {
-		when(providerService.getProviderByName(providerName)).thenReturn(provider);
-		when(twilioFactoryImpl.getSubAccountDetails("" + userId, provider)).thenReturn(customerAccountDetails);
 		when(twilioFactoryImpl.getAddressOfCustomer(customerName, provider, userId, customerAccountDetails))
-				.thenReturn(addressList);
+		.thenReturn(addressList);
+		//addressService.setProviderService(providerService);
 		List<Address> returnedAddressListValue = addressService.getAddressByCustomerName(customerName, providerName, userId);
 		assertNotNull(returnedAddressListValue );
-		assertEquals(returnedAddressListValue .size(), 1);
-		Address returnedAddressValue = returnedAddressListValue .get(0);
+		assertEquals(returnedAddressListValue.size(), 1);
+		Address returnedAddressValue = returnedAddressListValue.get(0);
 		assertEquals("CITY", returnedAddressValue.getCity());
 		assertEquals(null, returnedAddressValue.getCustomer_name());
 	}
 
 	@Test
 	public void getAddressByCustomerNameWhenProviderIsNotTWILIO() throws ClientProtocolException, IOException {
-		providerName="NOT_TWILIO";
-		provider.setName(providerName);
-		when(providerService.getProviderByName(providerName)).thenReturn(provider);
-		when(twilioFactoryImpl.getSubAccountDetails("" + userId, provider)).thenReturn(customerAccountDetails);
-		when(twilioFactoryImpl.getAddressOfCustomer(customerName, provider, userId, customerAccountDetails))
-				.thenReturn(addressList);
+		providerName = "NOT_TWILIO";
 		List<Address> returnedAddressListValue = addressService.getAddressByCustomerName(customerName, providerName, userId);
 		assertNull(returnedAddressListValue );
 	}
-
-	/*@Test
+	
+	@Test
 	public void updateClientAddressToProviderWhenProviderIsTWILIO() throws ClientProtocolException, IOException {
-		when(providerService.getProviderByName(providerName)).thenReturn(provider);
-		when(twilioFactoryImpl.createNewAddressOfCustomer(customer, provider,userId)).thenReturn(address);
-		assertNotNull(twilioFactoryImpl.createNewAddressOfCustomer(customer, provider));
-	}*/
+		when(twilioFactoryImpl.createNewAddressOfCustomer(customer, provider, clientId)).thenReturn(address);
+		MockitoException e = new MockitoException("exception thrown in updateClientAddressToProviderWhenProviderIsTWILIO");
+		try{
+			doThrow(e).when(twilioFactoryImpl).createNewAddressOfCustomer(customer, provider, clientId);
+			addressService.updateClientAddressToProvider(customer, providerName, clientId);
+		}
+		catch(MockitoException ex){
+			assertEquals("exception thrown in updateClientAddressToProviderWhenProviderIsTWILIO", ex.getMessage());
+		}
+		assertNotNull(address );
+		assertEquals("CITY", address.getCity());
+		assertEquals(null, address.getCustomer_name());
+	}
+
+	@Test
+	public void updateClientAddressToProviderWhenProviderIsNotTWILIO() throws  ClientProtocolException, IOException {
+		providerName = "NOT_TWILIO";
+		when(twilioFactoryImpl.createNewAddressOfCustomer(customer, provider, clientId)).thenReturn(address);
+		try{
+			addressService.updateClientAddressToProvider(customer, providerName, clientId);
+		}
+		catch(InboundRestException ex){
+			assertEquals("Provider NOT_TWILIOdoes not support updating address through api", ex.getDetailedMessage());
+		}
+		assertNotNull(address );
+		assertEquals("CITY", address.getCity());
+		assertEquals(null, address.getCustomer_name());
+	}
+	
+	@Test
+	public void updateAddressCustomerAddressIdNulluserAddressMgmtNull() {
+		MockitoException e = new MockitoException("exception thrown in updateAddressCustomerAddressIdNulluserAddressMgmtNull");
+		try{
+			doThrow(e).when(addressDao).createNewAddress(userAddressMgmt);
+			addressService.updateAddress(customer, userId);
+		}
+		catch(MockitoException ex){
+			assertEquals("exception thrown in updateAddressCustomerAddressIdNulluserAddressMgmtNull", ex.getMessage());
+		}
+		assertNull(customer.getAddress_id());
+	}
+	@Test
+	public void getAddressListTest() {
+		List<Customer> customerList = new ArrayList();
+		customerList.add(customer);
+		when(addressDao.getAddressList(userId, country)).thenReturn(customerList);
+		List<Customer> customers = addressService.getAddressList(userId, country);
+		assertNotNull(customers);
+		assertEquals(customers.size(), 1);
+		Customer customer = customers.get(0);
+		assertEquals("CUSTOMER", customer.getCustomer());
+		assertEquals("CITY", customer.getCity());
+		assertEquals("Country", customer.getCountry());
+	}
+	@Test
+	public void deleteAddressFromImiTest() {
+		UserAddressMgmt userAddressMgmt = new UserAddressMgmt();
+		userAddressMgmt.setCountry("United States");
+		addressId = "123";
+		Long id = Long.valueOf(addressId);
+		when(addressDao.getAddressById(id)).thenReturn(null);
+		MockitoException e = new MockitoException("exception thrown in deleteAddressFromImiTest");
+		try{
+			doThrow(e).when(addressDao).deleteAddress(null);
+			addressService.deleteAddressFromImi(userId, addressId);
+		}
+		catch(MockitoException ex){
+			assertEquals("exception thrown in deleteAddressFromImiTest", ex.getMessage());
+		}
+	}
+	
 
 	/*@Test
+	public void getAddressByCustomerNameWhenProviderIsNotTWILIO() throws ClientProtocolException, IOException {
+		Provider provider = new Provider();
+		Address address = new Address();
+		address.setCity("CITY");
+		provider.setName("NOT_TWILIO");
+		when(providerService.getProviderByName(providerName)).thenReturn(provider);
+		when(twilioFactoryImpl.getAddressOfCustomer(customerName, provider)).thenReturn(address);
+		if ("CITY".equalsIgnoreCase(twilioFactoryImpl.getAddressOfCustomer(customerName, provider).getCity())) {
+			assertEquals(true, true);
+		} else {
+			assertEquals(false, false);
+		}
+	}
+
+	@Test
+	public void updateClientAddressToProviderWhenProviderIsTWILIO() throws ClientProtocolException, IOException {
+		Provider provider = new Provider();
+		Address address = new Address();
+		address.setCity("CITY");
+		provider.setName("TWILIO");
+		when(providerService.getProviderByName(providerName)).thenReturn(provider);
+		when(twilioFactoryImpl.createNewAddressOfCustomer(customer, provider)).thenReturn(address);
+		assertNotNull(twilioFactoryImpl.createNewAddressOfCustomer(customer, provider));
+	}
+
+	@Test
 	public void updateClientAddressToProviderWhenProviderIsNotTWILIO()
 			throws , ClientProtocolException, IOException {
 		Provider provider = new Provider();
