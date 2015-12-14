@@ -147,10 +147,7 @@ public class ImiHttpUtil {
 		StringEntity params = new UrlEncodedFormEntity(nameValuePairs);
 		httppost.setEntity(params);
 		HttpResponse httpResponse = httpclient.execute(httppost);
-		EntityUtils.toString(httpResponse.getEntity());
-		httpResponse.getStatusLine().getStatusCode();
 		GenericRestResponse restResponse = new GenericRestResponse();
-
 		restResponse.setResponseBody(EntityUtils.toString(httpResponse.getEntity()));
 		restResponse.setResponseCode(httpResponse.getStatusLine().getStatusCode());
 		return restResponse;
