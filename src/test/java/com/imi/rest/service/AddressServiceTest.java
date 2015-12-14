@@ -100,6 +100,8 @@ public class AddressServiceTest {
 	@Test
 	public void getAddressByCustomerNameWhenProviderIsNotTWILIO() throws ClientProtocolException, IOException {
 		providerName = "NOT_TWILIO";
+		provider.setName(providerName);
+		when(providerService.getProviderByName(providerName)).thenReturn(provider);
 		List<Address> returnedAddressListValue = addressService.getAddressByCustomerName(customerName, providerName, userId);
 		assertNull(returnedAddressListValue );
 	}

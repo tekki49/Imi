@@ -6,6 +6,7 @@ import static org.mockito.Mockito.doReturn;
 
 import java.util.Date;
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -74,6 +75,8 @@ public class ResourceServiceTest {
 	@Mock
 	String number,numberType,restrictions;
 	@Mock
+	Integer providerId;
+	@Mock
 	ServiceConstants serviceTypeEnum;
 	@Mock
 	Date date,maxDate,createdDate,updateDate;
@@ -139,7 +142,7 @@ public class ResourceServiceTest {
 			country.setCountryIso("US");
 			providercountry = new Providercountry();
 			country.setCountry("United States");
-			providercountry.setCountry(country);
+			providercountry.setResourceCountry(country);
 			purchase.setNumberType(numberType);
 			int number = 123456789;
 			purchaseResponse=new PurchaseResponse();	
@@ -148,14 +151,14 @@ public class ResourceServiceTest {
 			purchaseResponse.setSmsRate("3.25");
 			purchaseResponse.setVoicePrice("4.56");
 			resourceMaster.setResourceId(1);
-			purchase.setNumber(number);
+			purchase.setNumber(""+number);
 			purchase.setResouceManagerId(resourceMaster.getResourceId());
 			purchase.setEffectiveDate(timeStamp);
 			purchase.setRestrictions(restrictions);
 			purchase.setSetUpRate(purchaseResponse.getSetUpRate());
 			purchase.setSmsRate(purchaseResponse.getSmsRate());
 			purchase.setVoicePrice(purchaseResponse.getVoicePrice());
-			purchase.setProvidercountry(providercountry);
+			purchase.setNumberProviderCountry(providercountry);
 			doNothing().when(purchaseDao).createNewPurchase(purchase);
 	}
 	@Test
@@ -166,10 +169,10 @@ public class ResourceServiceTest {
 			country=new Country();
 			country.setCountry("United States");
 			providercountry =new Providercountry();
-			providercountry.setCountry(country);
+			providercountry.setResourceCountry(country);
 			purchase.setMonthlyRentalRate("1.00");
-			purchase.setNumber(123456789);
-			purchase.setProvidercountry(providercountry);
+			purchase.setNumber(""+123456789);
+			purchase.setNumberProviderCountry(providercountry);
 			purchase.setResouceManagerId(1);
 			purchase.setRestrictions("restrictions");
 			purchase.setSetUpRate("2.00");
@@ -180,7 +183,7 @@ public class ResourceServiceTest {
 			purchasehistory.setMonthlyRentalRate(purchase.getMonthlyRentalRate());
 			purchasehistory.setNumber(purchase.getNumber());
 			purchasehistory.setNumberType(purchase.getNumberType());
-			purchasehistory.setProvidercountry(purchase.getProvidercountry());
+			purchasehistory.setNumberProviderCountry(purchase.getNumberProviderCountry());
 			purchasehistory.setResourceManagerId(purchase.getResouceManagerId());
 			purchasehistory.setRestrictions(purchase.getRestrictions());
 			purchasehistory.setSetUpRate(purchase.getSetUpRate());
@@ -195,7 +198,8 @@ public class ResourceServiceTest {
 		resourceMaster=new ResourceMaster();
 		resourceMaster.setVoiceInboundPrice("1.00");
 		number="123456789";
-		doReturn(resourceMaster).when(resourceMasterDao).getResourceByNumber(number);
+		providerId = 1;
+		doReturn(resourceMaster).when(resourceMasterDao).getResourceByNumber(number, providerId);
 		assertEquals("1.00", resourceMaster.getVoiceInboundPrice());
 	}
 	@Test

@@ -114,6 +114,8 @@ public class PurchaseNumberServiceTest {
 	@Test(expected=InboundRestException.class)
 	public void purchaseNumberWhenProviderNeither() throws ClientProtocolException, IOException {
 		providerName="NONE";
+		provider = new Provider();
+		provider.setName(providerName);
 		purchaseNumberService.purchaseNumber(number, numberType, provider, country, serviceTypeEnum, userid, clientId, groupid, teamid, clientname, clientkey, purchaseRequest, teamuuid);
 	}
 }

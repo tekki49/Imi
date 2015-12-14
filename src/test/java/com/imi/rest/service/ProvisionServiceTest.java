@@ -93,7 +93,7 @@ public class ProvisionServiceTest {
                 clientId, groupid, teamid, clientname, clientkey)).thenReturn(applicationResponse);
 		ApplicationResponse applicationResponseReturnValue=provisionService.provisionNumber(number,countryIsoCode,provider,userid,clientId,groupid,teamid,clientname,clientkey);
 		assertNotNull(applicationResponseReturnValue);
-		assertEquals("FRIENDLY.NAME", applicationResponse.getFriendlyName());
+		assertEquals("FRIENDLY.NAME", applicationResponseReturnValue.getFriendlyName());
 	}
 
 	/*@Test

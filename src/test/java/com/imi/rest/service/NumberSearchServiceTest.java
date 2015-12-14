@@ -40,7 +40,7 @@ public class NumberSearchServiceTest {
 	ServiceConstants serviceTypeEnum;
 	NumberResponse numberResponse;
 	Provider provider;
-	String countryIsoCode, numberType, pattern, nextPlivoIndex, nextNexmoIndex, twilioIndex;
+	String countryIsoCode, numberType, pattern, nextPlivoIndex, nextNexmoIndex, twilioIndex, markup;
 	
 	@Before
 	public void setUp(){
@@ -50,6 +50,7 @@ public class NumberSearchServiceTest {
 		nextPlivoIndex = "2";
 		nextNexmoIndex = "3";
 		pattern = "123";
+		markup = "GBP";
 		provider = new Provider();
 		provider.setId(1);
 		numberResponse = new NumberResponse();
@@ -65,7 +66,7 @@ public class NumberSearchServiceTest {
 		twilioIndex = "";
 			twilioIndex = "INDEXED";
 		doNothing().when(plivoFactoryImpl).searchPhoneNumbers(provider, serviceTypeEnum, countryIsoCode, numberType,
-				pattern, nextPlivoIndex, numberResponse);
+				pattern, nextPlivoIndex, numberResponse, markup);
 		assertEquals(1, numberResponse.getCount());
 	}
 	@Test
@@ -74,7 +75,7 @@ public class NumberSearchServiceTest {
 		twilioIndex = "";
 			twilioIndex = "";
 		doNothing().when(plivoFactoryImpl).searchPhoneNumbers(provider, serviceTypeEnum, countryIsoCode, numberType,
-				pattern, nextPlivoIndex, numberResponse);
+				pattern, nextPlivoIndex, numberResponse, markup);
 		assertEquals(1, numberResponse.getCount());
 	}
 	@Test
@@ -90,11 +91,11 @@ public class NumberSearchServiceTest {
 		nextPlivoIndex = "2";
 		nextNexmoIndex = "3";
 		doNothing().when(plivoFactoryImpl).searchPhoneNumbers(providerPlivo, serviceTypeEnum, countryIsoCode,
-				numberType, pattern, nextPlivoIndex, numberResponse);
+				numberType, pattern, nextPlivoIndex, numberResponse, markup);
 		doNothing().when(twilioFactoryImpl).searchPhoneNumbers(providerTwilio, serviceTypeEnum,
-				countryIsoCode, numberType, pattern, twilioIndex, numberResponse);
+				countryIsoCode, numberType, pattern, twilioIndex, numberResponse, markup);
 		doNothing().when(nexmoFactoryImpl).searchPhoneNumbers(providerNexmo, serviceTypeEnum,
-				countryIsoCode, numberType, pattern, nextNexmoIndex, numberResponse);
+				countryIsoCode, numberType, pattern, nextNexmoIndex, numberResponse, markup);
 		List<Number> objects =mock(List.class);
 		Number number=mock(Number.class);
 		Number number1=mock(Number.class);
@@ -141,11 +142,11 @@ public class NumberSearchServiceTest {
 		nextPlivoIndex = "2";
 		nextNexmoIndex = "3";
 		doNothing().when(plivoFactoryImpl).searchPhoneNumbers(providerPlivo, serviceTypeEnum, countryIsoCode,
-				numberType, pattern, nextPlivoIndex, numberResponse);
+				numberType, pattern, nextPlivoIndex, numberResponse, markup);
 		doNothing().when(twilioFactoryImpl).searchPhoneNumbers(providerTwilio, serviceTypeEnum,
-				countryIsoCode, numberType, pattern, twilioIndex, numberResponse);
+				countryIsoCode, numberType, pattern, twilioIndex, numberResponse, markup);
 		doNothing().when(nexmoFactoryImpl).searchPhoneNumbers(providerNexmo, serviceTypeEnum,
-				countryIsoCode, numberType, pattern, nextNexmoIndex, numberResponse);
+				countryIsoCode, numberType, pattern, nextNexmoIndex, numberResponse, markup);
 		List<Number> objects =mock(List.class);
 		Number number=mock(Number.class);
 		number.setMonthlyRentalRate("2.35");
@@ -195,11 +196,11 @@ public class NumberSearchServiceTest {
 		nextPlivoIndex = "2";
 		nextNexmoIndex = "3";
 		doNothing().when(plivoFactoryImpl).searchPhoneNumbers(providerPlivo, serviceTypeEnum, countryIsoCode,
-				numberType, pattern, nextPlivoIndex, numberResponse);
+				numberType, pattern, nextPlivoIndex, numberResponse, markup);
 		doNothing().when(twilioFactoryImpl).searchPhoneNumbers(providerTwilio, serviceTypeEnum,
-				countryIsoCode, numberType, pattern, twilioIndex, numberResponse);
+				countryIsoCode, numberType, pattern, twilioIndex, numberResponse, markup);
 		doNothing().when(nexmoFactoryImpl).searchPhoneNumbers(providerNexmo, serviceTypeEnum,
-				countryIsoCode, numberType, pattern, nextNexmoIndex, numberResponse);
+				countryIsoCode, numberType, pattern, nextNexmoIndex, numberResponse, markup);
 	}
 	@Test
 	public void searchPhoneNumbersParamsNullWithIndices() throws ClientProtocolException, IOException {
@@ -218,11 +219,11 @@ public class NumberSearchServiceTest {
 		nextPlivoIndex = "2";
 		nextNexmoIndex = "3";
 		doNothing().when(plivoFactoryImpl).searchPhoneNumbers(providerPlivo, serviceTypeEnum, countryIsoCode,
-				numberType, pattern, nextPlivoIndex, numberResponse);
+				numberType, pattern, nextPlivoIndex, numberResponse, markup);
 		doNothing().when(twilioFactoryImpl).searchPhoneNumbers(providerTwilio, serviceTypeEnum,
-				countryIsoCode, numberType, pattern, twilioIndex, numberResponse);
+				countryIsoCode, numberType, pattern, twilioIndex, numberResponse, markup);
 		doNothing().when(nexmoFactoryImpl).searchPhoneNumbers(providerNexmo, serviceTypeEnum,
-				countryIsoCode, numberType, pattern, nextNexmoIndex, numberResponse);
+				countryIsoCode, numberType, pattern, nextNexmoIndex, numberResponse, markup);
 	}
 	
 }
