@@ -1,6 +1,8 @@
 package com.imi.rest.service;
 
-import static org.mockito.Mockito.doThrow;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 import java.io.IOException;
 import java.util.HashSet;
@@ -11,7 +13,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import com.imi.rest.core.impl.NexmoFactoryImpl;
@@ -19,12 +20,14 @@ import com.imi.rest.core.impl.PlivoFactoryImpl;
 import com.imi.rest.core.impl.TwilioFactoryImpl;
 import com.imi.rest.dao.model.Provider;
 import com.imi.rest.dao.model.Providercountry;
+import com.imi.rest.exception.InboundApiErrorCodes;
+import com.imi.rest.exception.InboundRestException;
 
 public class ReleaseNumberServiceTest {
 	@Mock
 	TwilioFactoryImpl twilioFactoryImpl;
 	@Mock
-	PlivoFactoryImpl plivioFactoryImpl;
+	PlivoFactoryImpl plivoFactoryImpl;
 	@Mock
 	NexmoFactoryImpl nexmoFactoryImpl;
 	@InjectMocks
@@ -55,23 +58,37 @@ public class ReleaseNumberServiceTest {
 
 	@Test
 	public void releaseNumberWhenProviderTwilio() throws ClientProtocolException, IOException {
-		twilioFactoryImpl = Mockito.mock(TwilioFactoryImpl.class);
-		doThrow(new RuntimeException()).when(twilioFactoryImpl).releaseNumber(number, provider, countryIsoCode, userid,
+		provider.setName("TWILIO");
+		releaseNumberService.releaseNumber(number, provider, countryIsoCode, userid, clientId, groupid, teamid, clientname, clientkey);
+		verify(twilioFactoryImpl, times(1)).releaseNumber(number, provider, countryIsoCode, userid,
 				clientId, groupid, teamid, clientname, clientkey);
 	}
 
 	@Test
 	public void releaseNumberWhenProviderPlivo() throws ClientProtocolException, IOException {
-		plivioFactoryImpl = Mockito.mock(PlivoFactoryImpl.class);
-		doThrow(new RuntimeException()).when(plivioFactoryImpl).releaseNumber(number, provider, countryIsoCode, userid,
+		provider.setName("PLIVO");
+		releaseNumberService.releaseNumber(number, provider, countryIsoCode, userid, clientId, groupid, teamid, clientname, clientkey);
+		verify(plivoFactoryImpl, times(1)).releaseNumber(number, provider, countryIsoCode, userid,
 				clientId, groupid, teamid, clientname, clientkey);
 	}
 
 	@Test
 	public void releaseNumberWhenProviderNexmo() throws ClientProtocolException, IOException {
-		nexmoFactoryImpl = Mockito.mock(NexmoFactoryImpl.class);
-		doThrow(new RuntimeException()).when(nexmoFactoryImpl).releaseNumber(number, provider, countryIsoCode, userid,
+		provider.setName("NEXMO");
+		releaseNumberService.releaseNumber(number, provider, countryIsoCode, userid, clientId, groupid, teamid, clientname, clientkey);
+		verify(nexmoFactoryImpl, times(1)).releaseNumber(number, provider, countryIsoCode, userid,
 				clientId, groupid, teamid, clientname, clientkey);
+	}
+	@Test
+	public void releaseNumberWhenProviderInvalid() throws ClientProtocolException, IOException {
+		provider.setName("Invalid");
+		try{
+			releaseNumberService.releaseNumber(number, provider, countryIsoCode, userid, clientId, groupid, teamid, clientname, clientkey);
+		}
+		catch(InboundRestException e){
+			assertEquals("Provider " + provider.getName() + " is invalid", e.getDetailedMessage());
+			assertEquals(InboundApiErrorCodes.INVALID_PROVIDER_EXCEPTION.getCode(), e.getCode());
+		}
 	}
 
 }

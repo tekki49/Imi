@@ -30,7 +30,7 @@ public class PurchaseDetailsServiceTest {
 	}
 	
 	@Test
-	 public void getPurchaseByNumber(String number) {
+	 public void getPurchaseByNumber() {
         when(purchaseDao.getPurchaseByNumber(number)).thenReturn(purchase);
         Purchase purchaseReturnValue=purchaseDetailsService.getPurchaseByNumber(number);
         assertNotNull(purchaseReturnValue);

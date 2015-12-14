@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.http.client.ClientProtocolException;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
@@ -25,6 +26,7 @@ import com.imi.rest.dao.model.Provider;
 import com.imi.rest.dao.model.Providercountry;
 import com.imi.rest.dao.model.Purchase;
 import com.imi.rest.dao.model.PurchaseHistory;
+import com.imi.rest.exception.InboundApiErrorCodes;
 import com.imi.rest.exception.InboundRestException;
 import com.imi.rest.model.PurchaseRequest;
 import com.imi.rest.model.PurchaseResponse;
@@ -111,11 +113,16 @@ public class PurchaseNumberServiceTest {
 		assertEquals(number,purchaseResponseReturnValue.getNumber());
 	}
 	
-	@Test(expected=InboundRestException.class)
 	public void purchaseNumberWhenProviderNeither() throws ClientProtocolException, IOException {
 		providerName="NONE";
 		provider = new Provider();
 		provider.setName(providerName);
-		purchaseNumberService.purchaseNumber(number, numberType, provider, country, serviceTypeEnum, userid, clientId, groupid, teamid, clientname, clientkey, purchaseRequest, teamuuid);
+		try{
+			purchaseNumberService.purchaseNumber(number, numberType, provider, country, serviceTypeEnum, userid, clientId, groupid, teamid, clientname, clientkey, purchaseRequest, teamuuid);
+		}
+		catch(InboundRestException e){
+			assertEquals("Provider " + provider.getName() + " is invalid", e.getDetailedMessage());
+			assertEquals(InboundApiErrorCodes.INVALID_PROVIDER_EXCEPTION.getCode(), e.getCode());
+		}
 	}
 }

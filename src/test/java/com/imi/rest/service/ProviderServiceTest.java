@@ -27,9 +27,11 @@ public class ProviderServiceTest {
 
     @Before
     public void setUp(){
-    	provider=new Provider();
-		provider.setId(1);
+    	provider=new Provider();		
 		providerId=1;
+		providerName="TWILIO";
+		provider.setId(1);
+		provider.setName(providerName);
     	MockitoAnnotations.initMocks(this);
     }
     
@@ -42,9 +44,9 @@ public class ProviderServiceTest {
     }
     @Test
     public void getProviderByName() {
-    	providerName="TWILIO";
         doReturn(provider).when(dao).getProviderByName(providerName);
         Provider providerReturnValue=providerService.getProviderByName(providerName);
+        assertEquals("TWILIO",providerReturnValue.getName());
         assertEquals(Integer.valueOf(1),providerReturnValue.getId());
     }
     

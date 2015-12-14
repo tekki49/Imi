@@ -86,7 +86,7 @@ public class ProvisionService implements ProviderConstants {
 		if (providerName.equalsIgnoreCase(PLIVO)) {
 			applicationResponse = plivoFactoryImpl.updateApplication(application, providerService.getPlivioProvider());
 		} else {
-			String message = "Application cannot be created for Provider " + providerName;
+			String message = "Application cannot be updated for Provider " + providerName;
 			throw InboundRestException.createApiException(InboundApiErrorCodes.INVALID_PROVIDER_ACTION_EXCEPTION,
 					message);
 		}
@@ -112,7 +112,7 @@ public class ProvisionService implements ProviderConstants {
 		if (providerName.equalsIgnoreCase(PLIVO)) {
 			applicationResponse = plivoFactoryImpl.getApplication(app_id, providerService.getPlivioProvider());
 		} else {
-			String message = "Application cannot be created for Provider " + providerName;
+			String message = "Application is not available for Provider " + providerName;
 			throw InboundRestException.createApiException(InboundApiErrorCodes.INVALID_PROVIDER_ACTION_EXCEPTION,
 					message);
 		}

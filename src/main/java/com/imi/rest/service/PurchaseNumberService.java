@@ -23,7 +23,7 @@ import com.imi.rest.model.PurchaseResponse;
 public class PurchaseNumberService implements ProviderConstants, UrlConstants {
 
 	@Autowired
-	PlivoFactoryImpl plivioFactoryImpl;
+	PlivoFactoryImpl plivoFactoryImpl;
 
 	@Autowired
 	NexmoFactoryImpl nexmoFactoryImpl;
@@ -39,7 +39,7 @@ public class PurchaseNumberService implements ProviderConstants, UrlConstants {
 			return twilioFactoryImpl.purchaseNumber(number, numberType, provider, country, serviceTypeEnum, userid,
 					clientId, groupid, teamid, clientname, clientkey, purchaseRequest, teamuuid);
 		} else if (provider.getName().equalsIgnoreCase(PLIVO)) {
-			return plivioFactoryImpl.purchaseNumber(number, numberType, provider, country, serviceTypeEnum, userid,
+			return plivoFactoryImpl.purchaseNumber(number, numberType, provider, country, serviceTypeEnum, userid,
 					clientId, groupid, teamid, clientname, clientkey, purchaseRequest, teamuuid);
 		} else if (provider.getName().equalsIgnoreCase(NEXMO)) {
 			return nexmoFactoryImpl.purchaseNumber(number, numberType, provider, country, serviceTypeEnum, userid,

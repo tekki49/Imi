@@ -22,6 +22,7 @@ import com.imi.rest.core.impl.TwilioFactoryImpl;
 import com.imi.rest.dao.AddressDao;
 import com.imi.rest.dao.model.Provider;
 import com.imi.rest.dao.model.UserAddressMgmt;
+import com.imi.rest.exception.InboundApiErrorCodes;
 import com.imi.rest.exception.InboundRestException;
 import com.imi.rest.model.Address;
 import com.imi.rest.model.Customer;
@@ -131,6 +132,7 @@ public class AddressServiceTest {
 		}
 		catch(InboundRestException ex){
 			assertEquals("Provider NOT_TWILIOdoes not support updating address through api", ex.getDetailedMessage());
+			assertEquals(InboundApiErrorCodes.INVALID_PROVIDER_ACTION_EXCEPTION.getCode(), ex.getCode());
 		}
 		assertNotNull(address );
 		assertEquals("CITY", address.getCity());
