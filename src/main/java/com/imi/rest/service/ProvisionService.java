@@ -34,13 +34,12 @@ public class ProvisionService implements ProviderConstants {
 	VoiceRouteMasterDao voiceRouteMasterDao;
 
 	public ApplicationResponse provisionNumber(String number, String countryIsoCode, Provider provider, Integer userid,
-			Integer clientId, Integer groupid, Integer teamid, String clientname, String clientkey)
-					throws ClientProtocolException, IOException {
+			Integer clientId, Integer groupid, Integer teamid, String clientname, String clientkey,
+			ApplicationResponse application) throws ClientProtocolException, IOException {
 		Country country = countrySearchService.getCountryByIsoCode(countryIsoCode);
 		ApplicationResponse applicationResponse = new ApplicationResponse();
 		VoiceRouteMaster voiceRouteMaster = voiceRouteMasterDao.getResourceById(provider.getId(),
 				country.getCountryCode(), country.getCountryIso());
-		ApplicationResponse application = new ApplicationResponse();
 		if (provider.getName().equalsIgnoreCase(PLIVO)) {
 			application.setApp_id(voiceRouteMaster.getDvpCallbackUrl());
 			applicationResponse = plivoFactoryImpl.updateNumber(number, application,
