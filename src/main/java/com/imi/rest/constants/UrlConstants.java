@@ -33,11 +33,11 @@ public interface UrlConstants {
 	public static final String TWILIO_SIP_TRUNK_ORIGINATING_URL = "https://trunking.twilio.com/v1/Trunks/{trunk_sid}/OriginationUrls.json";
 
 	// Nexmo Constants
-	public static final String NEXMO_PHONE_SEARCH_URL = "https://rest.nexmo.com/number/search/{api_key}/{api_secret}/{country_iso}?pattern={pattern}&size=100&features={features}&&search_pattern=1&&index={index}";
+	public static final String NEXMO_PHONE_SEARCH_URL = "https://rest.nexmo.com/number/search/{api_key}/{api_secret}/{country_iso}?pattern={pattern}&size=100&features={features}&search_pattern=1&index={index}";
 	public static final String NEXMO_PURCHASE_URL = "https://rest.nexmo.com/number/buy?api_key={api_key}&api_secret={api_secret}&country={country}&msisdn={msisdn}";
 	public static final String NEXMO_RELEASE_URL = "https://rest.nexmo.com/number/cancel/{api_key}/{api_secret}/{country}/{msisdn}";
 	public static final String NEXMO_ACCOUNT_BALANCE_URL = "https://rest.nexmo.com/account/get-balance/{api_key}/{api_secret}";
 	public static final String NEXMO_NUMBER_UPDATE_URL = "https://rest.nexmo.com/number/update/{api_key}/{api_secret}/{country}/{msisdn}";
-	public static final String NEXMO_PURCHASED_NUMBER_URL = "https://rest.nexmo.com/account/numbers/{api_key}/{api_secret}";
+	public static final String NEXMO_PURCHASED_NUMBER_URL = "https://rest.nexmo.com/account/numbers/{api_key}/{api_secret}?pattern={pattern}";
 
 }

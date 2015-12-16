@@ -154,9 +154,10 @@ public class NexmoFactoryImpl
 
 	public Number getPurchaseNumberDetails(String number, Provider provider)
 			throws ClientProtocolException, IOException {
+		number=number.trim().replace("+", "");
 		String nexmoPurchasedNumberUrl = NEXMO_PURCHASED_NUMBER_URL;
 		nexmoPurchasedNumberUrl = nexmoPurchasedNumberUrl.replace("{api_key}", provider.getAuthId())
-				.replace("{api_secret}", provider.getApiKey());
+				.replace("{api_secret}", provider.getApiKey()).replace("{pattern}", number);
 		Number numberDetails = null;
 		GenericRestResponse restResponse = ImiHttpUtil.defaultHttpGetHandler(nexmoPurchasedNumberUrl);
 		if (restResponse.getResponseCode() == HttpStatus.OK.value()) {

@@ -75,15 +75,19 @@ public class NumberSearchAop implements UrlConstants, ProviderConstants, NumberT
 		twilioPhoneSearchUrl = twilioPhoneSearchUrl.replace("{auth_id}", provider.getAuthId())
 				.replace("{country_iso}", countryIsoCode).replace("{services}", servicesString)
 				.replace("{pattern}", "*" + pattern.trim() + "*").replace("{type}", type);
-		GenericRestResponse twilioNumberSearchResponse = null;
+		GenericRestResponse restResponse = null;
 		if (pattern.equalsIgnoreCase("")) {
 			twilioPhoneSearchUrl = twilioPhoneSearchUrl.replace("Contains=**&", "");
 		}
-		twilioNumberSearchResponse = ImiHttpUtil.defaultHttpGetHandler(twilioPhoneSearchUrl,
-				ImiBasicAuthUtil.getBasicAuthHash(provider));
-		if (twilioNumberSearchResponse.getResponseCode() == HttpStatus.OK.value()) {
-			NumberResponse numberResponseFromTwilo = ImiJsonUtil
-					.deserialize(twilioNumberSearchResponse.getResponseBody(), NumberResponse.class);
+		try {
+			restResponse = ImiHttpUtil.defaultHttpGetHandler(twilioPhoneSearchUrl,
+					ImiBasicAuthUtil.getBasicAuthHash(provider));
+		} catch (Exception e) {
+			LOG.error(ImiDataFormatUtils.getStackTrace(e));
+		}
+		if (restResponse != null && restResponse.getResponseCode() == HttpStatus.OK.value()) {
+			NumberResponse numberResponseFromTwilo = ImiJsonUtil.deserialize(restResponse.getResponseBody(),
+					NumberResponse.class);
 			List<Number> twilioNumberList = numberResponseFromTwilo == null ? new ArrayList<Number>()
 					: numberResponseFromTwilo.getObjects() == null ? new ArrayList<Number>()
 							: numberResponseFromTwilo.getObjects();
@@ -102,9 +106,16 @@ public class NumberSearchAop implements UrlConstants, ProviderConstants, NumberT
 					serviceTypeAop.setTwilioServiceType(twilioNumber);
 					twilioNumber.setProvider("" + provider.getId());
 					twilioNumber.setType(numberType);
-					String voiceRateInGBP = ImiDataFormatUtils.forexConvert(forexValue,
-							getHikedPrice(numberTypePricing.getInboundVoicePrice(), markup));
-					twilioNumber.setVoiceRate(voiceRateInGBP);
+					if (twilioNumber.isVoiceEnabled()) {
+						String voiceRateInGBP = ImiDataFormatUtils.forexConvert(forexValue,
+								getHikedPrice(numberTypePricing.getInboundVoicePrice(), markup));
+						twilioNumber.setVoiceRate(voiceRateInGBP);
+					}
+					if (twilioNumber.isSmsEnabled()) {
+						String smsRateInGBP = ImiDataFormatUtils.forexConvert(forexValue,
+								getHikedPrice(numberTypePricing.getInboundSmsPrice(), markup));
+						twilioNumber.setSmsRate(smsRateInGBP);
+					}
 					String monthlyRentalRateInGBP = ImiDataFormatUtils.forexConvert(forexValue,
 							getHikedPrice(numberTypePricing.getMonthlyRentalRate(), markup));
 					twilioNumber.setMonthlyRentalRate(monthlyRentalRateInGBP);
@@ -124,48 +135,38 @@ public class NumberSearchAop implements UrlConstants, ProviderConstants, NumberT
 		// if(numberSearchList.size()>THRESHOLD)return;
 		int iterativeApiCalls = 0;
 		String nexmoPhoneSearchUrl = NEXMO_PHONE_SEARCH_URL;
+		if (serviceTypeEnum.equals(ServiceConstants.ANY)) {
+			nexmoPhoneSearchUrl = nexmoPhoneSearchUrl.replace("&features={features}", "");
+		}
 		nexmoPhoneSearchUrl = nexmoPhoneSearchUrl.replace("{country_iso}", countryIsoCode)
 				.replace("{api_key}", provider.getAuthId()).replace("{api_secret}", provider.getApiKey())
 				.replace("{pattern}", pattern).replace("{features}", serviceTypeEnum.toString().toUpperCase());
-		GenericRestResponse restReponse = null;
+		GenericRestResponse restResponse = null;
 		boolean recursive = true;
 		String inboundPrice = "inboundRateInEuros";
 		String monthlyRate = "monthlyRateInEuros";
+		CountryPricing countryPricing = countryPricingMap.get(countryIsoCode);
 		while (recursive) {
 			String url = nexmoPhoneSearchUrl.replace("{index}", "" + index);
 			try {
-				restReponse = ImiHttpUtil.defaultHttpGetHandler(url);
+				restResponse = ImiHttpUtil.defaultHttpGetHandler(url);
 			} catch (Exception e) {
 				LOG.error(ImiDataFormatUtils.getStackTrace(e));
+				recursive = false;
 			}
-			if (restReponse != null && restReponse.getResponseCode() == HttpStatus.OK.value()) {
+			if (restResponse != null && restResponse.getResponseCode() == HttpStatus.OK.value()) {
 				NumberResponse nexmoNumberResponse = ImiJsonUtil.deserialize(
-						restReponse.getResponseBody() == null ? "" : restReponse.getResponseBody(),
+						restResponse.getResponseBody() == null ? "" : restResponse.getResponseBody(),
 						NumberResponse.class);
 				if (nexmoNumberResponse == null)
 					return;
 				List<Number> nexmoNumberList = nexmoNumberResponse == null ? new ArrayList<Number>()
 						: nexmoNumberResponse.getObjects() == null ? new ArrayList<Number>()
 								: nexmoNumberResponse.getObjects();
-				List<String> expectedFeatures = new ArrayList<String>();
-				if (serviceTypeEnum.equals(ServiceConstants.VOICE)) {
-					expectedFeatures.add(ServiceConstants.VOICE.toString().toUpperCase());
-				} else if (serviceTypeEnum.equals(ServiceConstants.SMS)) {
-					expectedFeatures.add(ServiceConstants.SMS.toString().toUpperCase());
-				} else if (serviceTypeEnum.equals(ServiceConstants.BOTH)) {
-					expectedFeatures.add(ServiceConstants.SMS.toString().toUpperCase());
-					expectedFeatures.add(ServiceConstants.VOICE.toString().toUpperCase());
-				}
 				for (Number nexmoNumber : nexmoNumberList) {
 					if (nexmoNumber != null) {
-						boolean isValidNumber = true;
-						if (nexmoNumber.getFeatures() == null) {
-							isValidNumber = false;
-						}
-						for (String feature : nexmoNumber.getFeatures()) {
-							if (!expectedFeatures.contains(feature))
-								isValidNumber = false;
-						}
+						serviceTypeAop.setNexmoServiceType(nexmoNumber);
+						boolean isValidNumber = isNumberWithExpectedFeatures(nexmoNumber, serviceTypeEnum);
 						if (numberType.equalsIgnoreCase(TOLLFREE)) {
 							String type = nexmoNumber.getNumberType();
 							if (type != null) {
@@ -176,31 +177,27 @@ public class NumberSearchAop implements UrlConstants, ProviderConstants, NumberT
 							}
 						}
 						if (isValidNumber) {
-							serviceTypeAop.setNexmoServiceType(nexmoNumber);
-							CountryPricing countryPricing = countryPricingMap
-									.get(nexmoNumber.getCountry().toUpperCase());
 							nexmoNumber.setType(numberType);
 							nexmoNumber.setPriceUnit("EUR");
-							if (numberType.equalsIgnoreCase(LANDLINE) || numberType.equalsIgnoreCase(TOLLFREE)) {
-								nexmoNumber.setVoiceRate(ImiDataFormatUtils.forexConvert(forexValue, getHikedPrice(
-										getNexmoPrice(countryPricing, numberType, inboundPrice), markup)));
-								getNexmoPrice(countryPricing, numberType, "inboundRateInEuros");
-							} else if (numberType.equalsIgnoreCase(MOBILE)) {
-								nexmoNumber.setSmsRate(ImiDataFormatUtils.forexConvert(forexValue, getHikedPrice(
-										getNexmoPrice(countryPricing, numberType, inboundPrice), markup)));
+							String type = "";
+							if (numberType.equalsIgnoreCase(LANDLINE) || numberType.equalsIgnoreCase(MOBILE)
+									|| numberType.equalsIgnoreCase(TOLLFREE)) {
+								type = numberType;
+							} else if (numberType.equalsIgnoreCase(MULTI)) {
+								type = LANDLINE;
 							}
-							if (numberType.equalsIgnoreCase(MULTI)) {
-								nexmoNumber.setVoiceRate(ImiDataFormatUtils.forexConvert(forexValue,
-										getHikedPrice(getNexmoPrice(countryPricing, LANDLINE, inboundPrice), markup)));
-								nexmoNumber.setMonthlyRentalRate(ImiDataFormatUtils.forexConvert(forexValue,
-										getHikedPrice(getNexmoPrice(countryPricing, LANDLINE, monthlyRate), markup)
-
-								));
-							} else {
-								nexmoNumber.setMonthlyRentalRate(ImiDataFormatUtils.forexConvert(forexValue,
-										getHikedPrice(getNexmoPrice(countryPricing, numberType, monthlyRate), markup)));
-								nexmoNumber.setCountry(countryPricing.getCountry());
+							if (nexmoNumber.isSmsEnabled() && type.equals(MOBILE)) {
+								String smsRate = ImiDataFormatUtils.forexConvert(forexValue,
+										getHikedPrice(getNexmoPrice(countryPricing, type, inboundPrice), markup));
+								nexmoNumber.setSmsRate(smsRate);
 							}
+							if (nexmoNumber.isVoiceEnabled()) {
+								String voiceRate = ImiDataFormatUtils.forexConvert(forexValue,
+										getHikedPrice(getNexmoPrice(countryPricing, type, inboundPrice), markup));
+								nexmoNumber.setVoiceRate(voiceRate);
+							}
+							nexmoNumber.setMonthlyRentalRate(ImiDataFormatUtils.forexConvert(forexValue,
+									getHikedPrice(getNexmoPrice(countryPricing, type, monthlyRate), markup)));
 							nexmoNumber.setProvider("" + provider.getId());
 							numberSearchList.add(nexmoNumber);
 						}
@@ -238,6 +235,9 @@ public class NumberSearchAop implements UrlConstants, ProviderConstants, NumberT
 			NumberResponse numberResponse, Double forexValue, String numberType, String markup)
 					throws ClientProtocolException, IOException {
 		String plivioPhoneSearchUrl = PLIVO_PHONE_SEARCH_URL;
+		if (serviceTypeEnum.equals(ServiceConstants.ANY)) {
+			plivioPhoneSearchUrl = plivioPhoneSearchUrl.replace("&services={services}", "");
+		}
 		plivioPhoneSearchUrl = plivioPhoneSearchUrl.replace("{auth_id}", provider.getAuthId())
 				.replace("{country_iso}", countryIsoCode).replace("{type}", numberTypePlivoApi)
 				.replace("{services}", serviceTypeEnum.toString()).replace("{pattern}", "*" + pattern + "*");
@@ -249,49 +249,41 @@ public class NumberSearchAop implements UrlConstants, ProviderConstants, NumberT
 				phoneSearchUrl = phoneSearchUrl + "&offset=" + offset;
 			}
 			GenericRestResponse restResponse = null;
-			restResponse = ImiHttpUtil.defaultHttpGetHandler(plivioPhoneSearchUrl,
-					ImiBasicAuthUtil.getBasicAuthHash(provider));
-			if (restResponse.getResponseCode() == HttpStatus.OK.value()) {
+			try {
+				restResponse = ImiHttpUtil.defaultHttpGetHandler(plivioPhoneSearchUrl,
+						ImiBasicAuthUtil.getBasicAuthHash(provider));
+			} catch (Exception e) {
+				LOG.error(ImiDataFormatUtils.getStackTrace(e));
+				recursive = false;
+			}
+
+			if (restResponse != null && restResponse.getResponseCode() == HttpStatus.OK.value()) {
 				NumberResponse numberResponseFromPlivo = ImiJsonUtil.deserialize(
 						restResponse.getResponseBody() == null ? "" : restResponse.getResponseBody(),
 						NumberResponse.class);
 				List<Number> plivioNumberList = numberResponseFromPlivo == null ? new ArrayList<Number>()
 						: numberResponseFromPlivo.getObjects() == null ? new ArrayList<Number>()
 								: numberResponseFromPlivo.getObjects();
-				List<String> expectedFeatures = new ArrayList<String>();
-				if (serviceTypeEnum.equals(ServiceConstants.VOICE)) {
-					expectedFeatures.add(ServiceConstants.VOICE.toString().toUpperCase());
-				} else if (serviceTypeEnum.equals(ServiceConstants.SMS)) {
-					expectedFeatures.add(ServiceConstants.SMS.toString().toUpperCase());
-				} else if (serviceTypeEnum.equals(ServiceConstants.BOTH)) {
-					expectedFeatures.add(ServiceConstants.SMS.toString().toUpperCase());
-					expectedFeatures.add(ServiceConstants.VOICE.toString().toUpperCase());
-				}
 				for (Number plivioNumber : plivioNumberList) {
 					if (plivioNumber != null) {
-						boolean isValidNumber = true;
-						List<String> numberFeatures = new ArrayList<String>();
-						if (plivioNumber.isSmsEnabled()) {
-							numberFeatures.add(ServiceConstants.SMS.toString().toUpperCase());
-						}
-						if (plivioNumber.isVoiceEnabled()) {
-							if (plivioNumber.isSmsEnabled()) {
-								numberFeatures.add(ServiceConstants.VOICE.toString().toUpperCase());
-							}
-						}
-						for (String feature : numberFeatures) {
-							if (!expectedFeatures.contains(feature))
-								isValidNumber = false;
-						}
-						if (isValidNumber) {
+						if (isNumberWithExpectedFeatures(plivioNumber, serviceTypeEnum)) {
 							plivioNumber.setProvider("" + provider.getId());
 							serviceTypeAop.setPlivoServiceType(plivioNumber);
 							String monthlyRentalRateInGBP = ImiDataFormatUtils.forexConvert(forexValue,
 									getHikedPrice(plivioNumber.getMonthlyRentalRate(), markup));
 							plivioNumber.setMonthlyRentalRate(monthlyRentalRateInGBP);
-							String voiceRateInGBP = ImiDataFormatUtils.forexConvert(forexValue,
-									getHikedPrice(plivioNumber.getVoiceRate(), markup));
-							plivioNumber.setVoiceRate(voiceRateInGBP);
+
+							if (plivioNumber.isVoiceEnabled()) {
+								String voiceRateInGBP = ImiDataFormatUtils.forexConvert(forexValue,
+										getHikedPrice(plivioNumber.getVoiceRate(), markup));
+								plivioNumber.setVoiceRate(voiceRateInGBP);
+							}
+							if (plivioNumber.isSmsEnabled()) {
+								String smsRateInGBP = ImiDataFormatUtils.forexConvert(forexValue,
+										getHikedPrice(plivioNumber.getSmsRate(), markup));
+								plivioNumber.setSmsRate(smsRateInGBP);
+							}
+
 							plivioNumber.setType(numberType);
 							numberSearchList.add(plivioNumber);
 						}
@@ -332,5 +324,38 @@ public class NumberSearchAop implements UrlConstants, ProviderConstants, NumberT
 
 	private String getNexmoPrice(CountryPricing countryPricing, String numberType, String priceType) {
 		return countryPricing.getPricing().get(numberType).get(priceType);
+	}
+
+	private boolean isNumberWithExpectedFeatures(Number number, ServiceConstants serviceTypeEnum) {
+		boolean isValid = false;
+		if (serviceTypeEnum.equals(ServiceConstants.ANY)) {
+			isValid = true;
+		} else {
+			List<String> expectedFeatures = new ArrayList<String>();
+			if (serviceTypeEnum.equals(ServiceConstants.VOICE)) {
+				expectedFeatures.add(ServiceConstants.VOICE.toString().toUpperCase());
+			} else if (serviceTypeEnum.equals(ServiceConstants.SMS)) {
+				expectedFeatures.add(ServiceConstants.SMS.toString().toUpperCase());
+			} else if (serviceTypeEnum.equals(ServiceConstants.BOTH)) {
+				expectedFeatures.add(ServiceConstants.SMS.toString().toUpperCase());
+				expectedFeatures.add(ServiceConstants.VOICE.toString().toUpperCase());
+			}
+			List<String> numberFeatures = new ArrayList<String>();
+			if (number.isSmsEnabled()) {
+				numberFeatures.add(ServiceConstants.SMS.toString().toUpperCase());
+			}
+			if (number.isVoiceEnabled()) {
+				numberFeatures.add(ServiceConstants.VOICE.toString().toUpperCase());
+			}
+			if (expectedFeatures.size() == numberFeatures.size()) {
+				isValid = true;
+				for (String numberFeature : numberFeatures) {
+					if (!expectedFeatures.contains(numberFeature)) {
+						isValid = false;
+					}
+				}
+			}
+		}
+		return isValid;
 	}
 }

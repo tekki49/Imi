@@ -37,7 +37,7 @@ public class ServiceTypeAop {
 		} else if (features.contains(ServiceConstants.SMS.name())) {
 			number.setServiceType(ServiceConstants.SMS.name());
 			number.setSmsEnabled(true);
-		} else {
+		} else if(features.contains(ServiceConstants.VOICE.name())) {
 			number.setServiceType(ServiceConstants.VOICE.name());
 			number.setVoiceEnabled(true);
 		}

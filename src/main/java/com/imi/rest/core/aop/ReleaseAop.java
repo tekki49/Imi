@@ -34,6 +34,7 @@ public class ReleaseAop implements UrlConstants {
 	public void releaseTwilioNumber(String number, Provider provider, String countryIsoCode,
 			ApplicationResponse incomingPhoneNumber, SubAccountDetails subAccountDetails, String clientkey)
 					throws IOException {
+		number = number.trim().replace("+", "");
 		if (incomingPhoneNumber == null || subAccountDetails == null) {
 			LOG.error("Number requested " + number + " does not belong to your " + provider.getName() + "Account");
 			throw InboundRestException.createApiException(InboundApiErrorCodes.NUMBER_USER_ASSOCIATION_EXCEPTION,
@@ -73,7 +74,7 @@ public class ReleaseAop implements UrlConstants {
 				new HashMap<String, String>(), ImiBasicAuthUtil.getBasicAuthHash(provider),
 				ContentType.APPLICATION_FORM_URLENCODED.getMimeType());
 		if (restResponse.getResponseCode() == HttpStatus.OK.value()) {
-			ResourceMaster resourceMaster = resourceService.getResourceMasterByNumberAndProvider(number, provider);
+			ResourceMaster resourceMaster = resourceService.getResourceMasterByNumberAndProvider(nexmoNumber, provider);
 			resourceService.deleteChannelAssetsAllocation(resourceMaster);
 			resourceService.deleteResourceAllocation(resourceMaster);
 			resourceService.updateNewNumbersReleased(resourceMaster, clientkey);
@@ -114,13 +115,13 @@ public class ReleaseAop implements UrlConstants {
 		GenericRestResponse restResponse = ImiHttpUtil.defaultHttpDeleteHandler(plivioReleaseurl,
 				new HashMap<String, String>(), ImiBasicAuthUtil.getBasicAuthHash(provider), null);
 		if (restResponse.getResponseCode() != HttpStatus.NO_CONTENT.value()) {
-			LOG.error("Invalid details while releasing the number " + number + " for " + provider.getName()
+			LOG.error("Invalid details while releasing the number " + plivoNumber + " for " + provider.getName()
 					+ " response from service provider is " + restResponse.getResponseBody() + " response code is "
 					+ restResponse.getResponseCode());
 			throw InboundRestException.createApiException(InboundApiErrorCodes.UNKNOWN_PROVIDER_RESPONSE_EXCEPTION,
 					"Response from Plivo" + restResponse.getResponseBody());
 		} else {
-			ResourceMaster resourceMaster = resourceService.getResourceMasterByNumberAndProvider(number, provider);
+			ResourceMaster resourceMaster = resourceService.getResourceMasterByNumberAndProvider(plivoNumber, provider);
 			resourceService.deleteChannelAssetsAllocation(resourceMaster);
 			resourceService.deleteResourceAllocation(resourceMaster);
 			resourceService.updateNewNumbersReleased(resourceMaster, clientkey);

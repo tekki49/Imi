@@ -2,7 +2,7 @@ package com.imi.rest.constants;
 
 public enum ServiceConstants {
 
-	VOICE("voice"), BOTH("voice,sms"), SMS("sms");
+	VOICE("voice"), BOTH("voice,sms"), SMS("sms"),ANY("any");
 
 	private final String serviceType;
 
@@ -20,6 +20,9 @@ public enum ServiceConstants {
 		}
 		if (value.equalsIgnoreCase(SMS.name())) {
 			serviceType = SMS;
+		}
+		if (value.equalsIgnoreCase(ANY.name())) {
+			serviceType = ANY;
 		}
 		return serviceType;
 	}

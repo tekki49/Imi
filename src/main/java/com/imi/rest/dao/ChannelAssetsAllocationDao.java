@@ -31,6 +31,7 @@ public class ChannelAssetsAllocationDao {
 	public ChannelAssetsAllocation getChannelAssetsAllocationById(int id) {
 		Criteria criteria = getSession().createCriteria(ChannelAssetsAllocation.class);
 		criteria.add(Restrictions.eq("id", id));
+		criteria.add(Restrictions.eq("assetType", 2));
 		List<ChannelAssetsAllocation> resourceList = criteria.list();
 		if (resourceList != null && resourceList.size() > 0) {
 			return resourceList.get(0);
@@ -41,6 +42,7 @@ public class ChannelAssetsAllocationDao {
 	public ChannelAssetsAllocation getChannelAssetsAllocationByAssetId(long assetId) {
 		Criteria criteria = getSession().createCriteria(ChannelAssetsAllocation.class);
 		criteria.add(Restrictions.eq("assetId", assetId));
+		criteria.add(Restrictions.eq("assetType", 2));
 		List<ChannelAssetsAllocation> resourceList = criteria.list();
 		if (resourceList != null && resourceList.size() > 0) {
 			return resourceList.get(0);

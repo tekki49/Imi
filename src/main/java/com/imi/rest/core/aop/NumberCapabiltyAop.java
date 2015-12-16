@@ -8,13 +8,16 @@ public class NumberCapabiltyAop {
 		String servicesString = null;
 		switch (serviceTypeEnum) {
 		case SMS:
-			servicesString = "SmsEnabled=true";
+			servicesString = "SmsEnabled=true&VoiceEnabled=false";
 			break;
 		case VOICE:
-			servicesString = "VoiceEnabled=true";
+			servicesString = "VoiceEnabled=true&SmsEnabled=false";
 			break;
 		case BOTH:
 			servicesString = "SmsEnabled=true&VoiceEnabled=true";
+			break;
+		case ANY:
+			servicesString="";
 			break;
 		default:
 			break;
